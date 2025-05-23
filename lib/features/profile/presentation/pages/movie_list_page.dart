@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+/*import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../movies/presentation/pages/movie_detail_page.dart';
@@ -75,4 +75,4 @@ class MovieListPage extends StatelessWidget {
       return '';
     }
   }
-}
+}*/

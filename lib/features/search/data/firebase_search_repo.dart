@@ -1,4 +1,4 @@
-
+/*
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -63,4 +63,4 @@ class FirebaseSearchRepo implements SearchRepo {
       throw Exception('Failed to load movies by genre');
     }
   }
-}
+}*/

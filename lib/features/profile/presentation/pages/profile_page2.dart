@@ -1,4 +1,4 @@
-import 'dart:async';
+/*import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,8 +21,8 @@ import 'package:Cinemate/features/post/presentation/cubits/post_states.dart';
 import 'package:Cinemate/features/premium/pages/premiums_page.dart';
 import 'package:Cinemate/features/premium/pages/subscriptions_page.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
-import 'package:Cinemate/features/profile/presentation/components/animated_movie_cards.dart';
-import 'package:Cinemate/features/profile/presentation/components/bio_box.dart';
+import 'package:Cinemate/features/profile/presentation/components/animated_movie_cards.dart';*/
+/*import 'package:Cinemate/features/profile/presentation/components/bio_box.dart';
 import 'package:Cinemate/features/profile/presentation/components/follow_button.dart';
 import 'package:Cinemate/features/profile/presentation/components/message_button.dart';
 import 'package:Cinemate/features/profile/presentation/components/movie_stats.dart';
@@ -1287,4 +1287,4 @@ class _ProfilePage2State extends State<ProfilePage2>
       },
     );
   }
-}
+}*/

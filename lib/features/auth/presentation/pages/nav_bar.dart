@@ -29,10 +29,14 @@ class _NavBarState extends State<NavBar> {
     bucket = PageStorageBucket();
     screens = [
       StartPage(),
-      HomePage(),
-      SearchPage(),
-      ChatsListPage(),
-      ProfilePage2(uid: currentUser!.uid),
+      StartPage(),
+      StartPage(),
+      StartPage(),StartPage(),
+
+      //HomePage(),
+      //SearchPage(),
+      //ChatsListPage(),
+      //ProfilePage2(uid: currentUser!.uid),
     ];
   }
 

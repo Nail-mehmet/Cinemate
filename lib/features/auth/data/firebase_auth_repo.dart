@@ -1,103 +1,84 @@
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
 import 'package:Cinemate/features/auth/domain/repos/auth_repo.dart';
 
-class FirebaseAuthRepo implements AuthRepo{
-
- final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
- final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+class SupabaseAuthRepo implements AuthRepo {
+  final supabase = Supabase.instance.client;
 
   @override
-  Future<AppUser?> loginWithEmailPassword(String email,String password)async{
-    try{
-      UserCredential userCredential = await firebaseAuth
-      .signInWithEmailAndPassword(email: email, password: password);
-
-      // fetch user document from firestore 
-    DocumentSnapshot userDoc = await firebaseFirestore
-      .collection("users")
-      .doc(userCredential.user!.uid)
-      .get();
-
-    // create user
-    AppUser user = AppUser(
-      uid: userCredential.user!.uid,
-      email: email,
-      name: userDoc["name"]
-      
+  Future<AppUser?> loginWithEmailPassword(String email, String password) async {
+    try {
+      final response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
       );
 
+      final user = response.user;
+      if (user == null) return null;
 
-      return user;
+      final userData = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', user.id)
+          .single();
 
+      return AppUser(
+        uid: user.id,
+        email: user.email!,
+        name: userData['name'],
+      );
+    } catch (e) {
+      throw Exception("Hatalı Giriş: $e");
     }
-    catch(e){
-      throw Exception("Hatalı Giriş");
-    }
-    
   }
 
   @override
-  Future<AppUser?> registerWithEmailPassword(String name, email,String password)async{
-    try{
-      UserCredential userCredential = await firebaseAuth
-      .createUserWithEmailAndPassword(email: email, password: password);
-
-    
-
-    // create user
-    AppUser user = AppUser(
-      uid: userCredential.user!.uid,
-      name: name,
-      email: email
+  Future<AppUser?> registerWithEmailPassword(String name, String email, String password) async {
+    try {
+      final response = await supabase.auth.signUp(
+        email: email,
+        password: password,
       );
 
-      await firebaseFirestore.collection("users").doc(user.uid).set(user.toJson());
+      final user = response.user;
+      if (user == null) return null;
 
+      await supabase.from('profiles').insert({
+        'id': user.id,
+        'email': email,
+        'name': name,
+      });
 
-      return user;
-
+      return AppUser(
+        uid: user.id,
+        name: name,
+        email: email,
+      );
+    } catch (e) {
+      throw Exception("Kayıt Hatası: $e");
     }
-    catch(e){
-      throw Exception("Hatalı Giriş");
-    }
-    
   }
 
   @override
-  Future<void> logout() async{
-    await firebaseAuth.signOut();
+  Future<void> logout() async {
+    await supabase.auth.signOut();
   }
 
   @override
-  Future<AppUser?> getCurrentUser()async{
+  Future<AppUser?> getCurrentUser() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return null;
 
-    final firebaseUser = firebaseAuth.currentUser;
+    final userData = await supabase
+        .from('profiles')
+        .select()
+        .eq('id', user.id)
+        .single();
 
-    // no user logge  in
-    if(firebaseUser == null){
-      return null;
-    }
-
-    // fetch user document from firestore 
-    DocumentSnapshot userDoc = await firebaseFirestore.collection("users").doc(firebaseUser.uid).get();
-
-    // check if user doc exist
-    if(!userDoc.exists){
-      return null;
-    }
-
-    // user exists
     return AppUser(
-      uid: firebaseUser.uid,
-      email: firebaseUser.email!,
-      name: userDoc["name"],
-      
-      );
-
+      uid: user.id,
+      email: user.email!,
+      name: userData['name'],
+    );
   }
-
-
 }

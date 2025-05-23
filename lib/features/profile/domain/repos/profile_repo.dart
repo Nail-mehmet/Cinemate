@@ -1,4 +1,4 @@
-
+/*
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 
 abstract class ProfileRepo {
@@ -7,4 +7,4 @@ abstract class ProfileRepo {
   Future<void> toggleFollow(String currentUid, String targetUid);
 
  // isFollowing(String currentUserId, String targetUserId) {}
-}
+}*/

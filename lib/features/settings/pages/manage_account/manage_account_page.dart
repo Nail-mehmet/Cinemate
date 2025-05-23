@@ -1,4 +1,4 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+/*import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Cinemate/config/firebase_api.dart';
@@ -59,3 +59,4 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
     );
   }
 }
+*/

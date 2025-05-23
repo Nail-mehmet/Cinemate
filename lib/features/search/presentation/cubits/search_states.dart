@@ -1,4 +1,4 @@
-
+/*
 import '../../../movies/domain/entities/movie.dart';
 import '../../../profile/domain/entities/profile_user.dart';
 
@@ -19,4 +19,4 @@ class SearchError extends SearchState {
   final String message;
 
   SearchError(this.message);
-}
+}*/

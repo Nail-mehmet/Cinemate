@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+/*import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Comment {
   final String id;
@@ -72,3 +72,4 @@ class Comment {
     );
   }
 }
+*/

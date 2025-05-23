@@ -1,3 +1,5 @@
+import 'package:Cinemate/features/premium/pages/subscriptions_page.dart';
+import 'package:Cinemate/features/settings/pages/policies/privacy_policy_page.dart';
 import 'package:flutter/material.dart';
 import 'package:Cinemate/features/movies/presentation/components/tab_item.dart';
 import 'package:Cinemate/features/communities/presentation/pages/communities.page.dart';
@@ -16,13 +18,13 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
 
   @override
-  void initState() {
+ /* void initState() {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration.zero, () {
       WidgetHelper.updateWidgetFromFirebase();
     });
-  }
+  }*/
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -62,8 +64,10 @@ class _StartPageState extends State<StartPage> {
         ),
         body: TabBarView(
           children: [
-            MovieHomePage(),
-            CommunitiesPage(),
+            PrivacyPolicyPage(),
+            PremiumSubscriptionPage(),
+            //MovieHomePage(),
+            //CommunitiesPage(),
           ],
         ),
       ),

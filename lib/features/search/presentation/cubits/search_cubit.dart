@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+/*import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/features/movies/domain/entities/movie.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/search/domain/search_repo.dart';
@@ -80,4 +80,4 @@ class SearchCubit extends Cubit<SearchState> {
     
     return genres[name];
   }
-}
+}*/

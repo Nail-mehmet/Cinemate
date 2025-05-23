@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+/*import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:Cinemate/features/post/domain/entities/comment.dart';
 import 'package:Cinemate/features/profile/presentation/pages/profile_page.dart';
@@ -132,3 +132,4 @@ class _CommentTile3State extends State<CommentTile3> {
     return DateFormat('dd MMM yyyy - HH:mm').format(date);
   }
 }
+*/

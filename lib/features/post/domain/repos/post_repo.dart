@@ -1,4 +1,4 @@
-import 'package:Cinemate/features/post/domain/entities/comment.dart';
+/*import 'package:Cinemate/features/post/domain/entities/comment.dart';
 import 'package:Cinemate/features/post/domain/entities/post.dart';
 
 abstract class PostRepo {
@@ -14,3 +14,4 @@ abstract class PostRepo {
   Future<void> toggleLikeComment(String postId, String commentId, String userId);
 
 }
+*/

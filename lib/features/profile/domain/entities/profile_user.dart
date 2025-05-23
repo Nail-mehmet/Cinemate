@@ -1,4 +1,4 @@
-import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
+/*import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
 
 class ProfileUser extends AppUser {
   final String bio;
@@ -88,4 +88,4 @@ class ProfileUser extends AppUser {
       topThreeMovies: List<String>.from(json["topThreeMovies"] ?? [])
     );
   }
-}
+}*/

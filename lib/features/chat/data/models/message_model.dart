@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+/*import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/message_entity.dart';
 
 class MessageModel extends MessageEntity {
@@ -57,4 +57,4 @@ class MessageModel extends MessageEntity {
       'read': read,
     };
   }
-}
+}*/

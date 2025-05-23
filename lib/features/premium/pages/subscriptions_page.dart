@@ -1,5 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:Cinemate/themes/font_theme.dart';
@@ -22,7 +21,7 @@ class _PremiumSubscriptionPageState extends State<PremiumSubscriptionPage> {
   }
 
   void onContinue() async {
-    final user = FirebaseAuth.instance.currentUser;
+    /*final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Kullanıcı giriş yapmamış")),
@@ -56,7 +55,7 @@ class _PremiumSubscriptionPageState extends State<PremiumSubscriptionPage> {
           content: Text("Hata oluştu: $e"),
         ),
       );
-    }
+    }*/
   }
 
 

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+/*import 'package:flutter/material.dart';
 import 'package:Cinemate/themes/font_theme.dart';
 
 class UpdatePasswordScreen extends StatefulWidget {
@@ -230,3 +229,4 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
     );
   }
 }
+*/

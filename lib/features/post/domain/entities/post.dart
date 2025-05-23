@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+/*import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:Cinemate/features/post/domain/entities/comment.dart';
 
 class Post {
@@ -79,4 +79,4 @@ class Post {
       relatedMovieTitle: json["relatedMovieTitle"],
     );
   }
-}
+}*/

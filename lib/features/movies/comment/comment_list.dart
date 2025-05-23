@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+/*import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:Cinemate/features/movies/comment/comment_model.dart';
@@ -140,3 +140,4 @@ Future<List<CommentModel>> fetchComments(String movieId) async {
 
   return comments;
 }
+*/

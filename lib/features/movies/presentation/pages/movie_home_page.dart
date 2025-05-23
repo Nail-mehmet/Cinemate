@@ -1,4 +1,4 @@
-
+/*
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/themes/font_theme.dart';
@@ -34,4 +34,4 @@ class MovieHomePage extends StatelessWidget {
       ),
     );
   }
-}
+}*/

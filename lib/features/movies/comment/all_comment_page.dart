@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Cinemate/features/movies/comment/comment_list.dart';
 import 'package:Cinemate/features/movies/comment/comment_model.dart';
@@ -20,5 +20,5 @@ class AllCommentsPage extends StatelessWidget {
       ),
     );
   }
-}
+}*/
 

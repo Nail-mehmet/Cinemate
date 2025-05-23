@@ -67,14 +67,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
   @override
   Widget build(BuildContext context) {
-    final firebaseAuthRepo = FirebaseAuthRepo();
-    final firebaseProfileRepo = FirebaseProfileRepo();
-    final firebaseStorageRepo = FirebaseStorageRepo();
-    final firebasePostRepo = FirebasePostRepo();
-    final firebaseSearchRepo = FirebaseSearchRepo();
-    final chatRemoteDataSource = ChatRemoteDataSource();
+    final firebaseAuthRepo = SupabaseAuthRepo();
+    //final firebaseProfileRepo = FirebaseProfileRepo();
+    //final firebaseStorageRepo = FirebaseStorageRepo();
+   // final firebasePostRepo = FirebasePostRepo();
+   // final firebaseSearchRepo = FirebaseSearchRepo();
+   // final chatRemoteDataSource = ChatRemoteDataSource();
 
-    void initState() {
+   /* void initState() {
       super.initState();
       WidgetsBinding.instance.addObserver(this);
       WidgetHelper.updateWidgetFromFirebase(); // Uygulama açıldığında
@@ -90,7 +90,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       WidgetsBinding.instance.removeObserver(this);
       super.dispose();
     }
-
+*/
     final movieRepo = MovieRepositoryImpl(
       MovieRemoteDataSource(
         http.Client(),
@@ -105,45 +105,46 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       ),
     );
 
+
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<MovieRepository>.value(value: movieRepo),
         RepositoryProvider<MovieDetailRepository>.value(value: movieDetailRepo),
-        RepositoryProvider<ChatRemoteDataSource>.value(value: chatRemoteDataSource),
-        RepositoryProvider<ChatRepository>.value(
-          value: ChatRepositoryImpl(remoteDataSource: chatRemoteDataSource),
-        ),
+        //RepositoryProvider<ChatRemoteDataSource>.value(value: chatRemoteDataSource),
+       // RepositoryProvider<ChatRepository>.value(
+       //   value: ChatRepositoryImpl(remoteDataSource: chatRemoteDataSource),
+       // ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthCubit>(
             create: (context) => AuthCubit(authRepo: firebaseAuthRepo)..checkAuth(),
           ),
-          BlocProvider<ProfileCubit>(
+        /*  BlocProvider<ProfileCubit>(
             create: (context) => ProfileCubit(
               profileRepo: firebaseProfileRepo,
               storageRepo: firebaseStorageRepo,
             ),
-          ),
-          BlocProvider(
+          ),*/
+         /* BlocProvider(
           create: (_) => CommuneBloc(CommuneRepository()),
-        ),
-          BlocProvider<PostCubit>(
+        ),*/
+          /*BlocProvider<PostCubit>(
             create: (context) => PostCubit(
               postRepo: firebasePostRepo,
               storageRepo: firebaseStorageRepo,
             ),
-          ),
-          BlocProvider<SearchCubit>(
+          ),*/
+         /* BlocProvider<SearchCubit>(
             create: (context) => SearchCubit(searchRepo: firebaseSearchRepo),
-          ),
-          BlocProvider<MovieCubit>(
+          ),*/
+          /*BlocProvider<MovieCubit>(
             create: (context) => MovieCubit(movieRepo: movieRepo)..fetchMovies(),
-          ),
-          BlocProvider<MovieDetailCubit>(
+          ),*/
+        /*  BlocProvider<MovieDetailCubit>(
             create: (context) => MovieDetailCubit(movieDetailRepo),
-          ),
-          BlocProvider<ChatCubit>(
+          ),*/
+          /*BlocProvider<ChatCubit>(
             create: (context) => ChatCubit(
               getChats: GetChats(repository: context.read<ChatRepository>()),
               getMessages: GetMessages(repository: context.read<ChatRepository>()),
@@ -151,7 +152,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
               startChat: StartChat(repository: context.read<ChatRepository>()),
               markMessageAsRead: MarkMessageAsRead(repository: context.read<ChatRepository>())
             ),
-          ),
+          ),*/
           BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()),
         ],
         child: const AppContent(),

@@ -1,4 +1,4 @@
-
+/*
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class FirebaseApi {
@@ -12,4 +12,4 @@ class FirebaseApi {
 
     print("Token: $fCMToken");
   }
-}
+}*/

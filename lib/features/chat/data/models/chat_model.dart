@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+/*import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/chat_entity.dart';
 
 class ChatModel extends ChatEntity {
@@ -63,4 +63,4 @@ class ChatModel extends ChatEntity {
       'isTyping': isTyping, // ✅ EKLENDİ
     };
   }
-}
+}*/
