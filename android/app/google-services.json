@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "594263755343",
+    "project_id": "clocker-d11c0",
+    "storage_bucket": "clocker-d11c0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594263755343:android:cddc0e2681f5ec34c3b83a",
+        "android_client_info": {
+          "package_name": "com.example.clocker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuk_Ij4CnSB4MjmLew6RcQacRHNVrs0iY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594263755343:android:c19291c6c7b08ac7c3b83a",
+        "android_client_info": {
+          "package_name": "com.example.Cinemate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuk_Ij4CnSB4MjmLew6RcQacRHNVrs0iY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
