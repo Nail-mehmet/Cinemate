@@ -1,8 +1,8 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:Cinemate/features/movies/comment/comment_model.dart';
 import 'package:Cinemate/themes/font_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../profile/presentation/pages/profile_page2.dart';
 import 'package:flutter/services.dart';
 class CommentTile extends StatefulWidget {
@@ -16,6 +16,7 @@ class CommentTile extends StatefulWidget {
 
 class _CommentTileState extends State<CommentTile> {
   bool _showSpoiler = false;
+  final supabase = Supabase.instance.client;
 
   
   @override
@@ -43,12 +44,12 @@ class _CommentTileState extends State<CommentTile> {
 
     return ListTile(
       onTap: () {
-        Navigator.push(
+      /* Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ProfilePage2(uid: comment.userId),
           ),
-        );
+        );*/
       },
       contentPadding: const EdgeInsets.all(8),
       leading: CircleAvatar(
@@ -107,37 +108,25 @@ class _CommentTileState extends State<CommentTile> {
 }
 // Yorumları Firestore'dan çekiyoruz
 Future<List<CommentModel>> fetchComments(String movieId) async {
-  final commentsRef = FirebaseFirestore.instance
-      .collection('movies')
-      .doc(movieId)
-      .collection('comments');
+  final supabase = Supabase.instance.client;
 
-  final querySnapshot =
-      await commentsRef.orderBy('timestamp', descending: true).get();
-  List<CommentModel> comments = [];
+  try {
+    final response = await supabase
+        .from('comments')
+        .select('*, profiles(name, profile_image)')
+        .eq('movie_id', movieId)
+        .order('created_at', ascending: false);
 
-  for (var doc in querySnapshot.docs) {
-    final commentData = doc.data();
-    final userId = commentData['userId'];
+    // response direkt data olarak dönüyor:
+    final data = response as List<dynamic>;
 
-    // Kullanıcı bilgilerini de çekiyoruz
-    final userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    final userName = userDoc['name'];
-    final userProfileImageUrl =
-        userDoc['profileImageUrl'] ?? ''; // Null kontrolü
-
-    comments.add(CommentModel(
-      userId: userId,
-      userName: userName,
-      commentText: commentData['comment'],
-      createdAt: commentData['timestamp'].toDate(),
-      rating: commentData['rating'],
-      userProfileImageUrl: userProfileImageUrl,
-      spoiler: commentData['spoiler'] ?? false, // Ekledik
-    ));
+    return data
+        .map((e) => CommentModel.fromMap(e as Map<String, dynamic>))
+        .toList();
+  } catch (e) {
+    print('Error fetching comments: $e');
+    return [];
   }
-
-  return comments;
 }
-*/
+
+

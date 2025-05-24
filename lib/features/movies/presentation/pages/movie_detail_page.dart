@@ -33,7 +33,7 @@ class MovieDetailPage extends StatefulWidget {
 }
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
-  //late Future<List<CommentModel>> commentsFuture;
+  late Future<List<CommentModel>> commentsFuture;
   late final authCubit = context.read<AuthCubit>();
   late AppUser? currentUser = authCubit.currentUser;
   final supabase = Supabase.instance.client;
@@ -50,7 +50,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   @override
   void initState() {
     super.initState();
-    //commentsFuture = CommentService().fetchCommentsForMovie(widget.movieId.toString());
+    commentsFuture = fetchComments(widget.movieId.toString());
     context.read<MovieDetailCubit>().fetchMovieDetail(widget.movieId);
     _checkMovieStatus(widget.movieId);
   }
@@ -845,7 +845,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                           ),
                                           SeeAllButton(
                                             onTap: () {
-                                            /*  commentsFuture.then((comments) {
+                                              commentsFuture.then((comments) {
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
@@ -854,14 +854,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                                             comments: comments),
                                                   ),
                                                 );
-                                              });*/
+                                              });
                                             },
                                           ),
                                         ],
                                       ),
                                     ),
                                     const SizedBox(height: 10),
-                                    /*FutureBuilder<List<CommentModel>>(
+                                    FutureBuilder<List<CommentModel>>(
                                       future: commentsFuture,
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState ==
@@ -899,7 +899,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                           );
                                         }
                                       },
-                                    ),*/
+                                    ),
                                     SizedBox(
                                       height: 10,
                                     ),

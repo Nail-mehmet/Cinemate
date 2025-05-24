@@ -1,4 +1,4 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:Cinemate/features/movies/comment/comment_model.dart';
@@ -49,6 +49,14 @@ class _CommentCardState extends State<CommentCard> {
                         CircleAvatar(
                           radius: 20,
                           backgroundColor: Colors.grey.shade200,
+                          child: Text(
+                            comment.userName[0].toUpperCase(),
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                       /* CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.grey.shade200,
                           backgroundImage: comment.userProfileImageUrl.isNotEmpty
                               ? NetworkImage(comment.userProfileImageUrl)
                               : null,
@@ -59,7 +67,7 @@ class _CommentCardState extends State<CommentCard> {
                                       fontSize: 20, fontWeight: FontWeight.bold),
                                 )
                               : null,
-                        ),
+                        ),*/
                         const SizedBox(width: 8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,6 +163,6 @@ class _CommentCardState extends State<CommentCard> {
     );
   }
 }
-*/
+
 
 
