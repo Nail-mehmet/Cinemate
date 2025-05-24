@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+/*import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CommunityState {
   final List<QueryDocumentSnapshot> communities;
@@ -23,3 +23,4 @@ class CommunityState {
     );
   }
 }
+*/

@@ -1,6 +1,5 @@
-/*import 'dart:convert';
+import 'dart:convert';
 import 'dart:ui';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,6 +20,7 @@ import '../cubits/movie_detail_cubit.dart';
 import '../cubits/movie_detail_state.dart';
 import 'package:Cinemate/features/movies/comment/comment_list.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final int movieId;
@@ -32,9 +32,10 @@ class MovieDetailPage extends StatefulWidget {
 }
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
-  late Future<List<CommentModel>> commentsFuture;
+ // late Future<List<CommentModel>> commentsFuture;
   late final authCubit = context.read<AuthCubit>();
   late AppUser? currentUser = authCubit.currentUser;
+  final supabase = Supabase.instance.client;
   bool _isExpanded = false;
   bool isWatched = false;
   bool isFavorited = false;
@@ -48,55 +49,55 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   @override
   void initState() {
     super.initState();
-    commentsFuture = fetchComments(widget.movieId.toString());
+    //commentsFuture = fetchComments(widget.movieId.toString());
     context.read<MovieDetailCubit>().fetchMovieDetail(widget.movieId);
     _checkMovieStatus(widget.movieId);
   }
 
   Future<void> removeWatchedMovie(int movieId) async {
-    final watchedRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('watchedMovies');
+  final userId = supabase.auth.currentUser!.id;
 
-    final snapshot =
-        await watchedRef.where('movieId', isEqualTo: movieId).get();
+  final deleteResponse = await supabase
+      .from('watched_movies')
+      .delete()
+      .eq('user_id', userId)
+      .eq('movie_id', movieId);
 
-    for (var doc in snapshot.docs) {
-      await doc.reference.delete();
-    }
+  if (deleteResponse.error != null) {
+    print('Silme hatası: ${deleteResponse.error!.message}');
   }
+}
 
   // Film ID'sini kullanıcının favorilerinden kaldır
   Future<void> removeFavoriteMovie(int movieId) async {
-    final favoriteRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('favoriteMovies');
+   final userId = supabase.auth.currentUser!.id;
 
-    final snapshot =
-        await favoriteRef.where('movieId', isEqualTo: movieId).get();
+  final deleteResponse = await supabase
+      .from('favorite_movies')
+      .delete()
+      .eq('user_id', userId)
+      .eq('movie_id', movieId);
 
-    for (var doc in snapshot.docs) {
-      await doc.reference.delete();
-    }
+  if (deleteResponse.error != null) {
+    print('Silme hatası: ${deleteResponse.error!.message}');
+  }
   }
 
   // Film ID'sini kullanıcının izleyeceği listeden kaldır
   Future<void> removeFromSavedlist(int movieId) async {
-    final savedlistRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('savedlist');
+    final userId = supabase.auth.currentUser!.id;
 
-    final snapshot =
-        await savedlistRef.where('movieId', isEqualTo: movieId).get();
+  final deleteResponse = await supabase
+      .from('savedlist_movies')
+      .delete()
+      .eq('user_id', userId)
+      .eq('movie_id', movieId);
 
-    for (var doc in snapshot.docs) {
-      await doc.reference.delete();
-    }
+  if (deleteResponse.error != null) {
+    print('Silme hatası: ${deleteResponse.error!.message}');
   }
-
+  }
+/*
   // Film ID'sini kullanıcının en iyi üçleme listesinden kaldır
   Future<void> removeFromTopThreeMovies(int movieId) async {
     final topMoviesRef = FirebaseFirestore.instance
@@ -112,7 +113,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     }
   }
 
-//
+*/
 // snackbarü
   void showCustomSnackbar(String message, Color color, IconData icon) {
     final snackBar = SnackBar(
@@ -147,102 +148,141 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 //
 ////////////////////////////////////////////////////////////
   Future<void> toggleWatchedMovie(int movieId) async {
-    final watchedMovies = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('watchedMovies');
+  final userId = supabase.auth.currentUser!.id;
 
-    final snapshot =
-        await watchedMovies.where('movieId', isEqualTo: movieId).get();
+  final response = await supabase
+      .from('watched_movies')
+      .select()
+      .eq('user_id', userId)
+      .eq('movie_id', movieId);
 
-    if (snapshot.docs.isEmpty) {
-      // Eğer film daha önce eklenmemişse ekle
-      await watchedMovies.add({
-        'movieId': movieId,
-        'addedAt': FieldValue.serverTimestamp(),
-      });
+  if (response == null || response is PostgrestException) {
+    print('Hata: ${response}');
+    return;
+  }
+
+  final data = response as List;
+
+  if (data.isEmpty) {
+    // Film daha önce eklenmemişse, ekle
+    final insertResponse = await supabase.from('watched_movies').insert({
+      'user_id': userId,
+      'movie_id': movieId,
+      'added_at': DateTime.now().toIso8601String(),
+    });
+
+    if (insertResponse is PostgrestException) {
+      print('Ekleme hatası: ${insertResponse.message}');
+    } else {
       showCustomSnackbar(
         'Film izlenenlere Eklendi.',
         Colors.blue,
         Icons.visibility,
       );
-    } else {
-      // Eğer film eklenmişse, kaldıralım
-      await removeWatchedMovie(movieId);
-      showCustomSnackbar(
-        'Film İzlenenelerden Çıkarıldı.',
-        Colors.redAccent,
-        Icons.visibility_off,
-      );
     }
+  } else {
+    // Film zaten ekli, sil
+    await removeWatchedMovie(movieId);
+    showCustomSnackbar(
+      'Film İzlenenelerden Çıkarıldı.',
+      Colors.redAccent,
+      Icons.visibility_off,
+    );
+  }
+
+
   }
 
   // Film ID'sini kullanıcının favorilerine ekle veya çıkar
   Future<void> toggleFavoriteMovie(int movieId) async {
-    final favoriteRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('favoriteMovies');
+    final userId = supabase.auth.currentUser!.id;
 
-    final snapshot =
-        await favoriteRef.where('movieId', isEqualTo: movieId).get();
+  final response = await supabase
+      .from('favorite_movies')
+      .select()
+      .eq('user_id', userId)
+      .eq('movie_id', movieId);
 
-    if (snapshot.docs.isEmpty) {
-      // Eğer film daha önce eklenmemişse ekle
-      await favoriteRef.add({
-        'movieId': movieId,
-        'addedAt': FieldValue.serverTimestamp(),
-      });
-      showCustomSnackbar(
-        'Film Beğenilenlere Eklendi',
-        Colors.redAccent,
-        Icons.favorite,
-      );
+  if (response == null || response is PostgrestException) {
+    print('Hata: ${response}');
+    return;
+  }
+
+  final data = response as List;
+
+  if (data.isEmpty) {
+    // Film daha önce eklenmemişse, ekle
+    final insertResponse = await supabase.from('favorite_movies').insert({
+      'user_id': userId,
+      'movie_id': movieId,
+      'added_at': DateTime.now().toIso8601String(),
+    });
+
+    if (insertResponse is PostgrestException) {
+      print('Ekleme hatası: ${insertResponse.message}');
     } else {
-      // Eğer film eklenmişse, kaldıralım
-      await removeFavoriteMovie(movieId);
       showCustomSnackbar(
-        'Film Beğenilenlerden çıkarıldı.',
-        Colors.redAccent,
-        Icons.favorite_border_outlined,
+        'Film favorilere Eklendi.',
+        Colors.blue,
+        Icons.visibility,
       );
     }
+  } else {
+    // Film zaten ekli, sil
+    await removeFavoriteMovie(movieId);
+    showCustomSnackbar(
+      'Film İzlenenelerden Çıkarıldı.',
+      Colors.redAccent,
+      Icons.visibility_off,
+    );
+  }
   }
 
   // Film ID'sini kullanıcının izleyeceği listesine ekle veya çıkar
   Future<void> toggleSavedlist(int movieId, BuildContext context) async {
-    final savedlistRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('savedlist');
+    final userId = supabase.auth.currentUser!.id;
 
-    final snapshot =
-        await savedlistRef.where('movieId', isEqualTo: movieId).get();
+  final response = await supabase
+      .from('savedlist_movies')
+      .select()
+      .eq('user_id', userId)
+      .eq('movie_id', movieId);
 
-    if (snapshot.docs.isEmpty) {
-      // Film eklenmemişse → ekle
-      await savedlistRef.add({
-        'movieId': movieId,
-        'addedAt': FieldValue.serverTimestamp(),
-      });
-      showCustomSnackbar(
-        'Fİlm Kaydedildi.',
-        Colors.green,
-        Icons.playlist_add_check,
-      );
-    } else {
-      // Film zaten varsa → kaldır
-      await removeFromSavedlist(movieId);
-      showCustomSnackbar(
-        'Film kaydedilenlerden çıkarıldı.',
-        Colors.redAccent,
-        Icons.playlist_remove,
-      );
-    }
-
-    // Snackbar göster
+  if (response == null || response is PostgrestException) {
+    print('Hata: ${response}');
+    return;
   }
 
+  final data = response as List;
+
+  if (data.isEmpty) {
+    // Film daha önce eklenmemişse, ekle
+    final insertResponse = await supabase.from('savedlist_movies').insert({
+      'user_id': userId,
+      'movie_id': movieId,
+      'added_at': DateTime.now().toIso8601String(),
+    });
+
+    if (insertResponse is PostgrestException) {
+      print('Ekleme hatası: ${insertResponse.message}');
+    } else {
+      showCustomSnackbar(
+        'Film izlenenlere Eklendi.',
+        Colors.blue,
+        Icons.visibility,
+      );
+    }
+  } else {
+    // Film zaten ekli, sil
+    await removeFromSavedlist(movieId);
+    showCustomSnackbar(
+      'Film İzlenenelerden Çıkarıldı.',
+      Colors.redAccent,
+      Icons.visibility_off,
+    );
+  }
+  }
+/*
   // Film ID'sini kullanıcının en iyi üçleme listesine ekle veya çıkar
   Future<bool> toggleTopThreeMovies(int movieId, BuildContext context) async {
     final topMovies = await getTopThreeMovies();
@@ -324,44 +364,55 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         }
       }
     }
-  }
+  }*/
 
   Future<void> _checkMovieStatus(int movieId) async {
     setState(() {
-      isLoading = true; // Yükleme başlasın
+      isLoading = true;
     });
 
-    final userDoc =
-        FirebaseFirestore.instance.collection('users').doc(currentUser!.uid);
+    final userId = supabase.auth.currentUser!.id;
 
-    final watchedSnapshot = await userDoc
-        .collection('watchedMovies')
-        .where('movieId', isEqualTo: movieId)
-        .get();
+    final watched = await supabase
+        .from('watched_movies')
+        .select()
+        .eq('user_id', userId)
+        .eq('movie_id', movieId)
+        .maybeSingle();
 
-    final favoriteSnapshot = await userDoc
-        .collection('favoriteMovies')
-        .where('movieId', isEqualTo: movieId)
-        .get();
+    final favorite = await supabase
+        .from('favorite_movies')
+        .select()
+        .eq('user_id', userId)
+        .eq('movie_id', movieId)
+        .maybeSingle();
 
-    final savedlistSnapshot = await userDoc
-        .collection('savedlist')
-        .where('movieId', isEqualTo: movieId)
-        .get();
+  final savedlist = await supabase
+        .from('savedlist_movies')
+        .select()
+        .eq('user_id', userId)
+        .eq('movie_id', movieId)
+        .maybeSingle();
+    /*
+    final topThree = await supabase
+        .from('top_three_movies')
+        .select()
+        .eq('user_id', userId)
+        .eq('movie_id', movieId)
+        .maybeSingle();
+*/
 
-    final topThreeSnapshot = await userDoc
-        .collection('topThreeMovies')
-        .where('movieId', isEqualTo: movieId)
-        .get();
 
     setState(() {
-      isWatched = watchedSnapshot.docs.isNotEmpty;
-      isFavorited = favoriteSnapshot.docs.isNotEmpty;
-      isInSavedlist = savedlistSnapshot.docs.isNotEmpty;
-      isInTopThree = topThreeSnapshot.docs.isNotEmpty;
-      isLoading = false; // Yükleme tamamlandı
+      isWatched = watched != null;
+      isFavorited = favorite != null;
+      isInSavedlist = savedlist != null;/*
+      isInTopThree = topThree != null;*/
+      isLoading = false;
     });
   }
+
+/*
 
   Future<List<int>> getTopThreeMovies() async {
     final topMoviesSnapshot = await FirebaseFirestore.instance
@@ -372,7 +423,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
     return topMoviesSnapshot.docs.map((doc) => doc['movieId'] as int).toList();
   }
-
+*/
   Future<Map<String, dynamic>> fetchMovieDetails(int movieId) async {
     final response = await http.get(Uri.parse(
         'https://api.themoviedb.org/3/movie/$movieId?api_key=7bd28d1b496b14987ce5a838d719c5c7'));
@@ -386,7 +437,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String getPosterUrl(String posterPath) {
     return 'https://image.tmdb.org/t/p/w500$posterPath';
   }
-
+/*
   Future<void> updateTopThreeMovies({
     required int removeMovieId,
     required int addMovieId,
@@ -457,7 +508,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       barrierLabel: 'Dismiss',
     );
   }
-
+*/
   Future<void> _launchTrailer(String? trailerKey) async {
     if (trailerKey == null || trailerKey.isEmpty) {
       if (context.mounted) {
@@ -724,7 +775,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                   width: double.infinity,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      showModalBottomSheet(
+                                    /*  showModalBottomSheet(
                                         context: context,
                                         isScrollControlled: true,
                                         shape: RoundedRectangleBorder(
@@ -745,7 +796,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                             ),
                                           );
                                         },
-                                      );
+                                      );*/
                                     },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: Theme.of(context)
@@ -780,7 +831,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                           ),
                                           SeeAllButton(
                                             onTap: () {
-                                              commentsFuture.then((comments) {
+                                            /*  commentsFuture.then((comments) {
                                                 Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
@@ -789,14 +840,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                                             comments: comments),
                                                   ),
                                                 );
-                                              });
+                                              });*/
                                             },
                                           ),
                                         ],
                                       ),
                                     ),
                                     const SizedBox(height: 10),
-                                    FutureBuilder<List<CommentModel>>(
+                                    /*FutureBuilder<List<CommentModel>>(
                                       future: commentsFuture,
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState ==
@@ -834,7 +885,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                           );
                                         }
                                       },
-                                    ),
+                                    ),*/
                                     SizedBox(
                                       height: 10,
                                     ),
@@ -890,6 +941,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                       isWatched = !isWatched;
                                     });
                                     await toggleWatchedMovie(movie.id);
+                                    _checkMovieStatus(movie.id);
                                   },
                                   icon: Icon(
                                       isWatched
@@ -908,7 +960,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                   setState(() {
                                     isFavorited = !isFavorited;
                                   });
-                                  await toggleFavoriteMovie(movie.id);
+                                 await toggleFavoriteMovie(movie.id);
+                                  _checkMovieStatus(movie.id);
                                 },
                                 icon: Icon(
                                   isFavorited
@@ -926,6 +979,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                     isInSavedlist = !isInSavedlist;
                                   });
                                   await toggleSavedlist(movie.id, context);
+                                  _checkMovieStatus(movie.id);
                                 },
                                 icon: Icon(
                                   isInSavedlist
@@ -975,8 +1029,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
                                   try {
                                     // Firestore işlemi
-                                    success = await toggleTopThreeMovies(
-                                        movie.id, context);
+                                  /*  success = await toggleTopThreeMovies(
+                                        movie.id, context);*/
 
                                     if (success) {
                                       setState(() {
@@ -1048,7 +1102,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 }
-*/
+
 /*
 class MovieDetailPage extends StatefulWidget {
   final int movieId;

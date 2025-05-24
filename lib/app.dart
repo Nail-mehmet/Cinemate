@@ -138,12 +138,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
          /* BlocProvider<SearchCubit>(
             create: (context) => SearchCubit(searchRepo: firebaseSearchRepo),
           ),*/
-          /*BlocProvider<MovieCubit>(
+          BlocProvider<MovieCubit>(
             create: (context) => MovieCubit(movieRepo: movieRepo)..fetchMovies(),
-          ),*/
-        /*  BlocProvider<MovieDetailCubit>(
+          ),
+          BlocProvider<MovieDetailCubit>(
             create: (context) => MovieDetailCubit(movieDetailRepo),
-          ),*/
+          ),
           /*BlocProvider<ChatCubit>(
             create: (context) => ChatCubit(
               getChats: GetChats(repository: context.read<ChatRepository>()),

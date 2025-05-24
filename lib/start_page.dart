@@ -64,7 +64,7 @@ class _StartPageState extends State<StartPage> {
         ),
         body: TabBarView(
           children: [
-            PrivacyPolicyPage(),
+            MovieHomePage(),
             PremiumSubscriptionPage(),
             //MovieHomePage(),
             //CommunitiesPage(),

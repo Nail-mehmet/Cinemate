@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+/*import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:Cinemate/features/chat/domain/entities/message_entity.dart';
 import 'package:Cinemate/features/chat/domain/repositories/chat_repository.dart';
@@ -97,4 +97,4 @@ Future<Map<String, dynamic>> _getUserData(String userId) async {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
+}*/
