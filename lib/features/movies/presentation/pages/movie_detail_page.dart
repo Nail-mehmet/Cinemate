@@ -15,6 +15,7 @@ import 'package:Cinemate/themes/font_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../comment/all_comment_page.dart';
 import '../../comment/comment_model.dart';
+import '../../comment/comment_service.dart';
 import '../../comment/see_all_button.dart';
 import '../cubits/movie_detail_cubit.dart';
 import '../cubits/movie_detail_state.dart';
@@ -32,7 +33,7 @@ class MovieDetailPage extends StatefulWidget {
 }
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
- // late Future<List<CommentModel>> commentsFuture;
+  //late Future<List<CommentModel>> commentsFuture;
   late final authCubit = context.read<AuthCubit>();
   late AppUser? currentUser = authCubit.currentUser;
   final supabase = Supabase.instance.client;
@@ -49,7 +50,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   @override
   void initState() {
     super.initState();
-    //commentsFuture = fetchComments(widget.movieId.toString());
+    //commentsFuture = CommentService().fetchCommentsForMovie(widget.movieId.toString());
     context.read<MovieDetailCubit>().fetchMovieDetail(widget.movieId);
     _checkMovieStatus(widget.movieId);
   }
@@ -97,23 +98,22 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     print('Silme hatası: ${deleteResponse.error!.message}');
   }
   }
-/*
+
   // Film ID'sini kullanıcının en iyi üçleme listesinden kaldır
   Future<void> removeFromTopThreeMovies(int movieId) async {
-    final topMoviesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('topThreeMovies');
+    final userId = supabase.auth.currentUser!.id;
 
-    final snapshot =
-        await topMoviesRef.where('movieId', isEqualTo: movieId).get();
+  final deleteResponse = await supabase
+      .from('top_three_movies')
+      .delete()
+      .eq('user_id', userId)
+      .eq('movie_id', movieId);
 
-    for (var doc in snapshot.docs) {
-      await doc.reference.delete();
-    }
+  if (deleteResponse.error != null) {
+    print('Silme hatası: ${deleteResponse.error!.message}');
+  }
   }
 
-*/
 // snackbarü
   void showCustomSnackbar(String message, Color color, IconData icon) {
     final snackBar = SnackBar(
@@ -282,89 +282,91 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
   }
-/*
-  // Film ID'sini kullanıcının en iyi üçleme listesine ekle veya çıkar
+
+
   Future<bool> toggleTopThreeMovies(int movieId, BuildContext context) async {
-    final topMovies = await getTopThreeMovies();
+    try {
+      final userId = supabase.auth.currentUser!.id;
 
-    if (topMovies.contains(movieId)) {
-      setState(() {
-        isInTopThree = false;
-      });
+      // Mevcut top 3 filmleri getir
+      final currentTopThree = await getTopThreeMovies();
+      final isCurrentlyInTopThree = currentTopThree.contains(movieId);
 
-      await removeFromTopThreeMovies(movieId);
-
-      showCustomSnackbar(
-        'Film en iyi 3 listesinden çıkarıldı.',
-        Colors.redAccent,
-        Icons.remove_circle_outline,
-      );
-
-      return true;
-    } else {
-      final topMoviesRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser!.uid)
-          .collection('topThreeMovies');
-
-      final movieDetails = await fetchMovieDetails(movieId);
-      final posterPath = movieDetails['poster_path'];
-
-      if (topMovies.length < 3) {
-        await topMoviesRef.add({
-          'movieId': movieId,
-          'poster_path': posterPath,
-          'addedAt': FieldValue.serverTimestamp(),
-        });
-
-        setState(() {
-          isInTopThree = true;
-        });
+      if (isCurrentlyInTopThree) {
+        // Eğer film zaten listedeyse, çıkar
+        await supabase
+            .from('top_three_movies')
+            .delete()
+            .eq('user_id', userId)
+            .eq('movie_id', movieId);
 
         showCustomSnackbar(
-          'Film en iyi 3 listene eklendi!',
-          Colors.green,
-          Icons.check_circle_outline,
+          'Film en iyi 3 listesinden çıkarıldı.',
+          Colors.redAccent,
+          Icons.remove_circle_outline,
         );
-
-        return true;
+        return false;
       } else {
-        final replacedMovieId = await showRemoveMovieDialogWithPosters(
-          context,
-          movieId,
-          posterPath,
-        );
+        // Film zaten listede değilse ekle
+        final posterPath = (await fetchMovieDetails(movieId))?['poster_path'] ?? '';
 
-        if (replacedMovieId != null) {
-          await updateTopThreeMovies(
-            removeMovieId: replacedMovieId,
-            addMovieId: movieId,
-            newPosterPath: posterPath,
-          );
-
-          setState(() {
-            isInTopThree = true;
+        if (currentTopThree.length < 3) {
+          // Eğer 3'ten az film varsa direkt ekle
+          await supabase.from('top_three_movies').insert({
+            'user_id': userId,
+            'movie_id': movieId,
+            'poster_path': posterPath,
+            'added_at': DateTime.now().toIso8601String(),
           });
 
           showCustomSnackbar(
-            'Film başarıyla değiştirildi!',
-            Colors.orange,
-            Icons.swap_horiz,
+            'Film en iyi 3 listene eklendi!',
+            Colors.green,
+            Icons.check_circle_outline,
           );
-
           return true;
         } else {
-          showCustomSnackbar(
-            'İşlem iptal edildi.',
-            Colors.grey,
-            Icons.cancel_outlined,
+          // 3 film varsa değiştirme dialogunu göster
+          final replacedMovieId = await showRemoveMovieDialogWithPosters(
+            context,
+            movieId,
+            posterPath,
           );
 
-          return false;
+          if (replacedMovieId != null) {
+            await updateTopThreeMovies(
+              removeMovieId: replacedMovieId,
+              addMovieId: movieId,
+              newPosterPath: posterPath,
+            );
+
+            showCustomSnackbar(
+              'Film başarıyla değiştirildi!',
+              Colors.orange,
+              Icons.swap_horiz,
+            );
+            return true;
+          } else {
+            showCustomSnackbar(
+              'İşlem iptal edildi.',
+              Colors.grey,
+              Icons.cancel_outlined,
+            );
+            return false;
+          }
         }
       }
+    } catch (e) {
+      print('Top Three Movies Hatası: $e');
+      showCustomSnackbar(
+        'Bir hata oluştu!',
+        Colors.red,
+        Icons.error_outline,
+      );
+      rethrow;
     }
-  }*/
+  }
+
 
   Future<void> _checkMovieStatus(int movieId) async {
     setState(() {
@@ -393,37 +395,39 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
         .eq('user_id', userId)
         .eq('movie_id', movieId)
         .maybeSingle();
-    /*
+
     final topThree = await supabase
         .from('top_three_movies')
         .select()
         .eq('user_id', userId)
         .eq('movie_id', movieId)
         .maybeSingle();
-*/
+
 
 
     setState(() {
       isWatched = watched != null;
       isFavorited = favorite != null;
-      isInSavedlist = savedlist != null;/*
-      isInTopThree = topThree != null;*/
+      isInSavedlist = savedlist != null;
+      isInTopThree = topThree != null;
       isLoading = false;
     });
   }
 
-/*
-
   Future<List<int>> getTopThreeMovies() async {
-    final topMoviesSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('topThreeMovies')
-        .get();
+    final userId = supabase.auth.currentUser!.id;
+    final response = await supabase
+        .from('top_three_movies')
+        .select('movie_id')
+        .eq('user_id', userId);
 
-    return topMoviesSnapshot.docs.map((doc) => doc['movieId'] as int).toList();
+    if (response is PostgrestException || response.isEmpty) {
+      return [];
+    }
+
+    return (response as List).map((item) => item['movie_id'] as int).toList();
   }
-*/
+
   Future<Map<String, dynamic>> fetchMovieDetails(int movieId) async {
     final response = await http.get(Uri.parse(
         'https://api.themoviedb.org/3/movie/$movieId?api_key=7bd28d1b496b14987ce5a838d719c5c7'));
@@ -437,26 +441,36 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   String getPosterUrl(String posterPath) {
     return 'https://image.tmdb.org/t/p/w500$posterPath';
   }
-/*
   Future<void> updateTopThreeMovies({
     required int removeMovieId,
     required int addMovieId,
     required String newPosterPath,
   }) async {
-    final userRef =
-        FirebaseFirestore.instance.collection('users').doc(currentUser!.uid);
-    final topMoviesRef = userRef.collection('topThreeMovies');
+    final userId = supabase.auth.currentUser!.id;
 
-    final snapshot = await topMoviesRef.get();
-    final docToRemove =
-        snapshot.docs.firstWhere((doc) => doc['movieId'] == removeMovieId);
-    await topMoviesRef.doc(docToRemove.id).delete();
+    // Önce kaldırılacak filmi sil
+    final deleteResponse = await supabase
+        .from('top_three_movies')
+        .delete()
+        .eq('user_id', userId)
+        .eq('movie_id', removeMovieId);
 
-    await topMoviesRef.add({
-      'movieId': addMovieId,
+    if (deleteResponse is PostgrestException) {
+      print('Silme hatası: ${deleteResponse.message}');
+      return;
+    }
+
+    // Ardından yeni filmi ekle
+    final insertResponse = await supabase.from('top_three_movies').insert({
+      'user_id': userId,
+      'movie_id': addMovieId,
       'poster_path': newPosterPath,
-      'addedAt': FieldValue.serverTimestamp(),
+      'added_at': DateTime.now().toIso8601String(),
     });
+
+    if (insertResponse is PostgrestException) {
+      print('Ekleme hatası: ${insertResponse.message}');
+    }
   }
 
   // Kullanıcıya hangi filmi çıkarmak istediğini soran bir dialog
@@ -508,7 +522,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       barrierLabel: 'Dismiss',
     );
   }
-*/
+
   Future<void> _launchTrailer(String? trailerKey) async {
     if (trailerKey == null || trailerKey.isEmpty) {
       if (context.mounted) {
@@ -775,7 +789,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                   width: double.infinity,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                    /*  showModalBottomSheet(
+                                     showModalBottomSheet(
                                         context: context,
                                         isScrollControlled: true,
                                         shape: RoundedRectangleBorder(
@@ -796,7 +810,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                             ),
                                           );
                                         },
-                                      );*/
+                                      );
                                     },
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: Theme.of(context)
@@ -996,7 +1010,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                         onPressed: () async {
                           // toggleSavedlist fonksiyonunu çağır ve sonucu bekle
                           await toggleSavedlist(movie.id, context);
-            
+
                           // isInSavedlist durumunu kontrol et ve UI'yi güncelle
                           setState(() {
                             isInSavedlist =
@@ -1016,32 +1030,19 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                               // Top 3 Icon
                               IconButton(
                                 onPressed: () async {
-                                  final willBeInTopThree = !isInTopThree;
-
-                                  // Firestore işlemi başlayacak
-                                  bool success = false;
-
-                                  // Yıldızın rengi, sadece işlemin başarılı olduğunda değişecek
-                                  setState(() {
-                                    // Başlangıçta yıldızın rengini değiştirmiyoruz
-                                    // Firebase işlemi başarılı olursa onu güncelleyeceğiz.
-                                  });
-
                                   try {
-                                    // Firestore işlemi
-                                  /*  success = await toggleTopThreeMovies(
-                                        movie.id, context);*/
-
-                                    if (success) {
-                                      setState(() {
-                                        isInTopThree = willBeInTopThree;
-                                      });
-                                    }
-                                  } catch (e) {
-                                    // Hata durumu: Yıldız rengi geri alınacak
+                                    final result = await toggleTopThreeMovies(movie.id, context);
+                                    // State'i güncelle
                                     setState(() {
-                                      isInTopThree = !willBeInTopThree;
+                                      isInTopThree = result;
                                     });
+                                    // Top 3 listesini yeniden yükle
+                                    final updatedTopThree = await getTopThreeMovies();
+                                    setState(() {
+                                      isInTopThree = updatedTopThree.contains(movie.id);
+                                    });
+                                  } catch (e) {
+                                    print('Hata: $e');
                                   }
                                 },
                                 icon: Icon(
@@ -1051,6 +1052,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                       : Theme.of(context).colorScheme.tertiary,
                                 ),
                               )
+
                             ],
                           ),
                         ),

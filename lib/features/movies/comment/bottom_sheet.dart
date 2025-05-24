@@ -1,4 +1,4 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter/services.dart';
 import 'package:Cinemate/themes/font_theme.dart';
@@ -176,4 +176,4 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
       ),
     );
   }
-}*/
+}

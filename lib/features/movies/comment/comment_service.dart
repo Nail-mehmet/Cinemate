@@ -1,66 +1,86 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'comment_model.dart';
 
 class CommentService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
   Future<void> addComment({
-  required String movieId,
-  required String commentText,
-  required double rating,
-  String? movieTitle,
-  required bool spoiler,
-}) async {
-  final user = _auth.currentUser;
-  if (user == null) throw Exception("Kullanıcı giriş yapmamış");
+    required String movieId,
+    required String commentText,
+    required double rating,
+    String? movieTitle,
+    required bool spoiler,
+  }) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) throw Exception("User not authenticated");
 
-  final commentData = {
-    'userId': user.uid,
-    'comment': commentText,
-    'rating': rating,
-    'spoiler': spoiler,
-    'timestamp': FieldValue.serverTimestamp(),
-  };
+      // 0. Eğer film movies tablosunda yoksa ekle
+      final existingMovie = await _supabase
+          .from('movies')
+          .select()
+          .eq('id', movieId)
+          .maybeSingle();
 
-  final movieRef = _firestore.collection('movies').doc(movieId);
-  final commentsRef = movieRef.collection('comments');
-  final userReviewRef = _firestore
-      .collection('users')
-      .doc(user.uid)
-      .collection('movie_reviews')
-      .doc(movieId);
+      if (existingMovie == null && movieTitle != null) {
+        await _supabase.from('movies').insert({
+          'id': movieId,
+          'title': movieTitle,
+          'average_rating': 0.0, // Başlangıç değeri olarak 0.0
+        });
+      }
 
-  await commentsRef.add(commentData);
+      // 1. Yorumu ekle
+      await _supabase.from('comments').insert({
+        'movie_id': movieId,
+        'user_id': user.id,
+        'comment': commentText,
+        'rating': rating,
+        'spoiler': spoiler,
+        'movie_title': movieTitle,
+      });
 
-  await userReviewRef.set({
-    'movieId': movieId,
-    'comment': commentText,
-    'rating': rating,
-    'spoiler': spoiler,
-    'timestamp': FieldValue.serverTimestamp(),
-    'movieTitle': movieTitle,
-  });
+      // 2. Kullanıcı incelemesini güncelle (upsert)
+      await _supabase.from('user_reviews').upsert({
+        'movie_id': movieId,
+        'user_id': user.id,
+        'comment': commentText,
+        'rating': rating,
+        'spoiler': spoiler,
+        'movie_title': movieTitle,
+      }, onConflict: 'movie_id,user_id');
 
-  final allComments = await commentsRef.get();
-  double total = 0;
-  int count = 0;
-
-  for (var doc in allComments.docs) {
-    final data = doc.data();
-    if (data.containsKey('rating') && data['rating'] is num) {
-      total += (data['rating'] as num).toDouble();
-      count++;
+      // 3. Ortalama puanı güncelle
+      await _updateMovieAverageRating(movieId);
+    } catch (e) {
+      throw Exception('Failed to add comment: ${e.toString()}');
     }
   }
 
-  final average = count > 0 ? total / count : 0;
+  Future<void> _updateMovieAverageRating(String movieId) async {
+    try {
+      final response = await _supabase
+          .from('comments')
+          .select('rating')
+          .eq('movie_id', movieId);
 
-  await movieRef.set({
-    'averageRating': average,
-  }, SetOptions(merge: true));
+      final ratings = List<double>.from(
+        response.map((item) => (item['rating'] as num).toDouble()),
+      );
+
+      final average = ratings.isNotEmpty
+          ? ratings.reduce((a, b) => a + b) / ratings.length
+          : 0.0;
+
+      await _supabase
+          .from('movies')
+          .update({'average_rating': average})
+          .eq('id', movieId);
+    } catch (e) {
+      throw Exception('Failed to update average rating: ${e.toString()}');
+    }
+  }
+
+
 }
-
-
-}
-*/

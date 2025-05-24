@@ -158,24 +158,3 @@ class _CommentCardState extends State<CommentCard> {
 */
 
 
-/*
-Text(comment.commentText, maxLines: 3, overflow: TextOverflow.ellipsis),
-          const Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-  DateFormat('dd MMM yyyy').format(comment.createdAt),
-  style: const TextStyle(fontSize: 10, color: Colors.grey),
-),
-              Row(
-                children: List.generate(5, (i) {
-                  return Icon(
-                    i < comment.rating ? Icons.star : Icons.star_border,
-                    size: 14,
-                    color: Colors.amber,
-                  );
-                }),
-              )
-            ],
-          )*/
