@@ -30,7 +30,7 @@ class _NavBarState extends State<NavBar> {
     screens = [
       StartPage(),
       StartPage(),
-      StartPage(),
+      SearchPage(),
       StartPage(),StartPage(),
 
       //HomePage(),

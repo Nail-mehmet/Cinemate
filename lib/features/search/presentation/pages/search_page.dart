@@ -1,6 +1,5 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
 import 'package:Cinemate/features/auth/presentation/cubits/auth_cubits.dart';
@@ -258,10 +257,10 @@ class _SearchPageState extends State<SearchPage> {
                 }
 
                 if (state is SearchLoaded) {
-                  final users = state.users;
+                 // final users = state.users;
                   final movies = state.movies;
 
-                  if (users.isEmpty &&
+                  if (/*users.isEmpty &&*/
                       movies.isEmpty &&
                       (searchController.text.isNotEmpty ||
                           _selectedGenre != null)) {
@@ -293,7 +292,7 @@ class _SearchPageState extends State<SearchPage> {
                   return ListView(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     children: [
-                      if (users.isNotEmpty && _searchType != 'movies') ...[
+                     /* if (/*users.isNotEmpty &&*/ _searchType != 'movies') ...[
                         Padding(
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                           child: Text("Kullanıcılar",
@@ -304,7 +303,7 @@ class _SearchPageState extends State<SearchPage> {
                                       Theme.of(context).colorScheme.primary)),
                         ),
                         ...users.map((user) => UserTile(user: user!)).toList(),
-                      ],
+                      ],*/
                       if (movies.isNotEmpty && _searchType != 'users') ...[
                         if (_selectedGenre != null)
                           Padding(
@@ -335,7 +334,7 @@ class _SearchPageState extends State<SearchPage> {
                               ],
                             ),
                           ),
-                        ...movies
+                       ...movies
                             .map((movie) => MovieTile(
                                 movie: movie,
                                 posterWidth: 60,
@@ -399,4 +398,3 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
-*/

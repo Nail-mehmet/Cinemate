@@ -1,7 +1,6 @@
-/*
+
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:Cinemate/features/movies/domain/entities/movie.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/search/domain/search_repo.dart';
@@ -10,7 +9,7 @@ class FirebaseSearchRepo implements SearchRepo {
   final String _apiKey = '7bd28d1b496b14987ce5a838d719c5c7'; // 🔑 Buraya kendi TMDB API anahtarını yaz
 
   @override
-  Future<List<ProfileUser?>> searchUser(String query) async {
+ /* Future<List<ProfileUser?>> searchUser(String query) async {
     try {
       final result = await FirebaseFirestore.instance
           .collection("users")
@@ -24,7 +23,7 @@ class FirebaseSearchRepo implements SearchRepo {
     } catch (e) {
       throw Exception("Error $e");
     }
-  }
+  }*/
 
   @override
   Future<List<Movie>> searchMovie(String query) async {
@@ -63,4 +62,4 @@ class FirebaseSearchRepo implements SearchRepo {
       throw Exception('Failed to load movies by genre');
     }
   }
-}*/
+}

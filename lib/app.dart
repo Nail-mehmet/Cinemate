@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
     //final firebaseProfileRepo = FirebaseProfileRepo();
     //final firebaseStorageRepo = FirebaseStorageRepo();
    // final firebasePostRepo = FirebasePostRepo();
-   // final firebaseSearchRepo = FirebaseSearchRepo();
+    final firebaseSearchRepo = FirebaseSearchRepo();
    // final chatRemoteDataSource = ChatRemoteDataSource();
 
    /* void initState() {
@@ -135,9 +135,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
               storageRepo: firebaseStorageRepo,
             ),
           ),*/
-         /* BlocProvider<SearchCubit>(
+         BlocProvider<SearchCubit>(
             create: (context) => SearchCubit(searchRepo: firebaseSearchRepo),
-          ),*/
+          ),
           BlocProvider<MovieCubit>(
             create: (context) => MovieCubit(movieRepo: movieRepo)..fetchMovies(),
           ),

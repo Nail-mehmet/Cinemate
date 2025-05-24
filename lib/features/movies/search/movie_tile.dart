@@ -1,4 +1,4 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:Cinemate/themes/font_theme.dart';
 import '../domain/entities/movie.dart';
 import '../presentation/pages/movie_detail_page.dart';
@@ -126,4 +126,4 @@ class MovieTile extends StatelessWidget {
       ),
     );
   }
-}*/
+}
