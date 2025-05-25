@@ -1,7 +1,6 @@
-/*import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_widget/home_widget.dart';
@@ -21,8 +20,8 @@ import 'package:Cinemate/features/post/presentation/cubits/post_states.dart';
 import 'package:Cinemate/features/premium/pages/premiums_page.dart';
 import 'package:Cinemate/features/premium/pages/subscriptions_page.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
-import 'package:Cinemate/features/profile/presentation/components/animated_movie_cards.dart';*/
-/*import 'package:Cinemate/features/profile/presentation/components/bio_box.dart';
+import 'package:Cinemate/features/profile/presentation/components/animated_movie_cards.dart';
+import 'package:Cinemate/features/profile/presentation/components/bio_box.dart';
 import 'package:Cinemate/features/profile/presentation/components/follow_button.dart';
 import 'package:Cinemate/features/profile/presentation/components/message_button.dart';
 import 'package:Cinemate/features/profile/presentation/components/movie_stats.dart';
@@ -89,10 +88,10 @@ class _ProfilePage2State extends State<ProfilePage2>
     super.initState();
     HomeWidget.setAppGroupId(appGroupId);
     profileCubit.fetchUserProfile(widget.uid);
-    context.read<PostCubit>().fetchPostsForUser(widget.uid);
-    _loadPostCount();
-    _loadUserReviews();
-    _loadTopThreeMovies();
+    //context.read<PostCubit>().fetchPostsForUser(widget.uid);
+    //_loadPostCount();
+    //_loadUserReviews();
+   // _loadTopThreeMovies();
     _loadAllMovieCollections();
 
     _animationController = AnimationController(
@@ -137,7 +136,7 @@ class _ProfilePage2State extends State<ProfilePage2>
 
   }
 
-  Future<void> _loadPostCount() async {
+  /*Future<void> _loadPostCount() async {
     final postSnapshot = await FirebaseFirestore.instance
         .collection('posts')
         .where('userId', isEqualTo: widget.uid)
@@ -146,8 +145,8 @@ class _ProfilePage2State extends State<ProfilePage2>
     setState(() {
       _postCount = postSnapshot.docs.length;
     });
-  }
-
+  }*/
+/*
   Future<void> _showUserTopThreeMovies() async {
     final currentUserId = currentUser!.uid;
 
@@ -487,35 +486,35 @@ class _ProfilePage2State extends State<ProfilePage2>
       ),
     );
   }
-
+*/
   Future<void> _loadAllMovieCollections() async {
     try {
       final futures = await Future.wait([
-        profileCubit.getMovieCollection(widget.uid, 'favoriteMovies'),
-        profileCubit.getMovieCollection(widget.uid, 'watchedMovies'),
-        profileCubit.getMovieCollection(widget.uid, 'savedlist'),
+        profileCubit.getMovieCollection(widget.uid, 'favorite_movies'),
+        profileCubit.getMovieCollection(widget.uid, 'watched_movies'),
+        profileCubit.getMovieCollection(widget.uid, 'savedlist_movies'),
       ]);
 
       setState(() {
-        favoriteMovies = futures[0];
-        watchedMovies = futures[1];
-        savedMovies = futures[2];
+        favoriteMovies = futures[0].map((e) => int.parse(e)).toList();
+        watchedMovies = futures[1].map((e) => int.parse(e)).toList();
+        savedMovies = futures[2].map((e) => int.parse(e)).toList();
       });
     } catch (e) {
       print('Error loading movie collections: $e');
     }
   }
 
-  Future<void> _loadTopThreeMovies() async {
+ /* Future<void> _loadTopThreeMovies() async {
     try {
       final movies = await profileCubit.getTopThreeMovies(widget.uid);
       setState(() {
-        topThreeMovies = movies;
+        topThreeMovies = movies.cast<int>();
       });
     } catch (e) {
       print('Error loading top three movies: $e');
     }
-  }
+  }*/
 
   void _showAllMoviesBottomSheet(String title, List<int> movies) {
     showModalBottomSheet(
@@ -696,14 +695,14 @@ class _ProfilePage2State extends State<ProfilePage2>
                   ),
                 ),
                 if (isOwnProfile)
-                  Positioned(
+                  /*Positioned(
                       left: 0,
                       child: TextButton(
                           onPressed: () => _showUserTopThreeMovies(),
                           child: Text(
                             "Eşleş",
                             style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),
-                          ))),
+                          ))),*/
                 if (isOwnProfile && topThreeMovies.length == 3)
                   Positioned(
                     right: 0,
@@ -918,7 +917,7 @@ class _ProfilePage2State extends State<ProfilePage2>
     try {
       await context.read<ProfileCubit>().fetchUserProfile(widget.uid!);
       await Future.wait([]);
-      await _loadTopThreeMovies();
+    //  await _loadTopThreeMovies();
       await _loadAllMovieCollections();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -928,7 +927,7 @@ class _ProfilePage2State extends State<ProfilePage2>
     }
   }
 
-  Widget _buildPostsGrid(List<Post> posts) {
+  /*Widget _buildPostsGrid(List<Post> posts) {
     if (_isLoading) {
       return Center(child: CircularProgressIndicator());
     }
@@ -972,7 +971,7 @@ class _ProfilePage2State extends State<ProfilePage2>
         );
       },
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -1063,9 +1062,9 @@ class _ProfilePage2State extends State<ProfilePage2>
                                             builder: (context) => EditProfilePage(user: user),
                                           ),
                                         );
-                                        Future.delayed(Duration.zero, () {
+                                       /* Future.delayed(Duration.zero, () {
                                           WidgetHelper.updateWidgetFromFirebase();
-                                        });
+                                        });*/
 
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -1088,12 +1087,12 @@ class _ProfilePage2State extends State<ProfilePage2>
                                     text: "Premium",
                                     onPressed: () {
 
-                                      Navigator.push(
+                                    /*  Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => PremiumsPage(),
                                         ),
-                                      );
+                                      );*/
                                     },
                                   ),
 
@@ -1119,7 +1118,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                                         );
                                         final chatState = context.read<ChatCubit>().state;
                                         if (chatState is ChatStarted) {
-                                          Navigator.push(
+                                          /*Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => ChatPage(
@@ -1129,7 +1128,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                                                 otherUserAvatar: "",
                                               ),
                                             ),
-                                          );
+                                          );*/
                                         }
                                       } catch (e) {
                                         ScaffoldMessenger.of(context).showSnackBar(
@@ -1253,7 +1252,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                   controller: _tabController,
                   children: [
                     // Posts Tab
-                    BlocBuilder<PostCubit, PostState>(
+                    /*BlocBuilder<PostCubit, PostState>(
                       builder: (context, state) {
                         if (state is PostsLoaded) {
                           final userPosts = state.posts
@@ -1267,10 +1266,10 @@ class _ProfilePage2State extends State<ProfilePage2>
                           return Center(child: Text("No posts yet"));
                         }
                       },
-                    ),
+                    ),*/
 
-                    // Reviews Tab
-                    _buildReviewsTab(),
+                    // Reviews Tab*
+                    //_buildReviewsTab(),
                   ],
                 ),
               ),
@@ -1287,4 +1286,4 @@ class _ProfilePage2State extends State<ProfilePage2>
       },
     );
   }
-}*/
+}

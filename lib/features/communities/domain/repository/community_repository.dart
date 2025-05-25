@@ -1,48 +1,45 @@
-/*import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 import 'package:Cinemate/features/communities/domain/entities/community_post_model.dart';
 
 class CommuneRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
-  /// Belirli bir topluluğa ait tüm komünleri getirir
+  /// Komünleri getir
   Future<List<Commune>> fetchCommunes({
     required String communityId,
     required int limit,
     Commune? lastFetched,
   }) async {
     try {
-      Query query = _firestore
-          .collection('communities')
-          .doc(communityId)
-          .collection('communes')
-          .orderBy('createdAt', descending: true)
-          .limit(limit);
+      final List data;
 
       if (lastFetched != null) {
-        query = query.startAfter([lastFetched.createdAt]);
+        data = await _supabase
+            .from('communes')
+            .select()
+            .eq('community_id', communityId)
+            .lt('created_at', lastFetched.createdAt.toIso8601String()) // en son çekilenin öncesi
+            .order('created_at', ascending: false)
+            .limit(limit);
+      } else {
+        data = await _supabase
+            .from('communes')
+            .select()
+            .eq('community_id', communityId)
+            .order('created_at', ascending: false)
+            .limit(limit);
       }
 
-      final snapshot = await query.get();
-
-      return snapshot.docs
-          .map((doc) {
-  final data = doc.data();
-  if (data is Map<String, dynamic>) {
-    return Commune.fromMap(doc.id, data);
-  } else {
-    throw Exception('Belge verisi beklenen formatta değil');
-  }
-}).toList();
-
+      return data.map((e) => Commune.fromMap(e)).toList();
     } catch (e) {
       throw Exception('Komünler alınırken hata oluştu: $e');
     }
   }
 
+  /// Komün oluştur
   Future<void> createCommune({
     required String communityId,
     required Commune commune,
@@ -52,31 +49,38 @@ class CommuneRepository {
       String? imageUrl;
 
       if (image != null) {
-        final ref = _storage.ref().child('commune_images/${DateTime.now().millisecondsSinceEpoch}');
-        await ref.putFile(image);
-        imageUrl = await ref.getDownloadURL();
+        final fileName = '${const Uuid().v4()}.jpg';
+        await _supabase.storage
+            .from('communeimages')
+            .upload('public/$fileName', image);
+        imageUrl = _supabase.storage
+            .from('communeimages')
+            .getPublicUrl('public/$fileName');
       }
 
-      await _firestore
-          .collection('communities')
-          .doc(communityId)
-          .collection('communes')
-          .add(commune.copyWith(imageUrl: imageUrl).toMap());
+      await _supabase.from('communes').insert({
+        'id': commune.id,
+        'text': commune.text,
+        'image_url': imageUrl,
+        'user_id': commune.userId,
+        'created_at': commune.createdAt.toIso8601String(),
+        'community_id': communityId,
+      });
     } catch (e) {
       throw Exception('Komün oluşturulurken hata: $e');
     }
   }
-  /// Topluluğun üye listesini getirir
+
+  /// Üyeleri getir
   Future<List<String>> fetchCommunityMembers(String communityId) async {
     try {
-      final doc = await _firestore.collection('communities').doc(communityId).get();
+      final data = await _supabase
+          .from('communities')
+          .select('members')
+          .eq('id', communityId)
+          .single();
 
-      if (!doc.exists) {
-        debugPrint('Topluluk bulunamadı: $communityId');
-        return [];
-      }
-
-      final members = doc.data()?['members'] as List<dynamic>?;
+      final members = data['members'] as List<dynamic>?;
 
       return members?.map((e) => e.toString()).toList() ?? [];
     } catch (e) {
@@ -85,28 +89,33 @@ class CommuneRepository {
     }
   }
 
-
-
-  /// Topluluğa kullanıcı ekler
+  /// Üye ekle
   Future<void> addMemberToCommunity(String communityId, String userId) async {
     try {
-      await _firestore.collection('communities').doc(communityId).update({
-        'members': FieldValue.arrayUnion([userId]),
-      });
+      final currentMembers = await fetchCommunityMembers(communityId);
+      if (!currentMembers.contains(userId)) {
+        currentMembers.add(userId);
+        await _supabase
+            .from('communities')
+            .update({'members': currentMembers})
+            .eq('id', communityId);
+      }
     } catch (e) {
       debugPrint('Üye eklenirken hata: $e');
     }
   }
 
-  /// Topluluktan kullanıcıyı çıkarır
+  /// Üye çıkar
   Future<void> removeMemberFromCommunity(String communityId, String userId) async {
     try {
-      await _firestore.collection('communities').doc(communityId).update({
-        'members': FieldValue.arrayRemove([userId]),
-      });
+      final currentMembers = await fetchCommunityMembers(communityId);
+      currentMembers.remove(userId);
+      await _supabase
+          .from('communities')
+          .update({'members': currentMembers})
+          .eq('id', communityId);
     } catch (e) {
       debugPrint('Üye çıkarılırken hata: $e');
     }
   }
 }
-*/

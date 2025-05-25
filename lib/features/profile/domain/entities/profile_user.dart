@@ -1,9 +1,8 @@
-/*import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
+import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
 
 class ProfileUser extends AppUser {
   final String bio;
   final String profileImageUrl;
-  final String bgImageUrl;
   final List<String> followers;
   final List<String> following;
   final List<String> watchedMovies;
@@ -17,7 +16,6 @@ class ProfileUser extends AppUser {
     required super.name,
     required this.bio, 
     required this.profileImageUrl,
-    required this.bgImageUrl,
     required this.followers,
     required this.following,
     this.watchedMovies = const [],
@@ -31,8 +29,7 @@ class ProfileUser extends AppUser {
     String? newName,
     String? newEmail, 
     String? newProfileImageUrl,
-    String? newbgImageUrl, 
-    List<String>? newFollowers, 
+    List<String>? newFollowers,
     List<String>? newFollowing,
     List<String>? newWatchedMovies,
     List<String>? newFavoriteMovies,
@@ -45,7 +42,6 @@ class ProfileUser extends AppUser {
       name: newName ?? name,
       bio: newBio ?? bio,
       profileImageUrl: newProfileImageUrl ?? profileImageUrl,
-      bgImageUrl: newbgImageUrl ?? bgImageUrl,
       followers: newFollowers ?? followers,
       following: newFollowing ?? following,
       watchedMovies: newWatchedMovies ?? watchedMovies,
@@ -62,7 +58,6 @@ class ProfileUser extends AppUser {
       "name": name,
       "bio": bio,
       "profileImageUrl": profileImageUrl,
-      "bgImageUrl": bgImageUrl,
       "followers": followers,
       "following": following,
       "watchedMovies": watchedMovies,
@@ -79,7 +74,6 @@ class ProfileUser extends AppUser {
       name: json["name"],
       bio: json["bio"] ?? "",
       profileImageUrl: json["profileImageUrl"] ?? "",
-      bgImageUrl: json["bgImageUrl"] ?? "",
       followers: List<String>.from(json["followers"] ?? []),
       following: List<String>.from(json["following"] ?? []),
       watchedMovies: List<String>.from(json["watchedMovies"] ?? []),
@@ -88,4 +82,4 @@ class ProfileUser extends AppUser {
       topThreeMovies: List<String>.from(json["topThreeMovies"] ?? [])
     );
   }
-}*/
+}

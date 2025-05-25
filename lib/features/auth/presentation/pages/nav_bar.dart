@@ -31,7 +31,7 @@ class _NavBarState extends State<NavBar> {
       StartPage(),
       StartPage(),
       SearchPage(),
-      StartPage(),StartPage(),
+      StartPage(),ProfilePage2(uid: currentUser!.uid),
 
       //HomePage(),
       //SearchPage(),

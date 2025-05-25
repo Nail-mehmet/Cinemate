@@ -1,5 +1,4 @@
-/*import 'dart:io';
-
+import 'dart:io';
 import 'package:Cinemate/features/communities/domain/entities/community_post_model.dart';
 
 abstract class CommuneEvent {
@@ -28,4 +27,4 @@ class CreateCommune extends CommuneEvent {
     required this.commune,
     this.image,
   });
-}*/
+}

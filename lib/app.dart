@@ -69,7 +69,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
   Widget build(BuildContext context) {
     final firebaseAuthRepo = SupabaseAuthRepo();
     //final firebaseProfileRepo = FirebaseProfileRepo();
-    //final firebaseStorageRepo = FirebaseStorageRepo();
+    final firebaseStorageRepo = SupabaseStorageRepo();
    // final firebasePostRepo = FirebasePostRepo();
     final firebaseSearchRepo = FirebaseSearchRepo();
    // final chatRemoteDataSource = ChatRemoteDataSource();
@@ -120,15 +120,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
           BlocProvider<AuthCubit>(
             create: (context) => AuthCubit(authRepo: firebaseAuthRepo)..checkAuth(),
           ),
-        /*  BlocProvider<ProfileCubit>(
+         BlocProvider<ProfileCubit>(
             create: (context) => ProfileCubit(
-              profileRepo: firebaseProfileRepo,
+              profileRepo: SupabaseProfileRepo(),
               storageRepo: firebaseStorageRepo,
             ),
-          ),*/
-         /* BlocProvider(
+          ),
+          BlocProvider(
           create: (_) => CommuneBloc(CommuneRepository()),
-        ),*/
+        ),
           /*BlocProvider<PostCubit>(
             create: (context) => PostCubit(
               postRepo: firebasePostRepo,

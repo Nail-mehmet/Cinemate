@@ -1,7 +1,5 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
-
 class CommunityState {
-  final List<QueryDocumentSnapshot> communities;
+  final List<Map<String, dynamic>> communities;
   final Map<String, bool> membershipStatus;
   final bool isLoading;
 
@@ -12,7 +10,7 @@ class CommunityState {
   });
 
   CommunityState copyWith({
-    List<QueryDocumentSnapshot>? communities,
+    List<Map<String, dynamic>>? communities,
     Map<String, bool>? membershipStatus,
     bool? isLoading,
   }) {
@@ -23,4 +21,3 @@ class CommunityState {
     );
   }
 }
-*/

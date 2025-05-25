@@ -1,4 +1,4 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/profile/presentation/pages/profile_page2.dart';
 import 'package:Cinemate/themes/font_theme.dart';
@@ -41,4 +41,3 @@ class UserTile extends StatelessWidget {
     );
   }
 }
-*/

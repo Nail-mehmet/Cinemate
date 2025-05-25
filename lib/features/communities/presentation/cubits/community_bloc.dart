@@ -1,15 +1,13 @@
-/*import 'dart:async';
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'community_event.dart';
 import 'community_state.dart';
 
 class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
-  final FirebaseFirestore firestore;
-  final FirebaseAuth auth;
+  final SupabaseClient supabase;
 
-  CommunityBloc({required this.firestore, required this.auth})
+  CommunityBloc({required this.supabase})
       : super(CommunityState(communities: [], membershipStatus: {}, isLoading: true)) {
     on<LoadCommunities>(_onLoadCommunities);
     on<ToggleMembership>(_onToggleMembership);
@@ -17,97 +15,96 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
 
   Future<void> _onLoadCommunities(LoadCommunities event, Emitter<CommunityState> emit) async {
     emit(state.copyWith(isLoading: true));
-    final snapshot = await firestore.collection('communities').get();
+
+    final response = await supabase
+        .from('communities')
+        .select('*');
 
     Map<String, bool> membershipStatus = {};
 
-    for (var doc in snapshot.docs) {
-      final isMember = await _checkIfMember(doc.id);
-      membershipStatus[doc.id] = isMember;
+    for (var community in response) {
+      final isMember = await _checkIfMember(community['id']);
+      membershipStatus[community['id']] = isMember;
     }
 
     emit(state.copyWith(
-      communities: snapshot.docs,
+      communities: response,
       membershipStatus: membershipStatus,
       isLoading: false,
     ));
   }
+
   Future<bool> toggleMembership(String communityId, bool isMember) async {
-  final user = auth.currentUser;
-  if (user == null) return false;
+    final user = supabase.auth.currentUser;
+    if (user == null) return false;
 
-  final communityRef = firestore.collection('communities').doc(communityId);
-  final memberRef = communityRef.collection('members').doc(user.uid);
+    try {
+      if (isMember) {
+        // Üyelikten çıkma işlemi
+        await supabase
+            .from('community_members')
+            .delete()
+            .eq('community_id', communityId)
+            .eq('user_id', user.id);
 
-  await firestore.runTransaction((transaction) async {
-    final communityDoc = await transaction.get(communityRef);
-    final currentCount = communityDoc['membersCount'] ?? 0;
+        // Üye sayısını azalt
+        await supabase.rpc('decrement_member_count', params: {
+          'community_id': communityId,
+        });
+      } else {
+        // Üyelik ekleme işlemi
+        await supabase
+            .from('community_members')
+            .insert({
+          'community_id': communityId,
+          'user_id': user.id,
+          'joined_at': DateTime.now().toIso8601String(),
+        });
 
-    if (isMember) {
-      transaction.delete(memberRef);
-      transaction.update(communityRef, {'membersCount': currentCount - 1});
-    } else {
-      transaction.set(memberRef, {
-        'userId': user.uid,
-        'joinedAt': FieldValue.serverTimestamp(),
-      });
-      transaction.update(communityRef, {'membersCount': currentCount + 1});
+        // Üye sayısını artır
+        await supabase.rpc('increment_member_count', params: {
+          'community_id': communityId,
+        });
+      }
+
+      // Güncel topluluk listesini al
+      final updatedCommunities = await supabase
+          .from('communities')
+          .select('*');
+
+      // Üyelik durumu localde güncelle
+      final updatedStatus = Map<String, bool>.from(state.membershipStatus);
+      updatedStatus[communityId] = !isMember;
+
+      emit(state.copyWith(
+        communities: updatedCommunities,
+        membershipStatus: updatedStatus,
+      ));
+
+      return !isMember; // True dönerse katılma oldu, false ise ayrılma
+    } catch (e) {
+      print('Membership toggle error: $e');
+      return isMember; // Hata durumunda eski durumu koru
     }
-  });
-
-  // Üyelik durumu localde güncelle
-  final updatedStatus = Map<String, bool>.from(state.membershipStatus);
-  updatedStatus[communityId] = !isMember;
-
-  final updatedCommunities = await firestore.collection('communities').get();
-
-  emit(state.copyWith(
-    communities: updatedCommunities.docs,
-    membershipStatus: updatedStatus,
-  ));
-
-  return !isMember; // True dönerse katılma oldu, false ise ayrılma
-}
-
+  }
 
   Future<void> _onToggleMembership(ToggleMembership event, Emitter<CommunityState> emit) async {
-    final user = auth.currentUser;
-    if (user == null) return;
-
-    final communityRef = firestore.collection('communities').doc(event.communityId);
-    final memberRef = communityRef.collection('members').doc(user.uid);
-
-    await firestore.runTransaction((transaction) async {
-      final communityDoc = await transaction.get(communityRef);
-      final currentCount = communityDoc['membersCount'] ?? 0;
-
-      if (event.isMember) {
-        transaction.delete(memberRef);
-        transaction.update(communityRef, {'membersCount': currentCount - 1});
-      } else {
-        transaction.set(memberRef, {
-          'userId': user.uid,
-          'joinedAt': FieldValue.serverTimestamp(),
-        });
-        transaction.update(communityRef, {'membersCount': currentCount + 1});
-      }
-    });
-
-    add(LoadCommunities());
+    final result = await toggleMembership(event.communityId, event.isMember);
+    if (result != event.isMember) {
+      add(LoadCommunities());
+    }
   }
 
   Future<bool> _checkIfMember(String communityId) async {
-    final user = auth.currentUser;
+    final user = supabase.auth.currentUser;
     if (user == null) return false;
 
-    final doc = await firestore
-        .collection('communities')
-        .doc(communityId)
-        .collection('members')
-        .doc(user.uid)
-        .get();
+    final response = await supabase
+        .from('community_members')
+        .select()
+        .eq('community_id', communityId)
+        .eq('user_id', user.id);
 
-    return doc.exists;
+    return response.isNotEmpty;
   }
 }
-*/

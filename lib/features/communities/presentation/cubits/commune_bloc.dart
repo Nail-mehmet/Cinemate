@@ -1,4 +1,4 @@
-/*import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/features/communities/domain/repository/community_repository.dart';
 import 'package:Cinemate/features/communities/presentation/cubits/commune_event.dart';
 import 'package:Cinemate/features/communities/presentation/cubits/commune_state.dart';
@@ -13,11 +13,10 @@ class CommuneBloc extends Bloc<CommuneEvent, CommuneState> {
   }
 
   Future<void> _onLoadCommunes(
-    LoadCommunes event,
-    Emitter<CommuneState> emit,
-  ) async {
+      LoadCommunes event,
+      Emitter<CommuneState> emit,
+      ) async {
     try {
-      // If we're loading more posts, show the current posts while loading
       if (event.lastFetched != null && state is CommuneLoaded) {
         emit((state as CommuneLoaded).copyWith(isLoadingMore: true));
       } else {
@@ -31,7 +30,6 @@ class CommuneBloc extends Bloc<CommuneEvent, CommuneState> {
       );
 
       if (event.lastFetched != null && state is CommuneLoaded) {
-        // Append new posts to existing ones
         final currentState = state as CommuneLoaded;
         final allCommunes = [...currentState.communes, ...communes];
         emit(currentState.copyWith(
@@ -40,7 +38,6 @@ class CommuneBloc extends Bloc<CommuneEvent, CommuneState> {
           hasMore: communes.length >= event.limit,
         ));
       } else {
-        // Initial load
         emit(CommuneLoaded(
           communes,
           isLoadingMore: false,
@@ -48,14 +45,14 @@ class CommuneBloc extends Bloc<CommuneEvent, CommuneState> {
         ));
       }
     } catch (e) {
-      emit(CommuneError('Gönderiler yüklenemedi: $e'));
+      emit(CommuneError('Failed to load posts: $e'));
     }
   }
 
   Future<void> _onCreateCommune(
-    CreateCommune event,
-    Emitter<CommuneState> emit,
-  ) async {
+      CreateCommune event,
+      Emitter<CommuneState> emit,
+      ) async {
     try {
       await repository.createCommune(
         communityId: event.communityId,
@@ -67,7 +64,7 @@ class CommuneBloc extends Bloc<CommuneEvent, CommuneState> {
         limit: _postsPerPage,
       ));
     } catch (e) {
-      emit(CommuneError('Gönderi oluşturulamadı: $e'));
+      emit(CommuneError('Failed to create post: $e'));
     }
   }
-}*/
+}

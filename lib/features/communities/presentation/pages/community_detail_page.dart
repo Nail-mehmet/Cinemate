@@ -1,4 +1,4 @@
-/*import 'dart:io';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,10 +7,11 @@ import 'package:Cinemate/features/communities/presentation/components/community_
 import 'package:Cinemate/features/communities/presentation/cubits/commune_bloc.dart';
 import 'package:Cinemate/features/communities/presentation/cubits/commune_event.dart';
 import 'package:Cinemate/features/communities/presentation/cubits/commune_state.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:Cinemate/features/profile/presentation/components/user_tile.dart';
 import 'package:Cinemate/features/profile/presentation/cubits/profile_cubit.dart';
 import 'package:Cinemate/themes/font_theme.dart';
+import 'package:uuid/uuid.dart';
 
 class CommunityDetailPage extends StatefulWidget {
   final String communityId;
@@ -37,15 +38,17 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
   bool _isLoadingMore = false;
   bool _hasMorePosts = true;
   final int _postsPerPage = 10;
+  final _supabase = Supabase.instance.client;
+  final _uuid = Uuid();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     context.read<CommuneBloc>().add(LoadCommunes(
-          communityId: widget.communityId,
-          limit: _postsPerPage,
-        ));
+      communityId: widget.communityId,
+      limit: _postsPerPage,
+    ));
     _scrollController.addListener(_onScroll);
   }
 
@@ -59,7 +62,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
 
   void _onScroll() {
     if (_scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent &&
+        _scrollController.position.maxScrollExtent &&
         !_isLoadingMore &&
         _hasMorePosts) {
       _loadMorePosts();
@@ -72,10 +75,10 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
       final oldestPost = state.communes.last;
       _isLoadingMore = true;
       context.read<CommuneBloc>().add(LoadCommunes(
-            communityId: widget.communityId,
-            limit: _postsPerPage,
-            lastFetched: oldestPost,
-          ));
+        communityId: widget.communityId,
+        limit: _postsPerPage,
+        lastFetched: oldestPost,
+      ));
     }
   }
 
@@ -118,196 +121,193 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
   }
 
   void _showTextPostSheet() {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          top: 24,
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.35,
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      controller: _textController,
-                      maxLines: 8,
-                      decoration: InputDecoration(
-                        hintText: 'Bir şeyler yaz...',
-                        filled: true,
-                        fillColor: Colors.grey,
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 18),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 24,
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.35,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 100),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(
+                        controller: _textController,
+                        maxLines: 8,
+                        decoration: InputDecoration(
+                          hintText: 'Bir şeyler yaz...',
+                          filled: true,
+                          fillColor: Colors.grey,
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 18),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Positioned(
-                bottom: 20,
-                left: 0,
-                right: 0,
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
-                    ),
-                    onPressed: () {
-                      final commune = Commune(
-                        id: '',
-                        text: _textController.text,
-                        userId: widget.currentUserId,
-                        createdAt: DateTime.now(),
-                      );
-                      context.read<CommuneBloc>().add(CreateCommune(
-                            communityId: widget.communityId,
-                            commune: commune,
-                          ));
-                      Navigator.pop(context);
-                      _textController.clear();
-                    },
-                    child: const Text(
-                      'Paylaş',
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
+                      onPressed: () {
+                        final commune = Commune(
+                          id: _uuid.v4(),  // Burada boş string değil, yeni UUID atandı
+                          text: _textController.text,
+                          userId: widget.currentUserId,
+                          createdAt: DateTime.now(),
+                        );
+                        context.read<CommuneBloc>().add(CreateCommune(
+                          communityId: widget.communityId,
+                          commune: commune,
+                        ));
+                        Navigator.pop(context);
+                        _textController.clear();
+                      },
+                      child: const Text(
+                        'Paylaş',
+                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   void _showImagePostSheet() async {
-  final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-  setState(() {
-    _selectedImage = picked != null ? File(picked.path) : null;
-  });
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    setState(() {
+      _selectedImage = picked != null ? File(picked.path) : null;
+    });
 
-  if (_selectedImage == null) return;
+    if (_selectedImage == null) return;
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          top: 24,
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.65,
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 100),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_selectedImage != null)
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.file(
-                          _selectedImage!,
-                          height: 250,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    const SizedBox(height: 20),
-                    TextField(
-                      controller: _textController,
-                      maxLines: 8,
-                      decoration: InputDecoration(
-                        hintText: 'Bir şeyler yaz...',
-                        filled: true,
-                        fillColor: Colors.grey,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-                        border: OutlineInputBorder(
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 24,
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.65,
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 100),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_selectedImage != null)
+                        ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
+                          child: Image.file(
+                            _selectedImage!,
+                            height: 250,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _textController,
+                        maxLines: 8,
+                        decoration: InputDecoration(
+                          hintText: 'Bir şeyler yaz...',
+                          filled: true,
+                          fillColor: Colors.grey,
+                          contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Positioned(
-                bottom: 20,
-                left: 0,
-                right: 0,
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
-                    ),
-                    onPressed: () {
-                      final commune = Commune(
-                        id: '',
-                        text: _textController.text,
-                        userId: widget.currentUserId,
-                        createdAt: DateTime.now(),
-                      );
-                      context.read<CommuneBloc>().add(CreateCommune(
-                            communityId: widget.communityId,
-                            commune: commune,
-                            image: _selectedImage,
-                          ));
-                      Navigator.pop(context);
-                      _textController.clear();
-                    },
-                    child: const Text(
-                      'Paylaş',
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
+                      onPressed: () {
+                        final commune = Commune(
+                          id: _uuid.v4(),
+                          text: _textController.text,
+                          userId: widget.currentUserId,
+                          createdAt: DateTime.now(),
+                        );
+                        context.read<CommuneBloc>().add(CreateCommune(
+                          communityId: widget.communityId,
+                          commune: commune,
+                          image: _selectedImage,
+                        ));
+                        Navigator.pop(context);
+                        _textController.clear();
+                      },
+                      child: const Text(
+                        'Paylaş',
+                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
-
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -375,7 +375,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                     Expanded(
                       child: ListView.builder(
                         controller: _scrollController,
-                        reverse: true, // This makes newest appear at bottom
+                        reverse: true,
                         itemCount: state.communes.length + (_hasMorePosts ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index >= state.communes.length) {
@@ -399,23 +399,22 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
               return const Center(child: Text('Bir hata oluştu.'));
             },
           ),
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('communities')
-                .doc(widget.communityId)
-                .collection('members')
-                .snapshots(),
+        /*  StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _supabase
+                .from('community_members')
+                .stream(primaryKey: ['community_id', 'user_id'])
+                .eq('community_id', widget.communityId)
+                .execute(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return const Center(child: Text('Henüz üye yok.'));
               }
 
-              final memberIds =
-                  snapshot.data!.docs.map((doc) => doc.id).toList();
+              final memberIds = snapshot.data!.map((doc) => doc['user_id'] as String).toList();
               return ListView.builder(
                 itemCount: memberIds.length,
                 itemBuilder: (context, index) {
@@ -441,10 +440,10 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                 },
               );
             },
-          ),
+          ),*/
         ],
       ),
       floatingActionButton: _buildFab(),
     );
   }
-}*/
+}

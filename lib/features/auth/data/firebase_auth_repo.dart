@@ -47,6 +47,7 @@ class SupabaseAuthRepo implements AuthRepo {
         'id': user.id,
         'email': email,
         'name': name,
+        "bio": "adım kahtan",
         'profile_image': '', // Varsayılan boş ya da placeholder URL
         'is_premium': false, // Başlangıçta false
         'created_at': DateTime.now().toIso8601String(),

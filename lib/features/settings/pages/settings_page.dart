@@ -1,4 +1,4 @@
-/*import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/features/auth/presentation/cubits/auth_cubits.dart';
@@ -28,10 +28,10 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         children: [
           _buildTile(Icons.person_outline, "Hesap Ayarları", () {
-            Navigator.push(
+        /*    Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ManageAccountPage()),
-            );
+            );*/
           }),
           _buildTile(Icons.credit_card_outlined, "Abonelik", () {
             Navigator.push(
@@ -49,11 +49,11 @@ class SettingsPage extends StatelessWidget {
             );*/
           }),
           _buildTile(Icons.vpn_key_outlined, "Şifre Yöneticisi", () {
-            Navigator.push(
+          /*  Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => const UpdatePasswordScreen()),
-            );
+            );*/
           }),
           _buildTile(Icons.help_outline, "Yardım Merkezi", () {
             Navigator.push(
@@ -117,4 +117,3 @@ class SettingsPage extends StatelessWidget {
 }
 
 }
-*/

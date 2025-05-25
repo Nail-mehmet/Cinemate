@@ -1,5 +1,3 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Commune {
   final String id;
   final String text;
@@ -14,36 +12,40 @@ class Commune {
     required this.createdAt,
     this.imageUrl,
   });
-  Commune copyWith({String? text, String? imageUrl, String? userId, DateTime? createdAt}) {
-  return Commune(
-    id: id,
-    text: text ?? this.text,
-    imageUrl: imageUrl ?? this.imageUrl,
-    userId: userId ?? this.userId,
-    createdAt: createdAt ?? this.createdAt,
-  );
-}
 
-
-  factory Commune.fromMap(String id, Map<String, dynamic> data) {
+  Commune copyWith({
+    String? text,
+    String? imageUrl,
+    String? userId,
+    DateTime? createdAt,
+  }) {
     return Commune(
       id: id,
-      text: data['text'] ?? '',
-      imageUrl: data['imageUrl'],
-      userId: data['userId'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
+      text: text ?? this.text,
+      imageUrl: imageUrl ?? this.imageUrl,
+      userId: userId ?? this.userId,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'text': text,
-      'imageUrl': imageUrl,
-      'userId': userId,
-      'createdAt': createdAt,
-    };
+  factory Commune.fromMap(Map<String, dynamic> data) {
+    return Commune(
+      id: data['id'] as String,
+      text: data['text'] ?? '',
+      imageUrl: data['image_url'] as String?,
+      userId: data['user_id'] as String,
+      createdAt: DateTime.parse(data['created_at'] as String),
+    );
   }
 
-  static fromFirestore(QueryDocumentSnapshot<Map<String, dynamic>> doc) {}
+  Map<String, dynamic> toMap({required String communityId}) {
+    return {
+      'id': id,
+      'text': text,
+      'image_url': imageUrl,
+      'user_id': userId,
+      'created_at': createdAt.toIso8601String(),
+      'community_id': communityId,
+    };
+  }
 }
-*/

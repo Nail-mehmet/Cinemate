@@ -1,36 +1,40 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/profile/domain/repos/profile_repo.dart';
 
-class FirebaseProfileRepo implements ProfileRepo {
-  final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+class SupabaseProfileRepo implements ProfileRepo {
+  final SupabaseClient supabase = Supabase.instance.client;
 
   @override
   Future<ProfileUser?> fetchUserProfile(String uid) async {
     try {
-      // Kullanıcı temel bilgilerini çek
-      final userDoc = await firebaseFirestore.collection('users').doc(uid).get();
-      
-      if (!userDoc.exists) return null;
+      // profiles tablosundan user kaydını çek
+      final profileData = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', uid)
+          .maybeSingle();
 
-      final userData = userDoc.data();
-      if (userData == null) return null;
+      if (profileData == null) return null;
 
-      // Subcollection'lardan film listelerini çek
-      final watchedMovies = await _getSubcollectionIds(uid, 'watchedMovies');
-      final favoriteMovies = await _getSubcollectionIds(uid, 'favoriteMovies');
-      final savedlist = await _getSubcollectionIds(uid, 'savedlist');
-      final topThreeMovies = await _getSubcollectionIds(uid, 'topThreeMovies');
+      // Filmleri çek
+      final watchedMovies = await getUserMovies(uid, 'watched_movies');
+      final favoriteMovies = await getUserMovies(uid, 'favorite_movies');
+      final savedlist = await getUserMovies(uid, 'savedlist_movies');
+      final topThreeMovies = await getUserMovies(uid, 'top_three_movies');
+
+      // Takipçi ve takip edilenler
+      final followers = await _getFollowers(uid);
+      final following = await _getFollowing(uid);
 
       return ProfileUser(
         uid: uid,
-        email: userData['email'],
-        name: userData['name'],
-        bio: userData['bio'] ?? '',
-        profileImageUrl: userData['profileImageUrl'] ?? '',
-        bgImageUrl: userData['bgImageUrl'] ?? '',
-        followers: List<String>.from(userData['followers'] ?? []),
-        following: List<String>.from(userData['following'] ?? []),
+        email: profileData['email'],
+        name: profileData['name'],
+        bio: profileData['bio'] ?? '',
+        profileImageUrl: profileData['profile_image'] ?? '',
+        followers: followers,
+        following: following,
         watchedMovies: watchedMovies,
         favoriteMovies: favoriteMovies,
         savedlist: savedlist,
@@ -42,88 +46,119 @@ class FirebaseProfileRepo implements ProfileRepo {
     }
   }
 
-  Future<List<String>> _getSubcollectionIds(String userId, String collectionName) async {
+  Future<List<String>> getUserMovies(String userId, String tableName) async {
     try {
-      final snapshot = await firebaseFirestore
-          .collection('users')
-          .doc(userId)
-          .collection(collectionName)
-          .get();
+      final List<dynamic> data = await supabase
+          .from(tableName)
+          .select('movie_id')
+          .eq('user_id', userId);
 
-      return snapshot.docs.map((doc) => doc.id).toList();
+      return data.map((e) => e['movie_id'].toString()).toList();
     } catch (e) {
-      print('Error fetching $collectionName: $e');
+      print('Error fetching $tableName: $e');
       return [];
     }
   }
 
 
+  Future<List<String>> _getFollowers(String userId) async {
+    try {
+      final List<dynamic> data = await supabase
+          .from('user_relationship')
+          .select('follower_id')
+          .eq('following_id', userId);
+
+      return data.map((e) => e['follower_id'] as String).toList();
+    } catch (e) {
+      print('Error fetching followers: $e');
+      return [];
+    }
+  }
+
+  Future<List<String>> _getFollowing(String userId) async {
+    try {
+      final List<dynamic> data = await supabase
+          .from('user_relationship')
+          .select('following_id')
+          .eq('follower_id', userId);
+
+      return data.map((e) => e['following_id'] as String).toList();
+    } catch (e) {
+      print('Error fetching following: $e');
+      return [];
+    }
+  }
+
   @override
   Future<void> updateProfile(ProfileUser updatedProfile) async {
     try {
-      await firebaseFirestore
-          .collection("users")
-          .doc(updatedProfile.uid)
-          .update({
-            "bio": updatedProfile.bio,
-            "profileImageUrl": updatedProfile.profileImageUrl,
-            "bgImageUrl": updatedProfile.bgImageUrl,
-            "name" : updatedProfile.name
-          });
+      final updates = {
+        'bio': updatedProfile.bio,
+        'profile_image': updatedProfile.profileImageUrl,
+        'name': updatedProfile.name,
+        'email': updatedProfile.email, // Eğer email de güncelleniyorsa ekle
+      };
+
+      final response = await supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', updatedProfile.uid);
+            // Eğer kullandığın supabase paketinde gerekliyse
+
+      if (response.error != null) {
+        throw Exception('Failed to update profile: ${response.error!.message}');
+      }
+
+      if (response.data == null) {
+        throw Exception('No data returned from update query');
+      }
+
+      // Güncelleme başarılı
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Failed to update profile: $e');
     }
   }
-  
+
+
   @override
   Future<void> toggleFollow(String currentUid, String targetUid) async {
-  try {
-    final currentUserDoc = await firebaseFirestore.collection("users").doc(currentUid).get();
-    final targetUserDoc = await firebaseFirestore.collection("users").doc(targetUid).get();
+    try {
+      // Takip ilişkisini kontrol et
+      final existingRelation = await supabase
+          .from('user_relationship')
+          .select()
+          .eq('follower_id', currentUid)
+          .eq('following_id', targetUid)
+          .maybeSingle();
 
-    if (currentUserDoc.exists && targetUserDoc.exists) {
-      final currentUserData = currentUserDoc.data();
-      final targetUserData = targetUserDoc.data();
+      if (existingRelation != null) {
+        // Zaten takip ediyorsa, takipten çıkar (sil)
+        await supabase
+            .from('user_relationship')
+            .delete()
+            .eq('follower_id', currentUid)
+            .eq('following_id', targetUid);
+      } else {
+        // Takip et (ekle)
+        await supabase.from('user_relationship').insert({
+          'follower_id': currentUid,
+          'following_id': targetUid,
+          'created_at': DateTime.now().toIso8601String(),
+        });
 
-      if (currentUserData != null && targetUserData != null) {
-        final List<String> currentFollowing = List<String>.from(currentUserData["following"] ?? []);
-
-        if (currentFollowing.contains(targetUid)) {
-          // Takipten çıkma
-          await firebaseFirestore.collection("users").doc(currentUid).update({
-            "following": FieldValue.arrayRemove([targetUid])
-          });
-
-          await firebaseFirestore.collection("users").doc(targetUid).update({
-            "followers": FieldValue.arrayRemove([currentUid])
-          });
-        } else {
-          // Takip etme
-          await firebaseFirestore.collection("users").doc(currentUid).update({
-            "following": FieldValue.arrayUnion([targetUid])
-          });
-
-          await firebaseFirestore.collection("users").doc(targetUid).update({
-            "followers": FieldValue.arrayUnion([currentUid])
-          });
-
-          // Bildirim ekle
-          await firebaseFirestore
-              .collection("users")
-              .doc(targetUid)
-              .collection("notifications")
-              .add({
-            "type": "follow",
-            "fromUserId": currentUid,
-            "timestamp": FieldValue.serverTimestamp(),
-            "isRead": false
-          });
-        }
+        // Bildirim ekle
+        await supabase.from('notifications').insert({
+          'user_id': targetUid,
+          'type': 'follow',
+          'from_user_id': currentUid,
+          'timestamp': DateTime.now().toIso8601String(),
+          'is_read': false,
+        });
       }
+    } catch (e) {
+      throw Exception('Error in toggleFollow: $e');
     }
-  } catch (e) {
-    throw Exception(e);
   }
-}
 
-}*/
+
+}

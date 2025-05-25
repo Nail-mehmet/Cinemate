@@ -1,10 +1,11 @@
-/*
+
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 
 abstract class ProfileRepo {
   Future<ProfileUser?> fetchUserProfile(String uid);
-  Future<void> updateProfile(ProfileUser updatedProfile);
-  Future<void> toggleFollow(String currentUid, String targetUid);
 
- // isFollowing(String currentUserId, String targetUserId) {}
-}*/
+  Future<void> updateProfile(ProfileUser updatedProfile);
+
+  Future<void> toggleFollow(String currentUid, String targetUid);
+  Future<List<String>> getUserMovies(String userId, String collectionName);
+}

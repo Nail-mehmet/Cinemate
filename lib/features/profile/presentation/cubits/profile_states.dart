@@ -1,4 +1,4 @@
-/*
+
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 
 abstract class ProfileState {}
@@ -14,4 +14,4 @@ class ProfileLoaded extends ProfileState{
 
 class ProfileError extends ProfileState{
   ProfileError(String string);
-}*/
+}

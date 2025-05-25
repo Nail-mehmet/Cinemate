@@ -1,5 +1,5 @@
 
-/*
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/features/profile/presentation/components/user_tile.dart';
@@ -71,4 +71,4 @@ class FollowerPage extends StatelessWidget {
     },
   );
   }
-}*/
+}
