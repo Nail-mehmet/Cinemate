@@ -91,7 +91,7 @@ class _ProfilePage2State extends State<ProfilePage2>
     //context.read<PostCubit>().fetchPostsForUser(widget.uid);
     //_loadPostCount();
     //_loadUserReviews();
-   // _loadTopThreeMovies();
+    _loadTopThreeMovies();
     _loadAllMovieCollections();
 
     _animationController = AnimationController(
@@ -505,16 +505,16 @@ class _ProfilePage2State extends State<ProfilePage2>
     }
   }
 
- /* Future<void> _loadTopThreeMovies() async {
+  Future<void> _loadTopThreeMovies() async {
     try {
       final movies = await profileCubit.getTopThreeMovies(widget.uid);
       setState(() {
-        topThreeMovies = movies.cast<int>();
+        topThreeMovies = movies.map((e) => int.parse(e)).toList();
       });
     } catch (e) {
       print('Error loading top three movies: $e');
     }
-  }*/
+  }
 
   void _showAllMoviesBottomSheet(String title, List<int> movies) {
     showModalBottomSheet(
@@ -1023,7 +1023,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                             CircleAvatar(
                               radius: 50,
                               backgroundImage: CachedNetworkImageProvider(
-                                  user.profileImageUrl),
+                                  user.profileImageUrl!),
                             ),
                             SizedBox(height: 10),
                             Text(
@@ -1114,7 +1114,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                                           currentUserName: currentUser!.name,
                                           currentUserAvatar: "currentUser!.profileImageUrl",
                                           otherUserName: user.name,
-                                          otherUserAvatar: user.profileImageUrl,
+                                          otherUserAvatar: user.profileImageUrl!,
                                         );
                                         final chatState = context.read<ChatCubit>().state;
                                         if (chatState is ChatStarted) {
@@ -1181,7 +1181,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                                           Container(
                                             width: double.infinity,
                                             child: Text(
-                                              user.bio,
+                                              user.bio!,
                                               style: AppTextStyles.italic
                                                   .copyWith(fontSize: 13,color: Theme.of(context).colorScheme.primary),
                                               textAlign: TextAlign.left,

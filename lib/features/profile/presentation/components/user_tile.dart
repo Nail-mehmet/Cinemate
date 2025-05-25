@@ -15,9 +15,9 @@ class UserTile extends StatelessWidget {
       subtitle: Text(user.email,style: AppTextStyles.medium,),
       subtitleTextStyle:
           TextStyle(color: Theme.of(context).colorScheme.primary),
-      leading: user.profileImageUrl.isNotEmpty
+      leading: user.profileImageUrl!.isNotEmpty
           ? CircleAvatar(
-              backgroundImage: NetworkImage(user.profileImageUrl),
+              backgroundImage: NetworkImage(user.profileImageUrl!),
               radius: 30,
             )
           : CircleAvatar(

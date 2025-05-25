@@ -1,8 +1,8 @@
 import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
 
 class ProfileUser extends AppUser {
-  final String bio;
-  final String profileImageUrl;
+  final String? bio;
+  final String? profileImageUrl;
   final List<String> followers;
   final List<String> following;
   final List<String> watchedMovies;
@@ -14,7 +14,7 @@ class ProfileUser extends AppUser {
     required super.uid,
     required super.email,
     required super.name,
-    required this.bio, 
+    required this.bio,
     required this.profileImageUrl,
     required this.followers,
     required this.following,
@@ -27,7 +27,7 @@ class ProfileUser extends AppUser {
   ProfileUser copyWith({
     String? newBio,
     String? newName,
-    String? newEmail, 
+    String? newEmail,
     String? newProfileImageUrl,
     List<String>? newFollowers,
     List<String>? newFollowing,
@@ -57,7 +57,7 @@ class ProfileUser extends AppUser {
       "email": email,
       "name": name,
       "bio": bio,
-      "profileImageUrl": profileImageUrl,
+      "profile_image": profileImageUrl,
       "followers": followers,
       "following": following,
       "watchedMovies": watchedMovies,
@@ -69,17 +69,18 @@ class ProfileUser extends AppUser {
 
   factory ProfileUser.fromJson(Map<String, dynamic> json) {
     return ProfileUser(
-      uid: json["uid"],
+      uid: json["uid"] ?? json["id"], // 👈 önemli düzeltme
       email: json["email"],
       name: json["name"],
       bio: json["bio"] ?? "",
-      profileImageUrl: json["profileImageUrl"] ?? "",
+      profileImageUrl: json["profile_image"] ?? "",
       followers: List<String>.from(json["followers"] ?? []),
       following: List<String>.from(json["following"] ?? []),
       watchedMovies: List<String>.from(json["watchedMovies"] ?? []),
       favoriteMovies: List<String>.from(json["favoriteMovies"] ?? []),
       savedlist: List<String>.from(json["savedlist"] ?? []),
-      topThreeMovies: List<String>.from(json["topThreeMovies"] ?? [])
+      topThreeMovies: List<String>.from(json["topThreeMovies"] ?? []),
     );
   }
+
 }

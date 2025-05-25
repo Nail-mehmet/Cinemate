@@ -148,7 +148,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             child: imagePickedFile != null
                 ? Image.file(File(imagePickedFile!.path), fit: BoxFit.cover)
                 : CachedNetworkImage(
-                    imageUrl: widget.user.profileImageUrl,
+                    imageUrl: widget.user.profileImageUrl!,
                     fit: BoxFit.cover,
                     placeholder: (_, __) => Center(child: CircularProgressIndicator()),
                     errorWidget: (_, __, ___) => Icon(Icons.person, size: 60),

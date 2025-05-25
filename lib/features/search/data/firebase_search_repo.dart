@@ -5,25 +5,34 @@ import 'package:Cinemate/features/movies/domain/entities/movie.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/search/domain/search_repo.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 class FirebaseSearchRepo implements SearchRepo {
   final String _apiKey = '7bd28d1b496b14987ce5a838d719c5c7'; // 🔑 Buraya kendi TMDB API anahtarını yaz
+  final supabase = Supabase.instance.client;
 
   @override
- /* Future<List<ProfileUser?>> searchUser(String query) async {
+  Future<List<ProfileUser>> searchUser(String query) async {
     try {
-      final result = await FirebaseFirestore.instance
-          .collection("users")
-          .where("name", isGreaterThanOrEqualTo: query)
-          .where("name", isLessThanOrEqualTo: "$query\uf8ff")
-          .get();
+      final response = await supabase.from('profiles').select().ilike('name', '$query%');
+      print('Raw response: $response');
 
-      return result.docs
-          .map((doc) => ProfileUser.fromJson(doc.data()))
+// Her kullanıcı için detaylı log
+      for (var user in response) {
+        print('User data: $user');
+        print('Bio is null? ${user['bio'] == null}');
+        print('Profile image is null? ${user['profile_image'] == null}');
+        print('Full user JSON: ${jsonEncode(response)}');
+
+      }
+      return (response as List)
+          .map((json) => ProfileUser.fromJson(json))
           .toList();
     } catch (e) {
-      throw Exception("Error $e");
+      print('Supabase error details: $e'); // Detaylı hatayı logla
+      throw Exception('Error fetching users: ${e.toString()}');
     }
-  }*/
+  }
+
 
   @override
   Future<List<Movie>> searchMovie(String query) async {

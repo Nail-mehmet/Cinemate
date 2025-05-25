@@ -9,10 +9,10 @@ class SearchInitial extends SearchState {}
 class SearchLoading extends SearchState {}
 
 class SearchLoaded extends SearchState {
-  //final List<ProfileUser?> users;
+  final List<ProfileUser?> users;
   final List<Movie> movies;
 
-  SearchLoaded({/*required this.users*/ required this.movies});
+  SearchLoaded({required this.users, required this.movies});
 }
 
 class SearchError extends SearchState {

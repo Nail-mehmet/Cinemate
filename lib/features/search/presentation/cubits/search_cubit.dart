@@ -18,18 +18,18 @@ class SearchCubit extends Cubit<SearchState> {
     try {
       emit(SearchLoading());
       
-      //List<ProfileUser?> users = [];
+      List<ProfileUser?> users = [];
       List<Movie> movies = [];
       
       if (searchType == 'all' || searchType == 'users') {
-       // users = await searchRepo.searchUser(query);
+        users = await searchRepo.searchUser(query);
       }
       
       if (searchType == 'all' || searchType == 'movies') {
         movies = await searchRepo.searchMovie(query);
       }
       
-      emit(SearchLoaded(/*users: users,*/ movies: movies));
+      emit(SearchLoaded(users: users, movies: movies));
     } catch (e) {
       emit(SearchError("Arama işlemi sırasında bir hata oluştu"));
     }
@@ -50,7 +50,7 @@ class SearchCubit extends Cubit<SearchState> {
       // Get movies by genre ID
       final movies = await searchRepo.searchMovieByGenre(genreId);
       
-      emit(SearchLoaded(/*users: [],*/ movies: movies));
+      emit(SearchLoaded(users: [], movies: movies));
     } catch (e) {
       emit(SearchError("Film türüne göre arama sırasında bir hata oluştu"));
     }
