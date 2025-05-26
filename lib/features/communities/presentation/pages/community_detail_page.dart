@@ -399,7 +399,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
               return const Center(child: Text('Bir hata oluştu.'));
             },
           ),
-        /*  StreamBuilder<List<Map<String, dynamic>>>(
+          StreamBuilder<List<Map<String, dynamic>>>(
             stream: _supabase
                 .from('community_members')
                 .stream(primaryKey: ['community_id', 'user_id'])
@@ -440,7 +440,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                 },
               );
             },
-          ),*/
+          ),
         ],
       ),
       floatingActionButton: _buildFab(),

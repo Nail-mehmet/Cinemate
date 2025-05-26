@@ -37,6 +37,7 @@ import 'package:Cinemate/features/search/presentation/pages/search_page.dart';
 import 'package:Cinemate/features/settings/pages/settings_page.dart';
 import 'package:Cinemate/themes/font_theme.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../config/home_widget_helper.dart';
 import '../../../chat/presentation/pages/chat_page.dart';
 import 'package:intl/intl.dart';
@@ -62,6 +63,8 @@ class _ProfilePage2State extends State<ProfilePage2>
   bool _isLoading = false;
   StreamSubscription? _subscription;
   Timer? _timer;
+  final SupabaseClient supabase = Supabase.instance.client;
+
 
   List<int> topThreeMovies = [];
   List<int> favoriteMovies = [];
@@ -90,7 +93,7 @@ class _ProfilePage2State extends State<ProfilePage2>
     profileCubit.fetchUserProfile(widget.uid);
     //context.read<PostCubit>().fetchPostsForUser(widget.uid);
     //_loadPostCount();
-    //_loadUserReviews();
+    _loadUserReviews();
     _loadTopThreeMovies();
     _loadAllMovieCollections();
 
@@ -146,9 +149,11 @@ class _ProfilePage2State extends State<ProfilePage2>
       _postCount = postSnapshot.docs.length;
     });
   }*/
-/*
+
   Future<void> _showUserTopThreeMovies() async {
-    final currentUserId = currentUser!.uid;
+    final currentUserId = supabase.auth.currentUser?.id;
+
+    if (currentUserId == null) return;
 
     showDialog(
       context: context,
@@ -160,15 +165,15 @@ class _ProfilePage2State extends State<ProfilePage2>
           mainAxisSize: MainAxisSize.min,
           children: [
             Lottie.asset(
-              'assets/lotties/matching.json', // Lottie dosyanızın yolunu buraya ekleyin
+              'assets/lotties/matching.json',
               width: 200,
               height: 200,
               fit: BoxFit.cover,
             ),
             const SizedBox(height: 16),
             Text(
-                'Aynı 3 filmi sevenleri arıyorum...',
-                style: AppTextStyles.bold.copyWith(color: Colors.white)
+              'Aynı 3 filmi sevenleri arıyorum...',
+              style: AppTextStyles.bold.copyWith(color: Colors.white),
             ),
           ],
         ),
@@ -178,30 +183,30 @@ class _ProfilePage2State extends State<ProfilePage2>
     try {
       final matchingUsers =
       await _findUsersWithSameTopThreeMovies(currentUserId);
+
       Navigator.of(context).pop();
 
       if (matchingUsers.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Aynı 3 filmi seven başka kullanıcı bulunamadı')),
+            content: Text('Aynı 3 filmi seven başka kullanıcı bulunamadı'),
+          ),
         );
         return;
       }
 
-      // Bottom Sheet ile kullanıcıları göster
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         builder: (context) => Container(
-          height: MediaQuery.of(context).size.height * 0.85, // %85 yükseklik
+          height: MediaQuery.of(context).size.height * 0.85,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.background,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             children: [
-              // Başlık ve kapatma butonu için sabit yükseklikte container
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
                 decoration: BoxDecoration(
@@ -228,7 +233,6 @@ class _ProfilePage2State extends State<ProfilePage2>
                   ],
                 ),
               ),
-              // Liste kısmı
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -257,47 +261,59 @@ class _ProfilePage2State extends State<ProfilePage2>
     }
   }
 
-  Future<List<ProfileUser>> _findUsersWithSameTopThreeMovies(
-      String currentUserId) async {
+
+  Future<List<ProfileUser>> _findUsersWithSameTopThreeMovies(String currentUserId) async {
     final startTime = DateTime.now();
-    final currentUserMovies = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserId)
-        .collection('topThreeMovies')
-        .get();
 
-    if (currentUserMovies.docs.length != 3) return [];
+    // 1. Aktif kullanıcının top 3 filmlerini al
+    final response = await supabase
+        .from('top_three_movies')
+        .select('movie_id')
+        .eq('user_id', currentUserId);
 
-    final currentUserMovieIds =
-    currentUserMovies.docs.map((doc) => doc['movieId'] as int).toSet();
+    if (response == null || response.length != 3) return [];
 
-    final allUsers = await FirebaseFirestore.instance.collection('users').get();
-    final matchingUsers = <ProfileUser>[];
+    final currentUserMovieIds = response.map((e) => e['movie_id'] as int).toSet();
 
-    for (final userDoc in allUsers.docs) {
-      if (userDoc.id == currentUserId) continue;
+    // 2. Diğer kullanıcıların verilerini al
+    final allUsersMovies = await supabase
+        .from('top_three_movies')
+        .select('user_id, movie_id');
 
-      final userMovies =
-      await userDoc.reference.collection('topThreeMovies').get();
-      if (userMovies.docs.length != 3) continue;
+    // 3. Kullanıcıları grupla
+    final Map<String, Set<int>> userMoviesMap = {};
 
-      final userMovieIds =
-      userMovies.docs.map((doc) => doc['movieId'] as int).toSet();
+    for (var row in allUsersMovies) {
+      final userId = row['user_id'] as String;
+      final movieId = row['movie_id'] as int;
 
-      if (currentUserMovieIds.difference(userMovieIds).isEmpty) {
-        matchingUsers
-            .add(ProfileUser.fromJson(userDoc.data() as Map<String, dynamic>));
-      }
+      if (userId == currentUserId) continue;
+
+      userMoviesMap.putIfAbsent(userId, () => {}).add(movieId);
     }
 
+    // 4. Eşleşen kullanıcıları filtrele
+    final matchingUserIds = userMoviesMap.entries
+        .where((entry) => entry.value.length == 3 && entry.value.difference(currentUserMovieIds).isEmpty)
+        .map((entry) => entry.key)
+        .toList();
+
+    if (matchingUserIds.isEmpty) return [];
+
+    // 5. Eşleşen kullanıcıların profillerini getir
+    final profilesResponse = await supabase
+        .from('profiles')
+        .select()
+        .inFilter('id', matchingUserIds);
+
     final elapsedTime = DateTime.now().difference(startTime);
-    // Eğer 3 saniyeden az sürdüyse, kalan süre kadar bekletiyoruz
     if (elapsedTime < const Duration(seconds: 3)) {
       await Future.delayed(const Duration(seconds: 3) - elapsedTime);
     }
 
-    return matchingUsers;
+    return profilesResponse.map<ProfileUser>((json) => ProfileUser.fromJson(json)).toList();
   }
+
 
   Widget _buildReviewsTab() {
     if (_isLoading) {
@@ -331,42 +347,36 @@ class _ProfilePage2State extends State<ProfilePage2>
     setState(() => _isLoading = true);
 
     try {
-      final reviewsSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.uid)
-          .collection('movie_reviews')
-          .orderBy('timestamp', descending: true)
-          .get();
+      final response = await supabase
+          .from('user_reviews')
+          .select('*, movies(*)')
+          .eq('user_id', widget.uid)
+          .order('updated_at', ascending: false);
 
-      List<Map<String, dynamic>> reviews = [];
+      if (response != null) {
+        List<Map<String, dynamic>> reviews = [];
 
-      for (var doc in reviewsSnapshot.docs) {
-        try {
-          final data = doc.data();
-          final movieId = data['movieId'];
-          if (movieId == null) continue;
-
-          final movieDoc = await FirebaseFirestore.instance
-              .collection('movies')
-              .doc(movieId)
-              .get();
-
-          if (movieDoc.exists) {
-            reviews.add({
-              'comment': data,
-              'movieId': movieId,
-              'movieData': movieDoc.data(),
-            });
-          }
-        } catch (e) {
-          debugPrint('Yorum işlenirken hata: $e');
+        for (var review in response) {
+          reviews.add({
+            'comment': {
+              'comment': review['comment'],
+              'rating': review['rating'],
+              'spoiler': review['spoiler'],
+              'movieTitle': review['movie_title'],
+              'timestamp': review['updated_at'],
+            },
+            'movieId': review['movie_id'].toString(),
+            'movieData': review['movies'],
+          });
         }
-      }
 
-      setState(() {
-        _userReviews = reviews;
-        _isLoading = false;
-      });
+        setState(() {
+          _userReviews = reviews;
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Veri alınamadı');
+      }
     } catch (e) {
       debugPrint('Yorumlar yüklenirken hata: $e');
       setState(() => _isLoading = false);
@@ -376,14 +386,19 @@ class _ProfilePage2State extends State<ProfilePage2>
     }
   }
 
+
   Widget _buildReviewTile(Map<String, dynamic> review) {
     final comment = review['comment'] ?? {};
     final movieId = review['movieId'] ?? '';
-    final date = (comment['timestamp'] as Timestamp?)?.toDate();
+    final movieData = review['movieData'] ?? {};
+
+    final date = comment['timestamp'] != null
+        ? DateTime.tryParse(comment['timestamp'].toString())
+        : null;
     final formattedDate =
     date != null ? DateFormat('dd MMM yyyy').format(date) : '';
 
-    final rating = comment['rating']?.toDouble() ?? 0.0;
+    final rating = (comment['rating'] as num?)?.toDouble() ?? 0.0;
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -415,9 +430,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                 ),
               ),
             ),
-
             SizedBox(width: 12),
-
             // Yorum Detayları
             Expanded(
               child: Column(
@@ -430,7 +443,10 @@ class _ProfilePage2State extends State<ProfilePage2>
                       Expanded(
                         child: Text(
                           comment['movieTitle'] ?? 'Bilinmeyen Film',
-                          style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary,fontSize: 14),
+                          style: AppTextStyles.bold.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 14,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -441,41 +457,37 @@ class _ProfilePage2State extends State<ProfilePage2>
                           SizedBox(width: 2),
                           Text(
                             rating.toStringAsFixed(1),
-                            style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.primary)
+                            style: AppTextStyles.medium.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
-
                   SizedBox(height: 8),
-
                   // Yorum metni
                   Text(
                     comment['comment'] ?? '',
-                    style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.primary.withOpacity(0.6)),
+                    style: AppTextStyles.medium.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.6),
+                    ),
                   ),
-
                   SizedBox(height: 10),
-
-                  // Tarih + yıldızlar
+                  // Tarih
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         formattedDate,
-                        style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.secondary,fontSize: 12)
-                      ),
-                      /* Row(
-                      children: List.generate(
-                        5,
-                        (index) => Icon(
-                          index < rating ? Icons.star : Icons.star_border,
-                          color: Colors.amber,
-                          size: 14,
+                        style: AppTextStyles.medium.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 12,
                         ),
                       ),
-                    ),*/
                     ],
                   ),
                 ],
@@ -486,7 +498,7 @@ class _ProfilePage2State extends State<ProfilePage2>
       ),
     );
   }
-*/
+
   Future<void> _loadAllMovieCollections() async {
     try {
       final futures = await Future.wait([
@@ -695,14 +707,14 @@ class _ProfilePage2State extends State<ProfilePage2>
                   ),
                 ),
                 if (isOwnProfile)
-                  /*Positioned(
+                  Positioned(
                       left: 0,
                       child: TextButton(
                           onPressed: () => _showUserTopThreeMovies(),
                           child: Text(
                             "Eşleş",
                             style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),
-                          ))),*/
+                          ))),
                 if (isOwnProfile && topThreeMovies.length == 3)
                   Positioned(
                     right: 0,
@@ -1269,7 +1281,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                     ),*/
 
                     // Reviews Tab*
-                    //_buildReviewsTab(),
+                    _buildReviewsTab(),
                   ],
                 ),
               ),

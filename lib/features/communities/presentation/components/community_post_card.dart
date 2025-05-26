@@ -25,10 +25,12 @@ class CommuneCard extends StatelessWidget {
       builder: (context, snapshot) {
         String? profileUrl;
         String userName = 'Unknown User';
+        String? userUid = "f";
 
         if (snapshot.hasData && snapshot.data != null) {
-          profileUrl = snapshot.data!['avatar_url'];
-          userName = snapshot.data!['full_name'] ?? userName;
+          profileUrl = snapshot.data!['profile_image'];
+          userName = snapshot.data!['name'] ?? userName;
+          userUid = snapshot.data!["user_id"];
         }
 
         return Container(
@@ -82,12 +84,12 @@ class CommuneCard extends StatelessWidget {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            /*Navigator.push(
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ProfilePage2(uid: post.userId),
                               ),
-                            );*/
+                            );
                           },
                           child: Row(
                             children: [
