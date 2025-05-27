@@ -1,5 +1,4 @@
-/*import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
@@ -9,6 +8,7 @@ import 'package:Cinemate/features/post/presentation/cubits/post_cubit.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/profile/presentation/cubits/profile_cubit.dart';
 import 'package:Cinemate/themes/font_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -35,11 +35,13 @@ class _PostCardState extends State<PostCard> {
   late final postCubit = context.read<PostCubit>();
   late final profileCubit = context.read<ProfileCubit>();
   AppUser? currentUser;
+  final supabase = Supabase.instance.client;
 
+  @override
   void initState() {
     super.initState();
     fetchPostUser();
-    getCurrentUser(); // <<<<<< BURAYA EKLİYORUZ
+    getCurrentUser();
   }
 
   void getCurrentUser() {
@@ -50,7 +52,6 @@ class _PostCardState extends State<PostCard> {
   Future<void> fetchPostUser() async {
     final fetchedUser = await profileCubit.getUserProfile(widget.post.userId);
     if (fetchedUser != null && mounted) {
-      // <<<<<<<<<< buraya dikkat
       setState(() {
         postUser = fetchedUser;
       });
@@ -58,10 +59,9 @@ class _PostCardState extends State<PostCard> {
   }
 
   void toggleLikePost() {
-    // current like status
     final isLiked = widget.post.likes.contains(currentUser!.uid);
 
-    // optiimistically like and upate ui
+    // Optimistic update
     setState(() {
       if (isLiked) {
         widget.post.likes.remove(currentUser!.uid);
@@ -70,10 +70,9 @@ class _PostCardState extends State<PostCard> {
       }
     });
 
-    //update like
-    postCubit
-        .toggleLikePost(widget.post.id, currentUser!.uid)
-        .catchError((error) {
+    // Update like in backend
+    postCubit.toggleLikePost(widget.post.id, currentUser!.uid).catchError((error) {
+      // Revert if error
       setState(() {
         if (isLiked) {
           widget.post.likes.add(currentUser!.uid);
@@ -85,16 +84,14 @@ class _PostCardState extends State<PostCard> {
   }
 
   Future<int> fetchCommentCount(String postId) async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('posts')
-        .doc(postId)
-        .collection('comments')
-        .get();
+    final response = await supabase
+        .from('post_comments')
+        .select('id')
+        .eq('post_id', postId);
 
-    return snapshot.docs.length;
+    return response.length;
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -104,7 +101,7 @@ class _PostCardState extends State<PostCard> {
         child: Stack(
           children: [
             CachedNetworkImage(
-              imageUrl: widget.post.imageUrl,
+              imageUrl: widget.post.imageUrl ?? '',
               placeholder: (context, url) => Container(
                 height: 250,
                 color: Colors.grey[200],
@@ -139,8 +136,7 @@ class _PostCardState extends State<PostCard> {
                         if (postUser?.profileImageUrl != null)
                           CircleAvatar(
                             radius: 12,
-                            backgroundImage:
-                                NetworkImage(postUser!.profileImageUrl),
+                            backgroundImage: NetworkImage(postUser!.profileImageUrl!),
                           )
                         else
                           const CircleAvatar(
@@ -157,6 +153,11 @@ class _PostCardState extends State<PostCard> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (currentUser?.uid == widget.post.userId)
+                          IconButton(
+                            icon: const Icon(Icons.more_vert, size: 18, color: Colors.white70),
+                            onPressed: widget.onDeletePressed,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -178,7 +179,7 @@ class _PostCardState extends State<PostCard> {
                     Row(
                       children: [
                         GestureDetector(
-                          onTap: widget.onLikeTap,
+                          onTap: toggleLikePost,
                           child: Image.asset(
                             widget.post.likes.contains(currentUser?.uid)
                                 ? 'assets/icons/heart.png'
@@ -207,7 +208,7 @@ class _PostCardState extends State<PostCard> {
                         FutureBuilder<int>(
                           future: fetchCommentCount(widget.post.id),
                           builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
+                            if (snapshot.connectionState != ConnectionState.done) {
                               return const Text(
                                 "0",
                                 style: TextStyle(
@@ -215,12 +216,18 @@ class _PostCardState extends State<PostCard> {
                               );
                             }
                             return Text(
-                              snapshot.data.toString(),
+                              snapshot.data?.toString() ?? "0",
                               style: const TextStyle(
                                   fontSize: 12, color: Colors.white70),
                             );
                           },
-                        )
+                        ),
+                        const Spacer(),
+                        Text(
+                          _formatDate(widget.post.timeStamp),
+                          style: const TextStyle(
+                              fontSize: 12, color: Colors.white70),
+                        ),
                       ],
                     ),
                   ],
@@ -242,4 +249,3 @@ class _PostCardState extends State<PostCard> {
     return "${difference.inDays}d";
   }
 }
-*/

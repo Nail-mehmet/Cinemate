@@ -1,90 +1,113 @@
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'dart:math';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:Cinemate/features/storage/domain/storage_repo.dart';
 
 class SupabaseStorageRepo implements StorageRepo {
   final SupabaseClient supabase = Supabase.instance.client;
 
+  // Benzersiz dosya adı oluşturma
+  String _generateUniqueFileName(String originalName) {
+    final ext = originalName.split('.').last;
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final random = Random().nextInt(10000);
+    return '${timestamp}_$random.$ext';
+  }
+
+  // Dosya türüne göre content type belirleme
+  String _getContentType(String fileName) {
+    final ext = fileName.split('.').last.toLowerCase();
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg': return 'image/jpeg';
+      case 'png': return 'image/png';
+      case 'gif': return 'image/gif';
+      case 'webp': return 'image/webp';
+      default: return 'application/octet-stream';
+    }
+  }
+
+  // Ortak yükleme metodu
+  Future<String?> _upload({
+    required dynamic file,
+    required String fileName,
+    required String bucket,
+    bool isWeb = false,
+  }) async {
+    try {
+      final uniqueName = _generateUniqueFileName(fileName);
+      final contentType = _getContentType(uniqueName);
+
+      // Web ve mobile için farklı yükleme yöntemleri
+      final uploadResponse = isWeb
+          ? await supabase.storage
+          .from(bucket)
+          .uploadBinary(uniqueName, file as Uint8List, fileOptions: FileOptions(
+        contentType: contentType,
+        cacheControl: '3600',
+        upsert: false,
+      ))
+          : await supabase.storage
+          .from(bucket)
+          .upload(uniqueName, file as File, fileOptions: FileOptions(
+        contentType: contentType,
+        cacheControl: '3600',
+        upsert: false,
+      ));
+
+     /* if (uploadResponse.error != null) {
+        throw Exception('Upload failed: ${uploadResponse.error!.message}');
+      }*/
+
+      return supabase.storage
+          .from(bucket)
+          .getPublicUrl(uniqueName);
+    } catch (e) {
+      print('Error uploading to $bucket: $e');
+      rethrow;
+    }
+  }
+
   @override
   Future<String?> uploadProfileImageMobile(String filePath, String fileName) async {
-    try {
-      final file = File(filePath);
-      final bytes = await file.readAsBytes();
-
-      final storageResponse = await supabase.storage
-          .from('profileimages')   // bucket ismi burada profileimages olarak örnek
-          .uploadBinary('public/$fileName', bytes, fileOptions: FileOptions(cacheControl: '3600'));
-
-      if (storageResponse == null) {
-        print('Upload failed: null response');
-        return null;
-      }
-
-      // Yüklenen dosyanın public URL'sini al
-      final publicUrl = supabase.storage
-          .from('profileimages')
-          .getPublicUrl('public/$fileName');
-
-      return publicUrl;
-    } catch (e) {
-      print('Error uploading image: $e');
-      return null;
-    }
+    final file = File(filePath);
+    return _upload(
+      file: file,
+      fileName: fileName,
+      bucket: 'profileimages',
+      isWeb: false,
+    );
   }
 
   @override
   Future<String?> uploadProfileImageWeb(Uint8List fileBytes, String fileName) async {
-    return _uploadFileBytes(fileBytes, fileName, 'profileimages');
+    return _upload(
+      file: fileBytes,
+      fileName: fileName,
+      bucket: 'profileimages',
+      isWeb: true,
+    );
   }
 
   @override
-  Future<String?> uploadPostImageMobile(String path, String fileName) async {
-    return _uploadFile(path, fileName, 'post_images');
+  Future<String?> uploadPostImageMobile(String filePath, String fileName) async {
+    final file = File(filePath);
+    return _upload(
+      file: file,
+      fileName: fileName,
+      bucket: 'post-images',
+      isWeb: false,
+    );
   }
 
   @override
   Future<String?> uploadPostImageWeb(Uint8List fileBytes, String fileName) async {
-    return _uploadFileBytes(fileBytes, fileName, 'post_images');
-  }
-
-  // Mobile için dosya yolundan yükleme
-  Future<String?> _uploadFile(String path, String fileName, String bucket) async {
-    try {
-      final file = File(path);
-      final bytes = await file.readAsBytes();
-
-      final response = await supabase.storage.from(bucket).upload(
-        fileName,
-        bytes as File,
-        fileOptions: FileOptions(cacheControl: '3600', upsert: false),
-      );
-
-      // Eğer hata varsa SupabaseException fırlatılır, o yüzden try-catch yeterli
-      // Yükleme başarılıysa, public URL'i oluşturuyoruz
-      final publicUrl = supabase.storage.from(bucket).getPublicUrl(fileName);
-      return publicUrl;
-    } catch (e) {
-      print('Error uploading file: $e');
-      return null;
-    }
-  }
-
-  // Web için bytes doğrudan yükleme
-  Future<String?> _uploadFileBytes(Uint8List fileBytes, String fileName, String bucket) async {
-    try {
-      final response = await supabase.storage.from(bucket).upload(
-        fileName,
-        fileBytes as File,
-        fileOptions: FileOptions(cacheControl: '3600', upsert: false),
-      );
-
-      final publicUrl = supabase.storage.from(bucket).getPublicUrl(fileName);
-      return publicUrl;
-    } catch (e) {
-      print('Error uploading bytes: $e');
-      return null;
-    }
+    return _upload(
+      file: fileBytes,
+      fileName: fileName,
+      bucket: 'post-images',
+      isWeb: true,
+    );
   }
 }

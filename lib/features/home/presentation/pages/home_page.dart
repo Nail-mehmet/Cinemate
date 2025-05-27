@@ -1,4 +1,4 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
@@ -110,7 +110,6 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      drawer: MyDrawer(),
       body: Column(
         children: [
           // Kategori Tab'ları
@@ -225,16 +224,18 @@ class _HomePageState extends State<HomePage> {
                             post: post,
                             onDeletePressed: () {},
                             isLiked: false,
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PostDetailPage(
-                                  post: post,
-                                  onDeletePressed: () {},
-                                ),
-                              ),
-                            ),
-                          );
+                            onTap: ()
+                            {
+                                   /* Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PostDetailPage(
+                                          post: post,
+                                          onDeletePressed: () {},
+                                        ),
+                                      ),
+                                    );*/
+                                  });
                         },
                       ),
                     ),
@@ -252,4 +253,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-*/

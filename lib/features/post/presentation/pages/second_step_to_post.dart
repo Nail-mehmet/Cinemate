@@ -1,4 +1,4 @@
-/*import 'dart:io';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
@@ -132,7 +132,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     if (widget.webImage != null) {
       postCubit.createPost(newPost, imageBytes: widget.webImage);
     } else if (widget.imagePath != null) {
-      postCubit.createPost(newPost, imagePath: widget.imagePath!);
+      postCubit.createPost(newPost, imagePath: widget.imagePath);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Fotoğraf seçilmedi")),
@@ -467,4 +467,4 @@ class LottieWidget extends StatelessWidget {
       fit: BoxFit.contain,
     );
   }
-}*/
+}

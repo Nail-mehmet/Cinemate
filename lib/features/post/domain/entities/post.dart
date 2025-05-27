@@ -1,4 +1,3 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:Cinemate/features/post/domain/entities/comment.dart';
 
 class Post {
@@ -9,7 +8,7 @@ class Post {
   final String imageUrl;
   final DateTime timeStamp;
   final List<String> likes;
-  final List<Comment>? comments; // Nullable yapıyoruz
+  final List<Comment>? comments;
   final String category;
   final String? relatedMovieId;
   final String? relatedMovieTitle;
@@ -22,61 +21,69 @@ class Post {
     required this.imageUrl,
     required this.timeStamp,
     required this.likes,
-    this.comments = const [], // Artık nullable
+    this.comments,
     required this.category,
     this.relatedMovieId,
     this.relatedMovieTitle,
   });
 
   Post copyWith({
+    String? id,
+    String? userId,
+    String? userName,
+    String? text,
     String? imageUrl,
+    DateTime? timeStamp,
+    List<String>? likes,
+    List<Comment>? comments,
     String? category,
-    List<Comment>? comments, // CopyWith'e comments eklendi
+    String? relatedMovieId,
+    String? relatedMovieTitle,
   }) {
     return Post(
-      id: id,
-      userId: userId,
-      userName: userName,
-      text: text,
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      text: text ?? this.text,
       imageUrl: imageUrl ?? this.imageUrl,
-      timeStamp: timeStamp,
-      likes: likes,
+      timeStamp: timeStamp ?? this.timeStamp,
+      likes: likes ?? this.likes,
       comments: comments ?? this.comments,
       category: category ?? this.category,
-      relatedMovieId: relatedMovieId,
-      relatedMovieTitle: relatedMovieTitle,
+      relatedMovieId: relatedMovieId ?? this.relatedMovieId,
+      relatedMovieTitle: relatedMovieTitle ?? this.relatedMovieTitle,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "userId": userId,
-      "name": userName,
+      "user_id": userId,
+      "user_name": userName,
       "text": text,
-      "imageUrl": imageUrl,
-      "timestamp": Timestamp.fromDate(timeStamp),
+      "image_url": imageUrl,
+      "created_at": timeStamp.toIso8601String(),
       "likes": likes,
-      // Comments artık JSON'a dahil edilmiyor
       "category": category,
-      "relatedMovieId": relatedMovieId,
-      "relatedMovieTitle": relatedMovieTitle,
+      "related_movie_id": relatedMovieId,
+      "related_movie_title": relatedMovieTitle,
     };
   }
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json["id"],
-      userId: json["userId"],
-      userName: json["name"],
+      userId: json["user_id"],
+      userName: json["user_name"],
       text: json["text"],
-      imageUrl: json["imageUrl"],
-      timeStamp: (json["timestamp"] as Timestamp).toDate(),
+      imageUrl: json["image_url"],
+      timeStamp: DateTime.parse(json["created_at"]),
       likes: List<String>.from(json["likes"] ?? []),
-      comments: null, // Artık direkt null olarak başlatıyoruz
       category: json["category"] ?? 'Genel',
-      relatedMovieId: json["relatedMovieId"],
-      relatedMovieTitle: json["relatedMovieTitle"],
+      relatedMovieId: json["related_movie_id"],
+      relatedMovieTitle: json["related_movie_title"],
     );
   }
-}*/
+
+
+}

@@ -1,5 +1,3 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Comment {
   final String id;
   final String postId;
@@ -7,7 +5,7 @@ class Comment {
   final String userName;
   final String text;
   final DateTime timestamp;
-  final List<String> likes; // ✔️ Artık liste
+  final List<String> likes;
 
   Comment({
     required this.id,
@@ -42,34 +40,24 @@ class Comment {
   Map<String, dynamic> toJson() {
     return {
       "id": id,
-      "postId": postId,
-      "userId": userId,
-      "userName": userName,
+      "post_id": postId,
+      "user_id": userId,
+      "user_name": userName,
       "text": text,
-      "timestamp": Timestamp.fromDate(timestamp),
-      'likes': likes, // ✔️ Listeyi direkt Firestore'a yaz
+      "created_at": timestamp.toIso8601String(),
+      'likes': likes,
     };
   }
 
   factory Comment.fromJson(Map<String, dynamic> json) {
-    List<String> likesList = [];
-    if (json['likes'] != null) {
-      if (json['likes'] is List) {
-        likesList = List<String>.from(json['likes']!.map((e) => e.toString()));
-      } else if (json['likes'] is int) {
-        // Eğer sayı olarak geliyorsa boş liste döndür veya loglayın
-      }
-    }
-
     return Comment(
       id: json["id"],
-      postId: json["postId"],
-      userId: json["userId"],
-      userName: json["userName"],
+      postId: json["post_id"],
+      userId: json["user_id"],
+      userName: json["user_name"],
       text: json["text"],
-      timestamp: (json["timestamp"] as Timestamp).toDate(),
-      likes: List<String>.from(json['likes'] ?? []), // ✔️ Liste olarak al
+      timestamp: DateTime.parse(json["created_at"]),
+      likes: List<String>.from(json['likes'] ?? []),
     );
   }
 }
-*/

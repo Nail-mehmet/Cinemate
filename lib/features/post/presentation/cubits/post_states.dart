@@ -1,4 +1,4 @@
-/*import '../../domain/entities/post.dart';
+import '../../domain/entities/post.dart';
 import '../../domain/entities/comment.dart';
 
 abstract class PostState {}
@@ -35,4 +35,4 @@ class CommentsLoaded extends PostState {
   final List<Comment> comments;
 
   CommentsLoaded(this.comments);
-}*/
+}

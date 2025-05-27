@@ -1,226 +1,211 @@
-/*
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:Cinemate/features/post/domain/entities/comment.dart';
 import 'package:Cinemate/features/post/domain/entities/post.dart';
 import 'package:Cinemate/features/post/domain/repos/post_repo.dart';
 
-class FirebasePostRepo implements PostRepo{
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+class SupabasePostRepo implements PostRepo {
+  final SupabaseClient supabase = Supabase.instance.client;
 
-  // store the posts in a collection callled posts
-  final CollectionReference postsCollection = FirebaseFirestore.instance.collection("posts");
   @override
-  Future<void> createPost(Post post) async{
-    try{
+  @override
+  Future<void> createPost(Post post) async {
+    try {
+      final response = await supabase
+          .from('posts')
+          .insert(post.toJson());
 
-      await postsCollection.doc(post.id).set(post.toJson());
-
-    }catch(e){
-      throw Exception("Post oluşturulken hata oldu. $e");
+     /* if (response.error != null) {
+        throw Exception(response.error!.message);
+      }*/
+    } catch (e) {
+      throw Exception("Post oluşturulurken hata oldu: $e");
     }
   }
 
   @override
-  Future<void> deletePost(String postId) async{
-    await postsCollection.doc(postId).delete();
+  Future<void> deletePost(String postId) async {
+    try {
+      // Önce yorumları sil (foreign key constraint için)
+      await supabase.from('post_comments').delete().eq('post_id', postId);
+      // Sonra postu sil
+      await supabase.from('posts').delete().eq('id', postId);
+    } catch (e) {
+      throw Exception("Post silinirken hata oldu: $e");
+    }
   }
 
   @override
   Future<List<Post>> fetchAllPosts({required int page, required int perPage}) async {
-  try {
-    // İlk olarak sıralı şekilde tüm postları getiriyoruz
-    final postsSnapshot = await postsCollection
-        .orderBy("timestamp", descending: true)
-        .limit((page + 1) * perPage) // Şu ana kadarki tüm postları çekiyoruz
-        .get();
+    try {
+      final response = await supabase
+          .from('posts')
+          .select()
+          .order('created_at', ascending: false)
+          .range(page * perPage, (page + 1) * perPage - 1);
 
-    final allPosts = postsSnapshot.docs
-        .map((doc) => Post.fromJson(doc.data() as Map<String, dynamic>))
-        .toList();
-
-    // Sayfaya göre kesiyoruz (örnek: page=0, 0-9; page=1, 10-19 arası postlar)
-    final start = page * perPage;
-    final end = start + perPage;
-
-    // Firestore'da direkt "offset" olmadığı için bunu kod içinde kesiyoruz
-    final paginatedPosts = allPosts.length > start
-        ? allPosts.sublist(start, end > allPosts.length ? allPosts.length : end)
-        : <Post>[];
-
-    return paginatedPosts;
-  } catch (e) {
-    throw Exception("Error yüklenirken oluştu: $e");
+      return (response as List).map((post) => Post.fromJson(post)).toList();
+    } catch (e) {
+      throw Exception("Postlar yüklenirken hata oluştu: $e");
+    }
   }
-}
-
 
   @override
   Future<List<Post>> fetchPostsByUserId(String userId) async {
-    try{
-      // fetch posts snapshot with this uid
-      final postsSnapshot = await postsCollection.where("userId", isEqualTo: userId).get();
+    try {
+      final response = await supabase
+          .from('posts')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
 
-      // convert ifrestore ocument from json -> list of posts
-      final userPosts = postsSnapshot.docs
-      .map((doc) => Post.fromJson(doc.data() as Map<String, dynamic>))
-      .toList();
-
-
-      return userPosts; 
-
-    }catch(e) {
-      throw Exception("error fetching posts by user: $e");
+      return (response as List).map((post) => Post.fromJson(post)).toList();
+    } catch (e) {
+      throw Exception("Kullanıcı postları yüklenirken hata oluştu: $e");
     }
   }
-  
+
   @override
   Future<void> toggleLikePost(String postId, String userId) async {
-  try {
-    // get the post document
-    final postDoc = await postsCollection.doc(postId).get();
+    try {
+      // Postu al
+      final postResponse = await supabase
+          .from('posts')
+          .select('likes, user_id')
+          .eq('id', postId)
+          .single();
 
-    if (postDoc.exists) {
-      final postData = postDoc.data() as Map<String, dynamic>;
-      final post = Post.fromJson(postData);
+      final post = postResponse as Map<String, dynamic>;
+      final likes = List<String>.from(post['likes'] ?? []);
+      final postOwnerId = post['user_id'] as String;
 
-      final hasLiked = post.likes.contains(userId);
-
-      if (hasLiked) {
-        // Unlike
-        post.likes.remove(userId);
+      // Like durumunu kontrol et ve güncelle
+      if (likes.contains(userId)) {
+        likes.remove(userId);
       } else {
-        // Like
-        post.likes.add(userId);
+        likes.add(userId);
 
-        // Bildirim ekle (kendine beğeni yapmadıysa)
-        if (post.userId != userId) {
-          await FirebaseFirestore.instance
-              .collection("users")
-              .doc(post.userId)
-              .collection("notifications")
-              .add({
-            "type": "like",
-            "fromUserId": userId,
-            "postId": postId,
-            "timestamp": FieldValue.serverTimestamp(),
-            "isRead": false
+        // Bildirim oluştur (kendine like atmadıysa)
+        if (postOwnerId != userId) {
+          await supabase.from('notifications').insert({
+            'user_id': postOwnerId,
+            'type': 'like',
+            'from_user_id': userId,
+            'post_id': postId,
+            'is_read': false
           });
         }
       }
 
-      // Update likes list in Firestore
-      await postsCollection.doc(postId).update({
-        "likes": post.likes,
-      });
-    } else {
-      throw Exception("Post bulunamadı");
+      // Postu güncelle
+      await supabase
+          .from('posts')
+          .update({'likes': likes})
+          .eq('id', postId);
+    } catch (e) {
+      throw Exception("Like işlemi sırasında hata: $e");
     }
-  } catch (e) {
-    throw Exception("Hata oluştu: $e");
   }
-}
-
 
   @override
   Future<void> addComment(String postId, Comment comment) async {
-  try {
-    // Check if post exists
-    final postDoc = await postsCollection.doc(postId).get();
-    
-    if (!postDoc.exists) {
-      throw Exception("Post bulunamadı");
+    try {
+      // Postun varlığını kontrol et
+      final postExists = await supabase
+          .from('posts')
+          .select('id')
+          .eq('id', postId)
+          .maybeSingle();
+
+      if (postExists == null) {
+        throw Exception("Post bulunamadı");
+      }
+
+      // Yorumu ekle
+      await supabase.from('post_comments').insert(comment.toJson());
+
+      // Bildirim oluştur (kendine yorum yapmadıysa)
+      final post = postExists as Map<String, dynamic>;
+      if (post['user_id'] != comment.userId) {
+        await supabase.from('notifications').insert({
+          'user_id': post['user_id'],
+          'type': 'comment',
+          'from_user_id': comment.userId,
+          'post_id': postId,
+          'comment_id': comment.id,
+          'is_read': false
+        });
+      }
+    } catch (e) {
+      throw Exception("Yorum eklenirken hata oluştu: $e");
     }
-    
-    // Add comment to the comments subcollection
-    await postsCollection
-        .doc(postId)
-        .collection('comments')
-        .doc(comment.id)
-        .set(comment.toJson());
-        
-  } catch (e) {
-    throw Exception("Yorum yüklenemedi: $e");
+  }
+
+  @override
+  Future<void> toggleLikeComment(String postId, String commentId, String userId) async {
+    try {
+      // Yorumu al
+      final commentResponse = await supabase
+          .from('post_comments')
+          .select('likes')
+          .eq('id', commentId)
+          .single();
+
+      final comment = commentResponse as Map<String, dynamic>;
+      final likes = List<String>.from(comment['likes'] ?? []);
+
+      // Like durumunu kontrol et ve güncelle
+      if (likes.contains(userId)) {
+        likes.remove(userId);
+      } else {
+        likes.add(userId);
+      }
+
+      // Yorumu güncelle
+      await supabase
+          .from('post_comments')
+          .update({'likes': likes})
+          .eq('id', commentId);
+    } catch (e) {
+      throw Exception("Yorum like işlemi sırasında hata: $e");
+    }
+  }
+
+  @override
+  Stream<List<Comment>> streamCommentsForPost(String postId) {
+    return supabase
+        .from('post_comments')
+        .stream(primaryKey: ['id'])
+        .eq('post_id', postId)
+        .order('created_at', ascending: false)
+        .map((snapshot) =>
+        (snapshot as List).map((comment) => Comment.fromJson(comment)).toList());
+  }
+
+  @override
+  Future<void> deleteComment(String postId, String commentId) async {
+    try {
+      await supabase
+          .from('post_comments')
+          .delete()
+          .eq('id', commentId)
+          .eq('post_id', postId);
+    } catch (e) {
+      throw Exception("Yorum silinirken hata oluştu: $e");
+    }
+  }
+
+  @override
+  Future<List<Comment>> fetchCommentsForPost(String postId) async {
+    try {
+      final response = await supabase
+          .from('post_comments')
+          .select()
+          .eq('post_id', postId)
+          .order('created_at', ascending: false);
+
+      return (response as List).map((comment) => Comment.fromJson(comment)).toList();
+    } catch (e) {
+      throw Exception("Yorumlar yüklenirken hata oluştu: $e");
+    }
   }
 }
-
-Future<void> toggleLikeComment(String postId, String commentId, String userId) async {
-  final commentRef = FirebaseFirestore.instance
-      .collection('posts')
-      .doc(postId)
-      .collection('comments')
-      .doc(commentId);
-
-  await FirebaseFirestore.instance.runTransaction((transaction) async {
-    final snapshot = await transaction.get(commentRef);
-    if (!snapshot.exists) return;
-
-    final data = snapshot.data()!;
-    final likes = List<String>.from(data['likes'] ?? []);
-
-    if (likes.contains(userId)) {
-      likes.remove(userId);
-    } else {
-      likes.add(userId);
-    }
-
-    transaction.update(commentRef, {'likes': likes});
-  });
-}
-
-
-@override
-@override
-Stream<List<Comment>> streamCommentsForPost(String postId) {
-  return postsCollection
-      .doc(postId)
-      .collection('comments')
-      .orderBy('timestamp', descending: true)
-      .snapshots()
-      .map((snapshot) => snapshot.docs
-          .map((doc) => Comment.fromJson(doc.data()))
-          .toList());
-}
-
-
-
-@override
-Future<void> deleteComment(String postId, String commentId) async {
-  try {
-    // Check if post exists
-    final postDoc = await postsCollection.doc(postId).get();
-    
-    if (!postDoc.exists) {
-      throw Exception("Post bulunamadı");
-    }
-    
-    // Delete the comment from the subcollection
-    await postsCollection
-        .doc(postId)
-        .collection('comments')
-        .doc(commentId)
-        .delete();
-        
-  } catch (e) {
-    throw Exception("Yorum silinemedi: $e");
-  }
-}
-@override
-Future<List<Comment>> fetchCommentsForPost(String postId) async {
-  try {
-    final commentsSnapshot = await postsCollection
-        .doc(postId)
-        .collection('comments')
-        .orderBy('timestamp', descending: true)
-        .get();
-
-    return commentsSnapshot.docs
-        .map((doc) => Comment.fromJson(doc.data()))
-        .toList();
-  } catch (e) {
-    throw Exception("Yorumlar yüklenemedi: $e");
-  }
-}
-
-
-
-}*/
