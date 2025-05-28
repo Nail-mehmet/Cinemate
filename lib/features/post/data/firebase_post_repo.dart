@@ -85,7 +85,7 @@ class SupabasePostRepo implements PostRepo {
         likes.add(userId);
 
         // Bildirim oluştur (kendine like atmadıysa)
-        if (postOwnerId != userId) {
+      /*  if (postOwnerId != userId) {
           await supabase.from('notifications').insert({
             'user_id': postOwnerId,
             'type': 'like',
@@ -93,7 +93,7 @@ class SupabasePostRepo implements PostRepo {
             'post_id': postId,
             'is_read': false
           });
-        }
+        }*/
       }
 
       // Postu güncelle
@@ -124,17 +124,17 @@ class SupabasePostRepo implements PostRepo {
       await supabase.from('post_comments').insert(comment.toJson());
 
       // Bildirim oluştur (kendine yorum yapmadıysa)
-      final post = postExists as Map<String, dynamic>;
+      /*final post = postExists as Map<String, dynamic>;
       if (post['user_id'] != comment.userId) {
         await supabase.from('notifications').insert({
           'user_id': post['user_id'],
           'type': 'comment',
           'from_user_id': comment.userId,
-          'post_id': postId,
-          'comment_id': comment.id,
+          'id': postId,
+          'created_at': DateTime.now().toIso8601String(),//comment.id,
           'is_read': false
         });
-      }
+      }*/
     } catch (e) {
       throw Exception("Yorum eklenirken hata oluştu: $e");
     }

@@ -1,5 +1,4 @@
-/*import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -16,6 +15,7 @@ import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/profile/presentation/cubits/profile_cubit.dart';
 import 'package:Cinemate/features/profile/presentation/pages/profile_page2.dart';
 import 'package:Cinemate/themes/font_theme.dart';
+import 'package:uuid/uuid.dart';
 import '../../../post/presentation/cubits/post_states.dart';
 
 class PostDetailPage extends StatefulWidget {
@@ -56,10 +56,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
     _profileCubit = context.read<ProfileCubit>();
     _initializeData();
     _fetchComments();
-    fetchCommentCount(widget.post.id);
+    //fetchCommentCount(widget.post.id);
   }
 
-  Future<int> fetchCommentCount(String postId) async {
+  /*Future<int> fetchCommentCount(String postId) async {
     final snapshot = await FirebaseFirestore.instance
         .collection('posts')
         .doc(postId)
@@ -67,7 +67,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
         .get();
 
     return snapshot.docs.length;
-  }
+  }*/
 
   void _initializeData() {
     final authCubit = context.read<AuthCubit>();
@@ -219,13 +219,17 @@ void _openNewCommentBox() {
   );
 }
 
-
+  bool _isValidUuid(String id) {
+    final uuidRegex = RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$');
+    return uuidRegex.hasMatch(id);
+  }
+  final Uuid uuid = const Uuid();
 
   void _addComment() {
     if (_currentUser == null || _commentTextController.text.isEmpty) return;
 
     final newComment = Comment(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: uuid.v4(), // Her zaman yeni bir UUID oluştur
       postId: widget.post.id,
       userId: _currentUser!.uid,
       userName: _currentUser!.name,
@@ -235,8 +239,6 @@ void _openNewCommentBox() {
 
     _postCubit.addComment(widget.post.id, newComment);
     _commentTextController.clear();
-
-    // Burada setState yok! Çünkü Bloc veriyi yayınlayacak.
   }
 
   void _showDeleteDialog() {
@@ -361,7 +363,7 @@ void _openNewCommentBox() {
             ),
             _postUser?.profileImageUrl != null
                 ? CachedNetworkImage(
-                    imageUrl: _postUser!.profileImageUrl,
+                    imageUrl: _postUser!.profileImageUrl!,
                     imageBuilder: (context, imageProvider) => CircleAvatar(
                       radius: 25,
                       backgroundImage: imageProvider,
@@ -509,7 +511,7 @@ void _openNewCommentBox() {
                 ),
                 onPressed: _openNewCommentBox,
               ),
-              FutureBuilder<int>(
+              /*FutureBuilder<int>(
                 future: fetchCommentCount(widget.post.id),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
@@ -527,7 +529,7 @@ void _openNewCommentBox() {
                         color: Theme.of(context).colorScheme.primary),
                   );
                 },
-              )
+              )*/
             ],
           ),
           IconButton(
@@ -588,4 +590,3 @@ void _openNewCommentBox() {
     );
   }
 }
-*/

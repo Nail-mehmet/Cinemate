@@ -226,7 +226,7 @@ class _HomePageState extends State<HomePage> {
                             isLiked: false,
                             onTap: ()
                             {
-                                   /* Navigator.push(
+                                    Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => PostDetailPage(
@@ -234,7 +234,7 @@ class _HomePageState extends State<HomePage> {
                                           onDeletePressed: () {},
                                         ),
                                       ),
-                                    );*/
+                                    );
                                   });
                         },
                       ),
