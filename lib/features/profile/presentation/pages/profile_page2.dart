@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:Cinemate/features/chats/chat_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_widget/home_widget.dart';
@@ -23,7 +24,7 @@ import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/profile/presentation/components/animated_movie_cards.dart';
 import 'package:Cinemate/features/profile/presentation/components/bio_box.dart';
 import 'package:Cinemate/features/profile/presentation/components/follow_button.dart';
-import 'package:Cinemate/features/profile/presentation/components/message_button.dart';
+//import 'package:Cinemate/features/profile/presentation/components/message_button.dart';
 import 'package:Cinemate/features/profile/presentation/components/movie_stats.dart';
 import 'package:Cinemate/features/profile/presentation/components/premium_button.dart';
 import 'package:Cinemate/features/profile/presentation/components/profile_stats.dart';
@@ -42,6 +43,8 @@ import '../../../../config/home_widget_helper.dart';
 import '../../../chat/presentation/pages/chat_page.dart';
 import 'package:intl/intl.dart';
 
+import '../../../chats/chat_page.dart';
+import '../../../chats/chat_repository.dart';
 import '../components/popup_topthremovies.dart';
 
 class ProfilePage2 extends StatefulWidget {
@@ -1115,9 +1118,41 @@ class _ProfilePage2State extends State<ProfilePage2>
                                     isFollowing: user.followers.contains(currentUser!.uid),
                                   ),
                                   const SizedBox(width: 10),
-                                  MessageButton(
+                                  ElevatedButton(
                                     onPressed: () async {
                                       final currentUserId = currentUser!.uid;
+                                      if (currentUserId == null) return;
+
+                                      // Chat oluştur veya var olanı bul
+                                      final chatBloc = context.read<ChatBloc>();
+                                      chatBloc.add(CreateChat(currentUserId, user.uid));
+
+                                      // Chat sayfasına yönlendir
+                                      final chatRepository = ChatRepository(supabaseClient: Supabase.instance.client);
+                                      final chat = await chatRepository.findChatBetweenUsers(currentUserId, user.uid);
+
+
+                                      if (chat != null && mounted) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatPage(
+                                              chatId: chat.id,
+                                              userId: currentUserId,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('Mesaj Gönder'),
+                                  )
+
+                                  /*MessageButton(
+                                    onPressed: () async {
+
+
+
+                                      /*final currentUserId = currentUser!.uid;
                                       final otherUserId = user.uid;
                                       try {
                                         await context.read<ChatCubit>().startNewChat(
@@ -1146,9 +1181,9 @@ class _ProfilePage2State extends State<ProfilePage2>
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(content: Text('Sohbet başlatılamadı: $e')),
                                         );
-                                      }
+                                      }*/
                                     },
-                                  ),
+                                  ),*/
                                 ],
                                 const SizedBox(width: 10),
                                 IconButton(

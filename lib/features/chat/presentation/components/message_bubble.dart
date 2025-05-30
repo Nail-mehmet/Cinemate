@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:Cinemate/features/chat/domain/entities/message_entity.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -77,3 +77,4 @@ class MessageBubble extends StatelessWidget {
     );
   }
 }
+*/

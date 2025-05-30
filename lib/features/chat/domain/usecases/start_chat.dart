@@ -1,4 +1,4 @@
-import '../repositories/chat_repository.dart';
+/*import '../repositories/chat_repository.dart';
 
 class StartChat {
   final ChatRepository repository;
@@ -22,4 +22,4 @@ class StartChat {
       otherUserAvatar: otherUserAvatar,
     );
   }
-}
+}*/

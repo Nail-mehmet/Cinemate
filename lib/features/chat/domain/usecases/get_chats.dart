@@ -1,4 +1,4 @@
-import 'package:Cinemate/features/chat/domain/entities/chat_entity.dart';
+/*import 'package:Cinemate/features/chat/domain/entities/chat_entity.dart';
 
 import '../repositories/chat_repository.dart';
 
@@ -10,4 +10,4 @@ class GetChats {
   Stream<List<ChatEntity>> call(String userId) {
     return repository.getChats(userId);
   }
-}
+}*/

@@ -1,4 +1,4 @@
-import '../repositories/chat_repository.dart';
+/*import '../repositories/chat_repository.dart';
 
 class MarkMessageAsRead {
   final ChatRepository repository;
@@ -12,3 +12,4 @@ class MarkMessageAsRead {
     await repository.markMessageAsRead(chatId: chatId, messageId: messageId);
   }
 }
+*/

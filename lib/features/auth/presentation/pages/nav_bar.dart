@@ -1,3 +1,4 @@
+import 'package:Cinemate/features/chats/chat_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
@@ -31,7 +32,7 @@ class _NavBarState extends State<NavBar> {
       StartPage(),
       HomePage(),
       SearchPage(),
-      StartPage(),ProfilePage2(uid: currentUser!.uid),
+      ChatListPage(userId: currentUser!.uid,),ProfilePage2(uid: currentUser!.uid),
 
       //HomePage(),
       //SearchPage(),

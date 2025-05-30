@@ -1,4 +1,4 @@
-class ChatEntity {
+/*class ChatEntity {
   final String id;
   final List<String> participants;
   final String lastMessage;
@@ -54,4 +54,4 @@ class ParticipantData {
     required this.name,
     required this.avatar,
   });
-}
+}*/

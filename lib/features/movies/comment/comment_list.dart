@@ -44,12 +44,12 @@ class _CommentTileState extends State<CommentTile> {
 
     return ListTile(
       onTap: () {
-      /* Navigator.push(
+       Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ProfilePage2(uid: comment.userId),
           ),
-        );*/
+        );
       },
       contentPadding: const EdgeInsets.all(8),
       leading: CircleAvatar(

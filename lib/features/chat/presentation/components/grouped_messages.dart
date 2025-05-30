@@ -1,4 +1,4 @@
-import 'package:Cinemate/features/chat/domain/entities/message_entity.dart';
+/*import 'package:Cinemate/features/chat/domain/entities/message_entity.dart';
 
 Map<String, List<MessageEntity>> groupMessagesByDate(List<MessageEntity> messages) {
   final Map<String, List<MessageEntity>> grouped = {};
@@ -39,3 +39,4 @@ String _weekdayName(int weekday) {
   ];
   return names[weekday - 1];
 }
+*/

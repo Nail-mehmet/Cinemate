@@ -1,4 +1,4 @@
-part of 'chat_cubit.dart';
+/*part of 'chat_cubit.dart';
 
 abstract class ChatState extends Equatable {
   const ChatState();
@@ -45,4 +45,4 @@ class ChatError extends ChatState {
 
   @override
   List<Object> get props => [message];
-}
+}*/

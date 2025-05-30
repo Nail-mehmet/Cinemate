@@ -1,4 +1,4 @@
-class MessageEntity {
+/*class MessageEntity {
   final String id;
   final String senderId;
   final String text;
@@ -12,4 +12,4 @@ class MessageEntity {
     required this.timestamp,
     required this.read,
   });
-}
+}*/

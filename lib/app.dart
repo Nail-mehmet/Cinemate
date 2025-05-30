@@ -1,5 +1,9 @@
 import 'dart:async';
 
+
+import 'package:Cinemate/features/chats/chat_bloc.dart';
+import 'package:Cinemate/features/chats/chat_repository.dart';
+import 'package:Cinemate/features/chats/message_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -53,6 +57,7 @@ import 'package:Cinemate/features/chat/presentation/cubits/chat_cubit.dart';
 // Theme
 import 'package:Cinemate/themes/theme_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
 import 'config/home_widget_helper.dart';
 import 'features/communities/presentation/cubits/commune_bloc.dart';
@@ -72,6 +77,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
     final firebaseStorageRepo = SupabaseStorageRepo();
     final firebasePostRepo = SupabasePostRepo();
     final firebaseSearchRepo = FirebaseSearchRepo();
+
    // final chatRemoteDataSource = ChatRemoteDataSource();
 
    /* void initState() {
@@ -120,6 +126,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
           BlocProvider<AuthCubit>(
             create: (context) => AuthCubit(authRepo: firebaseAuthRepo)..checkAuth(),
           ),
+          BlocProvider<ChatBloc>(
+            create: (_) => ChatBloc(chatRepository: ChatRepository(supabaseClient: Supabase.instance.client)),
+          ),
+          BlocProvider<MessageBloc>(
+            create: (_) => MessageBloc(chatRepository: ChatRepository(supabaseClient: Supabase.instance.client)),
+          ),
          BlocProvider<ProfileCubit>(
             create: (context) => ProfileCubit(
               profileRepo: SupabaseProfileRepo(),
@@ -144,6 +156,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
           BlocProvider<MovieDetailCubit>(
             create: (context) => MovieDetailCubit(movieDetailRepo),
           ),
+
           /*BlocProvider<ChatCubit>(
             create: (context) => ChatCubit(
               getChats: GetChats(repository: context.read<ChatRepository>()),

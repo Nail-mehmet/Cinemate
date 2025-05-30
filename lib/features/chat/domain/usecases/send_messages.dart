@@ -1,4 +1,4 @@
-import '../repositories/chat_repository.dart';
+/*import '../repositories/chat_repository.dart';
 
 class SendMessage {
   final ChatRepository repository;
@@ -16,4 +16,4 @@ class SendMessage {
       text: text,
     );
   }
-}
+}*/

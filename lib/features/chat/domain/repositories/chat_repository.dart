@@ -1,4 +1,4 @@
-import '../entities/chat_entity.dart';
+/*import '../entities/chat_entity.dart';
 import '../entities/message_entity.dart';
 
 abstract class ChatRepository {
@@ -30,4 +30,4 @@ abstract class ChatRepository {
     required String chatId,
     required String messageId,
   });
-}
+}*/
