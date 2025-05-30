@@ -24,14 +24,35 @@ class ChatRepository {
       String chatId,
       String currentUserId,
       ) async {
-    final response = await supabaseClient
-        .from(SupabaseConstants.participantsTable)
-        .select('profiles:user_id (id, username, avatar_url)')
-        .eq('chat_id', chatId)
-        .neq('user_id', currentUserId)
-        .single();
-    return response['profiles'];
+    try {
+      final response = await supabaseClient
+          .from(SupabaseConstants.participantsTable)
+          .select('user_id')
+          .eq('chat_id', chatId)
+          .neq('user_id', currentUserId)
+          .maybeSingle();
+
+      if (response == null) {
+        throw Exception('Diğer katılımcı bulunamadı');
+      }
+
+      final otherUserId = response['user_id'] as String;
+
+      final profile = await supabaseClient
+          .from(SupabaseConstants.profilesTable)
+          .select('id, name, profile_image')
+          .eq('id', otherUserId)
+          .single();
+
+      return profile;
+    } catch (e) {
+      print('getOtherParticipantProfile error: $e');
+      rethrow;
+    }
   }
+
+
+
 
   // Yeni chat oluştur
   Future<Chat> createChat(String currentUserId, String otherUserId) async {
@@ -85,8 +106,7 @@ class ChatRepository {
     required String senderId,
     required String content,
   }) async {
-    // Mesajı ekle
-    final messageResponse = await supabaseClient
+    final message = await supabaseClient
         .from(SupabaseConstants.messagesTable)
         .insert({
       'chat_id': chatId,
@@ -96,7 +116,7 @@ class ChatRepository {
         .select()
         .single();
 
-    // Chat'in son mesajını güncelle
+    // Chat'in son mesaj bilgilerini güncelle (diğer kullanıcının chat listesini güncellemek için)
     await supabaseClient
         .from(SupabaseConstants.chatsTable)
         .update({
@@ -106,7 +126,7 @@ class ChatRepository {
     })
         .eq('id', chatId);
 
-    return Message.fromMap(messageResponse);
+    return Message.fromMap(message);
   }
 
   // Mesajları okundu olarak işaretle

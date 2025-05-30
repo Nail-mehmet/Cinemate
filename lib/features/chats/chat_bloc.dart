@@ -1,11 +1,10 @@
 import 'dart:async';
+import 'package:Cinemate/core/constants/supabase_constants.dart';
 import 'package:Cinemate/features/chats/chat_model.dart';
 import 'package:Cinemate/features/chats/chat_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../../core/constants/supabase_constants.dart';
 
 
 part 'chat_event.dart';
@@ -35,9 +34,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           .listen((data) {
         final chats = data
             .map((e) => Chat.fromMap(e['chats']))
-            .toList();
+            .toList()
+          ..sort((a, b) => b.lastMessageTime!.compareTo(a.lastMessageTime)); // sıralama eklendi
+
         add(UpdateChats(chats));
       });
+
 
       // İlk verileri yükle
       final chats = await _chatRepository.getUserChats(event.userId);

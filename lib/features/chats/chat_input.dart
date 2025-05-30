@@ -15,27 +15,47 @@ class _ChatInputState extends State<ChatInput> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: _textController,
-              decoration: const InputDecoration(
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
                 hintText: 'Mesaj yaz...',
-                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.grey[200],
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: () {
-              final text = _textController.text.trim();
-              if (text.isNotEmpty) {
-                widget.onSend(text);
-                _textController.clear();
-              }
-            },
+          const SizedBox(width: 8),
+          Material(
+            color: Colors.blue,
+            shape: const CircleBorder(),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(30),
+              onTap: () {
+                final text = _textController.text.trim();
+                if (text.isNotEmpty) {
+                  widget.onSend(text);
+                  _textController.clear();
+                }
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Icon(
+                  Icons.send,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
           ),
         ],
       ),

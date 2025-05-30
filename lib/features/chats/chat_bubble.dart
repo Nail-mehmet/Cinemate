@@ -32,12 +32,25 @@ class ChatBubble extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              '${message.createdAt.hour}:${message.createdAt.minute}',
-              style: TextStyle(
-                color: isMe ? Colors.white70 : Colors.black54,
-                fontSize: 10,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}',
+                  style: TextStyle(
+                    color: isMe ? Colors.white70 : Colors.black54,
+                    fontSize: 10,
+                  ),
+                ),
+                if (isMe) ...[
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.done_all,
+                    size: 16,
+                    color: message.isRead ? Colors.lightBlueAccent : Colors.grey,
+                  ),
+                ],
+              ],
             ),
           ],
         ),

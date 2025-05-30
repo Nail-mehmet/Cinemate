@@ -2,14 +2,14 @@ class Chat {
   final String id;
   final DateTime createdAt;
   final String? lastMessage;
-  final DateTime? lastMessageTime;
+  final DateTime lastMessageTime;
   final String? lastMessageSender;
 
   Chat({
     required this.id,
     required this.createdAt,
     this.lastMessage,
-    this.lastMessageTime,
+    required this.lastMessageTime,
     this.lastMessageSender,
   });
 
@@ -18,9 +18,8 @@ class Chat {
       id: map['id'] as String,
       createdAt: DateTime.parse(map['created_at'] as String),
       lastMessage: map['last_message'] as String?,
-      lastMessageTime: map['last_message_time'] != null
-          ? DateTime.parse(map['last_message_time'] as String)
-          : null,
+      lastMessageTime: DateTime.parse(map['last_message_time'] ?? DateTime.now().toIso8601String()),
+
       lastMessageSender: map['last_message_sender'] as String?,
     );
   }
