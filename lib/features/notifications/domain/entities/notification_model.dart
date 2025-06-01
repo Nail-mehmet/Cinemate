@@ -20,10 +20,11 @@ class NotificationModel {
     return NotificationModel(
       id: map['id'] ?? '',
       type: map['type'] ?? '',
-      fromUserId: map['fromUserId'] ?? '',
-      postId: map['postId'],
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
-      isRead: map['isRead'] ?? false,
+      fromUserId: map['from_user_id'] ?? '',
+      postId: map['post_id'],
+
+      createdAt: DateTime.parse(map['created_at']),
+      isRead: map['is_read'] ?? false,
     );
   }
 
@@ -31,10 +32,10 @@ class NotificationModel {
     return {
       'id': id,
       'type': type,
-      'fromUserId': fromUserId,
-      'postId': postId,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'isRead': isRead,
+      'from_user_id': fromUserId,
+      'post_id': postId,
+      'created_at': createdAt.millisecondsSinceEpoch,
+      'is_read': isRead,
     };
   }
 }

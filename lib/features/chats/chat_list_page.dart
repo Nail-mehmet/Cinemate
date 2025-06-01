@@ -3,6 +3,7 @@ import 'package:Cinemate/features/chats/chat_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../chat/presentation/components/noti_icon_badge.dart';
 import 'chat_page.dart';
 
 class ChatListPage extends StatefulWidget {
@@ -34,7 +35,9 @@ class _ChatListPageState extends State<ChatListPage> {
     return BlocProvider.value(
       value: chatBloc,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Mesajlar')),
+        appBar: AppBar(title: const Text('Mesajlar'), actions: [
+          NotificationIconWithBadge(currentUserId: widget.userId),
+        ]),
         body: BlocBuilder<ChatBloc, ChatState>(
           builder: (context, state) {
             if (state.status == ChatStatus.loading) {

@@ -1,11 +1,12 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:Cinemate/features/home/presentation/pages/post_detail_page.dart';
-import 'package:Cinemate/features/notifications/presentation/cubits/notification_bloc.dart';
-import 'package:Cinemate/features/post/domain/entities/post.dart';
-import 'package:Cinemate/features/profile/presentation/pages/profile_page2.dart';
-import 'package:Cinemate/themes/font_theme.dart'; // ← Bunu eklemeyi unutma
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../../themes/font_theme.dart';
+import '../../../home/presentation/pages/post_detail_page.dart';
+import '../../../post/domain/entities/post.dart';
+import '../../../profile/presentation/pages/profile_page2.dart';
+import '../cubits/notification_bloc.dart';
 
 class NotificationsPage extends StatelessWidget {
   final String currentUserId;
@@ -14,22 +15,33 @@ class NotificationsPage extends StatelessWidget {
       : super(key: key);
 
   Future<Post?> fetchPost(String postId) async {
-    final doc =
-        await FirebaseFirestore.instance.collection('posts').doc(postId).get();
-    if (doc.exists) {
-      return Post.fromJson(doc.data()!);
+    try {
+      final data = await Supabase.instance.client
+          .from('posts')
+          .select()
+          .eq('id', postId)
+          .single();
+
+      return Post.fromJson(data);
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   Future<Map<String, dynamic>?> fetchUser(String userId) async {
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    if (doc.exists) {
-      return doc.data();
+    try {
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select()
+          .eq('id', userId)
+          .single();
+
+      return data as Map<String, dynamic>;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
+
 
   String timeAgo(DateTime dateTime) {
     final now = DateTime.now();
@@ -62,19 +74,23 @@ class NotificationsPage extends StatelessWidget {
               final allNotifications = state.notifications;
 
               final unread = allNotifications
-                  .where((n) => !(n["isRead"] ?? false))
+                  .where((n) => !(n["is_read"] ?? false))
                   .toList();
               final read = allNotifications
-                  .where((n) => (n["isRead"] ?? false))
+                  .where((n) => (n["is_read"] ?? false))
                   .toList();
 
               Widget buildNotificationTile(Map<String, dynamic> notification) {
                 final type = notification["type"];
-                final fromUserId = notification["fromUserId"];
-                final postId = notification["postId"];
-                final isRead = notification["isRead"] ?? false;
-                final timestamp =
-                    (notification["timestamp"] as Timestamp?)?.toDate();
+                final fromUserId = notification["from_user_id"];
+                final postId = notification["post_id"];
+                final isRead = notification["is_read"] ?? false;
+                // Zaman dönüşümü için güncelleme
+                final createdAt = notification["created_at"] != null
+                    ? (notification["created_at"] is int
+                    ? DateTime.fromMillisecondsSinceEpoch(notification["created_at"])
+                    : DateTime.parse(notification["created_at"]))
+                    : null;
 
                 return FutureBuilder(
                   future: Future.wait([
@@ -91,8 +107,8 @@ class NotificationsPage extends StatelessWidget {
                         ? snapshot.data![1] as Post?
                         : null;
 
-                    final userName = userData?["name"] ?? "Kullanıcı";
-                    final userPhoto = userData?["profileImageUrl"];
+                    final userName = userData?["name"] ?? userData?["name"] ?? "Kullanıcı";
+                    final userPhoto = userData?["profile_image"];
 
                     return _AnimatedNotificationTile(
                       isRead: isRead,
@@ -100,19 +116,19 @@ class NotificationsPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(50),
                         child: userPhoto != null
                             ? Image.network(userPhoto,
-                                width: 40, height: 40, fit: BoxFit.cover)
+                            width: 40, height: 40, fit: BoxFit.cover)
                             : const CircleAvatar(child: Icon(Icons.person)),
                       ),
                       title: type == "follow"
                           ? "$userName seni takip etti."
                           : "$userName gönderini beğendi.",
-                      timeText: timestamp != null ? timeAgo(timestamp) : "",
+                      timeText: createdAt != null ? timeAgo(createdAt) : "",
                       trailing: type == "like" && post != null
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(post.imageUrl,
-                                  width: 50, height: 50, fit: BoxFit.cover),
-                            )
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(post.imageUrl,
+                            width: 50, height: 50, fit: BoxFit.cover),
+                      )
                           : null,
                       onTap: () {
                         if (type == "like" && post != null) {
@@ -165,6 +181,8 @@ class NotificationsPage extends StatelessWidget {
     );
   }
 }
+
+// _AnimatedNotificationTile widget'ı aynı kalabilir
 
 class _AnimatedNotificationTile extends StatefulWidget {
   final bool isRead;
@@ -219,4 +237,3 @@ class _AnimatedNotificationTileState extends State<_AnimatedNotificationTile> {
     );
   }
 }
-*/

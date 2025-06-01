@@ -1,5 +1,5 @@
-/*import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationState {}
 
@@ -22,25 +22,29 @@ class NotificationCubit extends Cubit<NotificationState> {
 
   Future<void> fetchNotifications(String currentUserId) async {
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection("users")
-          .doc(currentUserId)
-          .collection("notifications")
-          .orderBy("timestamp", descending: true)
-          .get();
+      final notifications = await Supabase.instance.client
+          .from('notifications')
+          .select()
+          .eq('user_id', currentUserId)
+          .order('created_at', ascending: false);
 
-      // isRead: false olanları işaretle
-      for (var doc in snapshot.docs) {
-        if (!(doc.data()["isRead"] ?? false)) {
-          doc.reference.update({"isRead": true});
-        }
+      final castedNotifications =
+      (notifications as List).cast<Map<String, dynamic>>();
+
+      // is_read: false olanları işaretle
+      final unreadNotifications =
+      castedNotifications.where((n) => !(n['is_read'] ?? false));
+
+      for (var notification in unreadNotifications) {
+        await Supabase.instance.client
+            .from('notifications')
+            .update({'is_read': true})
+            .eq('id', notification['id']);
       }
 
-      emit(NotificationLoaded(snapshot.docs.map((e) => e.data()).toList()));
+      emit(NotificationLoaded(castedNotifications));
     } catch (e) {
       emit(NotificationError("Bildirimler alınamadı: $e"));
     }
   }
 }
-
-*/

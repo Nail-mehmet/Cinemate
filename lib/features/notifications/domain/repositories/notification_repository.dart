@@ -1,58 +1,49 @@
-//import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:Cinemate/features/notifications/domain/entities/notification_model.dart';
-/*
-class NotificationRepository {
-  final FirebaseFirestore _firestore;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../entities/notification_model.dart';
 
-  NotificationRepository({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+class NotificationRepository {
+  final SupabaseClient _supabase;
+
+  NotificationRepository({SupabaseClient? supabase})
+      : _supabase = supabase ?? Supabase.instance.client;
 
   // Kullanıcının bildirimlerini getir
   Future<List<NotificationModel>> getNotifications(String userId) async {
-    final snapshot = await _firestore
-        .collection('notifications')
-        .doc(userId)
-        .collection('user_notifications')
-        .orderBy('createdAt', descending: true)
-        .get();
+    final data = await _supabase
+        .from('notifications')
+        .select()
+        .eq('user_id', userId)
+        .order('created_at', ascending: false);
 
-    return snapshot.docs
-        .map((doc) => NotificationModel.fromMap(doc.data()))
+    return (data as List)
+        .map((item) => NotificationModel.fromMap(item))
         .toList();
   }
 
   // Realtime bildirim akışı
   Stream<NotificationModel> getNotificationStream(String userId) {
-    return _firestore
-        .collection('notifications')
-        .doc(userId)
-        .collection('user_notifications')
-        .orderBy('createdAt', descending: true)
+    return _supabase
+        .from('notifications')
+        .stream(primaryKey: ['id'])
+        .eq('user_id', userId)
+        .order('created_at', ascending: false)
         .limit(1)
-        .snapshots()
         .asyncMap((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        return NotificationModel.fromMap(snapshot.docs.first.data());
+      if (snapshot.isNotEmpty) {
+        return NotificationModel.fromMap(snapshot.first);
       }
       return null;
-    }).where((notification) => notification != null).cast<NotificationModel>();
+    })
+        .where((notification) => notification != null)
+        .cast<NotificationModel>();
   }
 
-  // Takip bildirimi oluştur
-  Future<void> createFollowNotification(
-      String currentUserId, String targetUserId) async {
-    final notification = NotificationModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      type: 'follow',
-      fromUserId: currentUserId,
-      createdAt: DateTime.now(),
-    );
+  // Bildirim ekle
+  Future<void> addNotification(Map<String, dynamic> notification) async {
+    final inserted = await _supabase.from('notifications').insert(notification);
 
-    await _firestore
-        .collection('notifications')
-        .doc(targetUserId) // Takip edilen kişiye bildirim gidecek
-        .collection('user_notifications')
-        .doc(notification.id)
-        .set(notification.toMap());
+    if (inserted == null || inserted is List && inserted.isEmpty) {
+      throw Exception('Bildirim eklenemedi.');
+    }
   }
-}*/
+}

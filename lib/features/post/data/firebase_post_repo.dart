@@ -85,15 +85,17 @@ class SupabasePostRepo implements PostRepo {
         likes.add(userId);
 
         // Bildirim oluştur (kendine like atmadıysa)
-      /*  if (postOwnerId != userId) {
+        if (postOwnerId != userId) {
+
           await supabase.from('notifications').insert({
             'user_id': postOwnerId,
             'type': 'like',
             'from_user_id': userId,
-            'post_id': postId,
-            'is_read': false
+            'created_at': DateTime.now().toIso8601String(),
+            'is_read': false,
+            "post_id": postId
           });
-        }*/
+        }
       }
 
       // Postu güncelle

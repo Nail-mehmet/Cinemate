@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Anam"),
+        title: Text("Gönderiler"),
         foregroundColor: Theme.of(context).colorScheme.primary,
         actions: [
           IconButton(
