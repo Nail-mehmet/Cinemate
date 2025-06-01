@@ -8,7 +8,7 @@ class SupabaseProfileRepo implements ProfileRepo {
   @override
   Future<ProfileUser?> fetchUserProfile(String uid) async {
     try {
-      // profiles tablosundan user kaydını çek
+      // profiles tablosundan user kaydını çek, is_premium alanını da seç
       final profileData = await supabase
           .from('profiles')
           .select()
@@ -17,11 +17,19 @@ class SupabaseProfileRepo implements ProfileRepo {
 
       if (profileData == null) return null;
 
-      // Filmleri çek
+      // Kullanıcının premium durumunu al
+      final bool isPremium = profileData['is_premium'] ?? false;
+
+      // Temel film listelerini çek
       final watchedMovies = await getUserMovies(uid, 'watched_movies');
       final favoriteMovies = await getUserMovies(uid, 'favorite_movies');
       final savedlist = await getUserMovies(uid, 'savedlist_movies');
-      final topThreeMovies = await getUserMovies(uid, 'top_three_movies');
+
+      // Premium kullanıcılar için ekstra özellikler
+      List<String> topThreeMovies = [];
+      if (isPremium) {
+        topThreeMovies = await getUserMovies(uid, 'top_three_movies');
+      }
 
       // Takipçi ve takip edilenler
       final followers = await _getFollowers(uid);
@@ -39,6 +47,7 @@ class SupabaseProfileRepo implements ProfileRepo {
         favoriteMovies: favoriteMovies,
         savedlist: savedlist,
         topThreeMovies: topThreeMovies,
+        isPremium: isPremium,
       );
     } catch (e) {
       print('Error fetching user profile: $e');

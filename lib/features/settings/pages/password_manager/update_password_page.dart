@@ -1,5 +1,6 @@
-/*import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:Cinemate/themes/font_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UpdatePasswordScreen extends StatefulWidget {
   const UpdatePasswordScreen({super.key});
@@ -26,19 +27,23 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
     });
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final response = await Supabase.instance.client.auth.updateUser(
+        UserAttributes(password: _newPasswordController.text),
+      );
 
-      await user!.updatePassword(_newPasswordController.text);
-
-      if (mounted) {
+      if (response.user != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Şifre başarıyla güncellendi')),
         );
         Navigator.pop(context);
       }
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       setState(() {
-        _errorMessage = _getErrorMessage(e.code);
+        _errorMessage = _getErrorMessage(e.message);
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Şifre güncellenirken hata oluştu';
       });
     } finally {
       if (mounted) {
@@ -47,13 +52,11 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
     }
   }
 
-  String _getErrorMessage(String code) {
-    switch (code) {
-      case 'weak-password':
-        return 'Şifre en az 6 karakter olmalı';
-      default:
-        return 'Şifre güncellenirken hata oluştu';
+  String _getErrorMessage(String message) {
+    if (message.contains('Password should be at least 6 characters')) {
+      return 'Şifre en az 6 karakter olmalı';
     }
+    return message;
   }
 
   Widget _buildCustomPasswordField({
@@ -213,12 +216,13 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                     ),
                     child: _isLoading
                         ? const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation(Colors.white),
-                          )
+                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                    )
                         : Text(
-                            'Yeni Şifre Oluştur',
-                            style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary),
-                          ),
+                      'Yeni Şifre Oluştur',
+                      style: AppTextStyles.bold.copyWith(
+                          color: Theme.of(context).colorScheme.tertiary),
+                    ),
                   ),
                 ),
               ],
@@ -229,4 +233,3 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
     );
   }
 }
-*/

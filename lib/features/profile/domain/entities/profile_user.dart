@@ -9,6 +9,7 @@ class ProfileUser extends AppUser {
   final List<String> favoriteMovies;
   final List<String> savedlist;
   final List<String> topThreeMovies;
+  final bool isPremium;
 
   ProfileUser({
     required super.uid,
@@ -21,7 +22,8 @@ class ProfileUser extends AppUser {
     this.watchedMovies = const [],
     this.favoriteMovies = const [],
     this.savedlist = const [],
-    this.topThreeMovies = const []
+    this.topThreeMovies = const [],
+    this.isPremium = false,
   });
 
   ProfileUser copyWith({
@@ -35,6 +37,7 @@ class ProfileUser extends AppUser {
     List<String>? newFavoriteMovies,
     List<String>? newSavedlist,
     List<String>? newTopThreeMovies,
+    bool? newIsPremium,
   }) {
     return ProfileUser(
       uid: uid,
@@ -47,7 +50,8 @@ class ProfileUser extends AppUser {
       watchedMovies: newWatchedMovies ?? watchedMovies,
       favoriteMovies: newFavoriteMovies ?? favoriteMovies,
       savedlist: newSavedlist ?? savedlist,
-      topThreeMovies: newTopThreeMovies ?? topThreeMovies
+      topThreeMovies: newTopThreeMovies ?? topThreeMovies,
+      isPremium: newIsPremium ?? isPremium,
     );
   }
 
@@ -63,13 +67,14 @@ class ProfileUser extends AppUser {
       "watchedMovies": watchedMovies,
       "favoriteMovies": favoriteMovies,
       "savedlist": savedlist,
-      "topThreeMovies" : topThreeMovies
+      "topThreeMovies": topThreeMovies,
+      "is_premium": isPremium,
     };
   }
 
   factory ProfileUser.fromJson(Map<String, dynamic> json) {
     return ProfileUser(
-      uid: json["uid"] ?? json["id"], // 👈 önemli düzeltme
+      uid: json["uid"] ?? json["id"],
       email: json["email"],
       name: json["name"],
       bio: json["bio"] ?? "",
@@ -80,7 +85,7 @@ class ProfileUser extends AppUser {
       favoriteMovies: List<String>.from(json["favoriteMovies"] ?? []),
       savedlist: List<String>.from(json["savedlist"] ?? []),
       topThreeMovies: List<String>.from(json["topThreeMovies"] ?? []),
+      isPremium: json["is_premium"] ?? false,
     );
   }
-
 }

@@ -61,6 +61,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
 import 'config/home_widget_helper.dart';
 import 'features/communities/presentation/cubits/commune_bloc.dart';
+import 'features/premium/data/premium_provider.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -126,6 +127,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
           BlocProvider<AuthCubit>(
             create: (context) => AuthCubit(authRepo: firebaseAuthRepo)..checkAuth(),
           ),
+
           BlocProvider<ChatBloc>(
             create: (_) => ChatBloc(chatRepository: ChatRepository(supabaseClient: Supabase.instance.client)),
           ),

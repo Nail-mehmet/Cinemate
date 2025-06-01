@@ -1,17 +1,17 @@
-/*import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:Cinemate/themes/font_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PremiumsPage extends StatefulWidget {
-  const PremiumsPage({super.key});
+  final bool isPremium;
+  const PremiumsPage({super.key, required this.isPremium});
 
   @override
   State<PremiumsPage> createState() => _PremiumsPageState();
 }
 
-class _PremiumsPageState extends State<PremiumsPage> {
+class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderStateMixin {
   final TextEditingController _storyController = TextEditingController();
   bool hasSubmitted = false;
   bool isLoading = true;
@@ -21,50 +21,78 @@ class _PremiumsPageState extends State<PremiumsPage> {
   int membersCount = 0;
   final String premiumDocId = "weeklyStory";
   Duration remainingTime = Duration.zero;
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 10.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 10.0, end: -10.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -10.0, end: 10.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10.0, end: 0.0), weight: 1),
+    ]).animate(CurvedAnimation(
+      parent: _shakeController,
+      curve: Curves.easeOut,
+    ));
     _fetchData();
     _calculateRemainingTime();
+    if (!widget.isPremium) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(Duration(seconds: 1), () {
+          _showPremiumRequiredDialog();
+        });
+      });}
   }
+
 
   void _calculateRemainingTime() {
     final now = DateTime.now();
     // Bu haftanın Pazar 20:00'ini hesapla
-    final nextSunday = now.weekday == 7 
+    final nextSunday = now.weekday == 7
         ? DateTime(now.year, now.month, now.day, 20, 0)
         : DateTime(now.year, now.month, now.day + (7 - now.weekday), 20, 0);
-    
+
     setState(() {
       remainingTime = nextSunday.difference(now);
     });
   }
+  final supabase = Supabase.instance.client;
+
 
   Future<void> _fetchData() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = supabase.auth.currentUser;
     if (user == null) return;
 
-    final doc = await FirebaseFirestore.instance.collection("premium").doc(premiumDocId).get();
-    final participantDoc = await FirebaseFirestore.instance
-        .collection("premium")
-        .doc(premiumDocId)
-        .collection("participants")
-        .doc(user.uid)
-        .get();
+    final contestData = await supabase
+        .from('premium_contests')
+        .select()
+        .eq('id', premiumDocId)
+        .single();
+
+    final participantData = await supabase
+        .from('premium_participants')
+        .select()
+        .eq('contest_id', premiumDocId)
+        .eq('user_id', user.id);
 
     setState(() {
-      title = doc['title'] ?? '';
-      story = doc['story'] ?? '';
-      award = doc['award'] ?? '';
-      membersCount = doc['membersCount'] ?? 0;
-      hasSubmitted = participantDoc.exists;
+      title = contestData['title'] ?? '';
+      story = contestData['description'] ?? '';
+      award = contestData['award'] ?? '';
+      membersCount = contestData['members_count'] ?? 0;
+      hasSubmitted = participantData.isNotEmpty;
       isLoading = false;
     });
   }
 
   Future<void> _submitStory() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final user = supabase.auth.currentUser;
     if (user == null) return;
 
     final text = _storyController.text.trim();
@@ -76,23 +104,17 @@ class _PremiumsPageState extends State<PremiumsPage> {
     }
 
     setState(() => isLoading = true);
-    
+
     try {
-      await FirebaseFirestore.instance
-          .collection("premium")
-          .doc(premiumDocId)
-          .collection("participants")
-          .doc(user.uid)
-          .set({
-        "userId": user.uid,
-        "text": text,
-        "timestamp": FieldValue.serverTimestamp(),
+      await supabase.from('premium_participants').insert({
+        'contest_id': premiumDocId,
+        'user_id': user.id,
+        'text': text,
       });
 
       setState(() {
         hasSubmitted = true;
         _storyController.clear();
-        membersCount++;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,9 +140,92 @@ class _PremiumsPageState extends State<PremiumsPage> {
     _storyController.dispose();
     super.dispose();
   }
+  void _showPremiumRequiredDialog() {
+    // Animasyonu başlat
+    _shakeController.forward(from: 0);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => AnimatedBuilder(
+        animation: _shakeAnimation,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(_shakeAnimation.value * (1 - (_shakeAnimation.value / 10)), 0),
+            child: Transform.rotate(
+              angle: _shakeAnimation.value * 0.01,
+              child: child,
+            ),
+          );
+        },
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.star_rounded,
+                  size: 60,
+                  color: Colors.amber,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Premium Özellik",
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Bu özel yarışmaya katılmak için premium üye olmalısınız",
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).maybePop();
+                        },
+                        child: const Text("Sonra"),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          Navigator.pushReplacementNamed(context, '/premium_subscription');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber,
+                          foregroundColor: Colors.black,
+                        ),
+                        child: const Text("Premium Ol"),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
+
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
@@ -134,6 +239,9 @@ class _PremiumsPageState extends State<PremiumsPage> {
         ),
       );
     }
+
+
+
 
     return Scaffold(
       appBar: AppBar(
@@ -163,7 +271,7 @@ class _PremiumsPageState extends State<PremiumsPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.people_alt_outlined, 
+                        Icon(Icons.people_alt_outlined,
                             color: Theme.of(context).colorScheme.tertiary, size: 20),
                         const SizedBox(width: 6),
                         Text(
@@ -175,7 +283,7 @@ class _PremiumsPageState extends State<PremiumsPage> {
                     const VerticalDivider(thickness: 1, width: 20),
                     Row(
                       children: [
-                        Icon(Icons.timer_outlined, 
+                        Icon(Icons.timer_outlined,
                             color: Colors.red, size: 20),
                         const SizedBox(width: 6),
                         Text(
@@ -187,7 +295,7 @@ class _PremiumsPageState extends State<PremiumsPage> {
                     const VerticalDivider(thickness: 1, width: 20),
                     Row(
                       children: [
-                        Icon(Icons.emoji_events_outlined, 
+                        Icon(Icons.emoji_events_outlined,
                             color: Theme.of(context).colorScheme.tertiary, size: 20),
                         const SizedBox(width: 6),
                         Text(
@@ -356,4 +464,4 @@ class _PremiumsPageState extends State<PremiumsPage> {
       ),
     );
   }
-}*/
+}

@@ -51,37 +51,46 @@ class FAQTab extends StatelessWidget {
       children: [
         _buildQuestionTile(
           question: 'Bu sosyal medya uygulaması ücretsiz mi?',
-          answer: 'Evet, uygulamamız tamamen ücretsizdir. Deneyiminizi geliştirmek için isteğe bağlı premium özellikler sunulmaktadır.',
+          answer: 'Evet, uygulamamız tamamen ücretsizdir. Deneyiminizi geliştirmek için isteğe bağlı premium özellikler sunulmaktadır.',          context: context
+
         ),
         _buildQuestionTile(
           question: 'Bir kullanıcıyı nasıl takip etmeyi bırakabilirim?',
-          answer: 'Kullanıcının profiline gidin ve “Takibi Bırak” butonuna dokunun.',
+          answer: 'Kullanıcının profiline gidin ve “Takibi Bırak” butonuna dokunun.',          context: context
+
         ),
         _buildQuestionTile(
           question: 'Yeni özelliklerden nasıl haberdar olabilirim?',
-          answer: 'Resmi sosyal medya hesaplarımızı takip edin veya uygulamadaki “Yenilikler” bölümünü kontrol edin.',
+          answer: 'Resmi sosyal medya hesaplarımızı takip edin veya uygulamadaki “Yenilikler” bölümünü kontrol edin.',          context: context
+
         ),
         _buildQuestionTile(
           question: 'Hesabımı bu uygulamada nasıl doğrulayabilirim?',
-          answer: 'Ayarlar > Hesap Doğrulama bölümüne gidin ve talimatları izleyin.',
+          answer: 'Ayarlar > Hesap Doğrulama bölümüne gidin ve talimatları izleyin.',          context: context
+
         ),
         _buildQuestionTile(
           question: 'Müşteri desteğiyle nasıl iletişime geçebilirim?',
-          answer: 'Ayarlar menüsünden “Bize Ulaşın” bölümüne dokunun veya support@yourapp.com adresine e-posta gönderin.',
+          answer: 'Ayarlar menüsünden “Bize Ulaşın” bölümüne dokunun veya support@yourapp.com adresine e-posta gönderin.',          context: context
+
         ),
         _buildQuestionTile(
           question: 'Teknik sorunlarla karşılaşırsam ne yapmalıyım?',
           answer: 'Uygulamayı yeniden başlatmayı veya en son sürüme güncellemeyi deneyin. Sorun devam ederse destek ekibine ulaşın.',
+            context: context
+
         ),
         _buildQuestionTile(
           question: 'Uygulamaya nasıl yorum ekleyebilirim?',
           answer: 'Uygulamanın mağaza sayfasına gidin ve “Yorum Yaz” seçeneğine dokunun.',
+          context: context
         ),
       ],
     );
   }
 
   static Widget _buildQuestionTile({
+    required BuildContext context,
     required String question,
     required String answer,
   }) {
@@ -104,17 +113,23 @@ class FAQTab extends StatelessWidget {
         ),
         title: Text(
           question,
-          style: AppTextStyles.medium.copyWith(),
+          style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary),
         ),
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(answer, style: AppTextStyles.medium),
+            child: Text(
+              answer,
+              style: AppTextStyles.bold.copyWith(
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+
 }
 
 

@@ -682,10 +682,34 @@ class _ProfilePage2State extends State<ProfilePage2>
         ));
   }
 
-  Widget _buildTopMoviesSection(bool isOwnProfile) {
+  Widget _buildTopMoviesSection(bool isOwnProfile, bool isPremium) {
     final displayMovies = List<int?>.filled(3, null);
     for (int i = 0; i < topThreeMovies.length && i < 3; i++) {
       displayMovies[i] = topThreeMovies[i];
+    }
+
+    void _showPremiumPopup() {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Bu özellik Premium üyelere özel"),
+          content: Text("Top 3 filmini paylaşmak veya eşleştirmek için Premium üye olmalısın."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text("Kapat"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Burada Premium üyelik sayfasına yönlendirme yapılabilir
+                Navigator.pushNamed(context, '/premium'); // örnek route
+              },
+              child: Text("Premium Ol"),
+            ),
+          ],
+        ),
+      );
     }
 
     return Column(
@@ -693,11 +717,10 @@ class _ProfilePage2State extends State<ProfilePage2>
       children: [
         const SizedBox(height: 12),
 
-        // Başlık ve paylaş butonu
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: SizedBox(
-            height: 48, // Fixed height for the header section
+            height: 48,
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -712,29 +735,41 @@ class _ProfilePage2State extends State<ProfilePage2>
                 ),
                 if (isOwnProfile)
                   Positioned(
-                      left: 0,
-                      child: TextButton(
-                          onPressed: () => _showUserTopThreeMovies(),
-                          child: Text(
-                            "Eşleş",
-                            style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),
-                          ))),
+                    left: 0,
+                    child: TextButton(
+                      onPressed: () {
+                        if (!isPremium) {
+                          _showPremiumPopup();
+                        } else {
+                          _showUserTopThreeMovies();
+                        }
+                      },
+                      child: Text(
+                        "Eşleş",
+                        style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ),
+                  ),
                 if (isOwnProfile && topThreeMovies.length == 3)
                   Positioned(
                     right: 0,
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(),
-                      icon: Icon(Icons.share, size: 22,color: Theme.of(context).colorScheme.primary),
+                      icon: Icon(Icons.share, size: 22, color: Theme.of(context).colorScheme.primary),
                       onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => FavoriteMoviesPopup(
-                            topThreeMovies: topThreeMovies,
-                            buildMovieItem: (id, {aspectRatio = 2 / 3}) =>
-                                _buildMovieItem(id, aspectRatio: aspectRatio),
-                          ),
-                        );
+                        if (!isPremium) {
+                          _showPremiumPopup();
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => FavoriteMoviesPopup(
+                              topThreeMovies: topThreeMovies,
+                              buildMovieItem: (id, {aspectRatio = 2 / 3}) =>
+                                  _buildMovieItem(id, aspectRatio: aspectRatio),
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),
@@ -743,7 +778,6 @@ class _ProfilePage2State extends State<ProfilePage2>
           ),
         ),
 
-        // Film kutuları
         SizedBox(
           height: 170,
           child: SingleChildScrollView(
@@ -769,6 +803,7 @@ class _ProfilePage2State extends State<ProfilePage2>
       ],
     );
   }
+
 
   Widget _buildEmptyTopMoviePlaceholder([bool isOwnProfile = true]) {
     return Container(
@@ -1000,6 +1035,7 @@ class _ProfilePage2State extends State<ProfilePage2>
   Widget build(BuildContext context) {
     bool isOwnPost = (widget.uid == currentUser!.uid);
 
+
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         if (state is ProfileLoaded) {
@@ -1085,9 +1121,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                                             builder: (context) => EditProfilePage(user: user),
                                           ),
                                         );
-                                       /* Future.delayed(Duration.zero, () {
-                                          WidgetHelper.updateWidgetFromFirebase();
-                                        });*/
+
 
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -1110,12 +1144,12 @@ class _ProfilePage2State extends State<ProfilePage2>
                                     text: "Premium",
                                     onPressed: () {
 
-                                    /*  Navigator.push(
+                                      Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => PremiumsPage(),
+                                          builder: (context) => PremiumsPage(isPremium: user.isPremium),
                                         ),
-                                      );*/
+                                      );
                                     },
                                   ),
 
@@ -1255,7 +1289,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                       ),
                     ),
                     SliverToBoxAdapter(
-                      child: _buildTopMoviesSection(isOwnPost),
+                      child: _buildTopMoviesSection(isOwnPost, user.isPremium),
                     ),
                     SliverToBoxAdapter(
                       child: _buildMovieCollectionSection(

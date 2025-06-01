@@ -49,11 +49,11 @@ class SettingsPage extends StatelessWidget {
             );*/
           }),
           _buildTile(Icons.vpn_key_outlined, "Şifre Yöneticisi", () {
-          /*  Navigator.push(
+           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => const UpdatePasswordScreen()),
-            );*/
+            );
           }),
           _buildTile(Icons.help_outline, "Yardım Merkezi", () {
             Navigator.push(
