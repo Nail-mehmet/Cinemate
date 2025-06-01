@@ -57,18 +57,12 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
 
   Future<void> _onSendMessage(SendMessage event, Emitter<MessageState> emit) async {
     try {
-      final sentMessage = await _chatRepository.sendMessage(
+      await _chatRepository.sendMessage(
         chatId: event.chatId,
         senderId: event.senderId,
         content: event.content,
       );
-
-      // Mevcut mesaj listesine yeni mesajı ekleyip state'i güncelle
-      final updatedMessages = List<Message>.from(state.messages)..add(sentMessage);
-      emit(state.copyWith(messages: updatedMessages));
-
-    } on PostgrestException catch (e) {
-      emit(state.copyWith(error: e.message));
+      // Manuel ekleme YAPMIYORUZ, Realtime'dan gelecek
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }

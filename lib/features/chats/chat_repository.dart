@@ -10,6 +10,8 @@ class ChatRepository {
   ChatRepository({required this.supabaseClient});
 
 
+
+
   // Yeni metodlar ekleyelim
   Future<Map<String, dynamic>> getProfile(String userId) async {
     final response = await supabaseClient
@@ -19,6 +21,7 @@ class ChatRepository {
         .single();
     return response;
   }
+
 
   Future<Map<String, dynamic>> getOtherParticipantProfile(
       String chatId,
@@ -54,6 +57,8 @@ class ChatRepository {
 
 
 
+
+
   // Yeni chat oluştur
   Future<Chat> createChat(String currentUserId, String otherUserId) async {
     // Önce chat oluştur
@@ -74,20 +79,67 @@ class ChatRepository {
     return chat;
   }
 
+  Future<int> getUnreadMessageCount(String chatId, String userId) async {
+    final response = await supabaseClient
+        .from(SupabaseConstants.messagesTable)
+        .select()
+        .eq('chat_id', chatId)
+        .neq('sender_id', userId)
+        .eq('is_read', false);
+
+    return (response as List).length;
+  }
+
+
   // Kullanıcının tüm chatlerini getir
+  // ChatRepository.dart
   Future<List<Chat>> getUserChats(String userId) async {
     final response = await supabaseClient
         .from(SupabaseConstants.participantsTable)
         .select('''
-          chat_id, 
-          chats:chat_id (id, created_at, last_message, last_message_time, last_message_sender)
-        ''')
+        chat_id, 
+        chats (
+          id, 
+          created_at, 
+          last_message, 
+          last_message_time, 
+          last_message_sender
+        )
+      ''')
         .eq('user_id', userId);
 
-    return (response as List)
-        .map((e) => Chat.fromMap(e['chats']))
-        .toList();
+    final chats = <Chat>[];
+
+    for (final record in response) {
+      final chatMap = record['chats'];
+      if (chatMap != null) {
+        chats.add(Chat.fromMap(chatMap));
+      }
+    }
+
+    // Son mesaj zamanına göre TERSINE sırala (en yeni en üstte)
+    chats.sort((a, b) {
+      final aTime = a.lastMessageTime ?? DateTime(1970);
+      final bTime = b.lastMessageTime ?? DateTime(1970);
+      return bTime.compareTo(aTime); // Tersine sıralama için bTime ile aTime'ın yerini değiştiriyoruz
+    });
+
+    return chats;
   }
+
+  // ChatRepository.dart'e ekle
+  Stream<int> watchUnreadMessageCount(String chatId, String userId) {
+    return supabaseClient
+        .from(SupabaseConstants.messagesTable)
+        .select()
+        .eq('chat_id', chatId)
+        .eq('is_read', false)
+        .filter('sender_id', 'neq', userId)
+        .asStream()
+        .map((event) => event.length);
+  }
+
+
 
   // Belirli bir chat'in mesajlarını getir
   Future<List<Message>> getChatMessages(String chatId) async {

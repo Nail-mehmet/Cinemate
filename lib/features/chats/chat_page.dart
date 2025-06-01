@@ -24,15 +24,86 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final _scrollController = ScrollController();
   late Future<Map<String, dynamic>> _otherUserFuture;
+  bool _isAtBottom = true;
 
   @override
   void initState() {
     super.initState();
     context.read<MessageBloc>().add(LoadMessages(widget.chatId));
-    context.read<MessageBloc>().add(MarkMessagesAsRead(widget.chatId, widget.userId));
-    _otherUserFuture = ChatRepository(
+
+    _markMessagesAsRead();
+
+    _scrollController.addListener(_scrollListener);    _otherUserFuture = ChatRepository(
       supabaseClient: Supabase.instance.client,
     ).getOtherParticipantProfile(widget.chatId, widget.userId);
+  }
+
+  void _scrollListener() {
+    final isAtBottom = _scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 50;
+
+    if (isAtBottom != _isAtBottom) {
+      setState(() => _isAtBottom = isAtBottom);
+      if (isAtBottom) {
+        _markMessagesAsRead();
+      }
+    }
+  }
+  void _markMessagesAsRead() {
+    context.read<MessageBloc>().add(MarkMessagesAsRead(widget.chatId, widget.userId));
+  }
+
+  Widget _buildTimeDivider(DateTime date) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Expanded(child: Divider(thickness: 1)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              _formatDateDivider(date),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          Expanded(child: Divider(thickness: 1)),
+        ],
+      ),
+    );
+  }
+  bool _isDifferentDay(DateTime date1, DateTime date2) {
+    return date1.year != date2.year ||
+        date1.month != date2.month ||
+        date1.day != date2.day;
+  }
+
+  String _formatDateDivider(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final messageDate = DateTime(date.year, date.month, date.day);
+
+    if (messageDate == today) {
+      return 'Bugün';
+    } else if (messageDate == yesterday) {
+      return 'Dün';
+    } else if (now.difference(messageDate).inDays < 7) {
+      switch (date.weekday) {
+        case 1: return 'Pazartesi';
+        case 2: return 'Salı';
+        case 3: return 'Çarşamba';
+        case 4: return 'Perşembe';
+        case 5: return 'Cuma';
+        case 6: return 'Cumartesi';
+        case 7: return 'Pazar';
+        default: return '';
+      }
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
   }
 
   @override
@@ -59,13 +130,16 @@ class _ChatPageState extends State<ChatPage> {
                 );
               },
               child: Row(
+                mainAxisSize: MainAxisSize.min, // 👈 Bu satır eklendi
                 children: [
                   CircleAvatar(
                     radius: 16,
                     backgroundImage: user['profile_image'] != null
                         ? NetworkImage(user['profile_image'])
                         : null,
-                    child: user['profile_image'] == null ? const Icon(Icons.person, size: 16) : null,
+                    child: user['profile_image'] == null
+                        ? const Icon(Icons.person, size: 16)
+                        : null,
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -78,6 +152,7 @@ class _ChatPageState extends State<ChatPage> {
           },
         ),
       ),
+
       body: Column(
         children: [
           Expanded(
@@ -99,14 +174,27 @@ class _ChatPageState extends State<ChatPage> {
                   }
                 });
 
+
                 return ListView.builder(
                   controller: _scrollController,
                   itemCount: state.messages.length,
                   itemBuilder: (context, index) {
                     final message = state.messages[index];
-                    return ChatBubble(
-                      message: message,
-                      isMe: message.senderId == widget.userId,
+                    final showDateDivider = index == 0 ||
+                        _isDifferentDay(
+                            state.messages[index - 1].createdAt,
+                            message.createdAt
+                        );
+
+                    return Column(
+                      children: [
+                        if (showDateDivider)
+                          _buildTimeDivider(message.createdAt),
+                        ChatBubble(
+                          message: message,
+                          isMe: message.senderId == widget.userId,
+                        ),
+                      ],
                     );
                   },
                 );

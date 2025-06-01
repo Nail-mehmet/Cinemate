@@ -13,6 +13,8 @@ part 'chat_state.dart';
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatRepository _chatRepository;
   StreamSubscription<List<Map<String, dynamic>>>? _chatsSubscription;
+  StreamSubscription<List<Map<String, dynamic>>>? _messagesSubscription;
+
 
   ChatBloc({required ChatRepository chatRepository})
       : _chatRepository = chatRepository,
@@ -22,28 +24,35 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<UpdateChats>(_onUpdateChats);
   }
 
+  // ChatBloc.dart
   Future<void> _onLoadChats(LoadChats event, Emitter<ChatState> emit) async {
     emit(state.copyWith(status: ChatStatus.loading));
 
     try {
-      // Realtime aboneliği başlat
-      _chatsSubscription?.cancel();
-      _chatsSubscription = _chatRepository.supabaseClient
-          .from('${SupabaseConstants.participantsTable}:user_id=eq.${event.userId}')
-          .stream(primaryKey: ['chat_id', 'user_id'])
-          .listen((data) {
-        final chats = data
-            .map((e) => Chat.fromMap(e['chats']))
-            .toList()
-          ..sort((a, b) => b.lastMessageTime!.compareTo(a.lastMessageTime)); // sıralama eklendi
-
-        add(UpdateChats(chats));
-      });
-
-
       // İlk verileri yükle
       final chats = await _chatRepository.getUserChats(event.userId);
       emit(state.copyWith(status: ChatStatus.success, chats: chats));
+
+      // Chat listesi için realtime aboneliği
+      _chatsSubscription?.cancel();
+      _chatsSubscription = _chatRepository.supabaseClient
+          .from(SupabaseConstants.chatsTable)
+          .stream(primaryKey: ['id'])
+          .listen((_) async {
+        final updatedChats = await _chatRepository.getUserChats(event.userId);
+        add(UpdateChats(updatedChats));
+      });
+
+      // Mesajlar için realtime aboneliği (son mesajın güncellenmesi için)
+      _messagesSubscription?.cancel();
+      _messagesSubscription = _chatRepository.supabaseClient
+          .from(SupabaseConstants.messagesTable)
+          .stream(primaryKey: ['id'])
+          .listen((_) async {
+        final updatedChats = await _chatRepository.getUserChats(event.userId);
+        add(UpdateChats(updatedChats));
+      });
+
     } on PostgrestException catch (e) {
       emit(state.copyWith(status: ChatStatus.failure, error: e.message));
     } catch (e) {

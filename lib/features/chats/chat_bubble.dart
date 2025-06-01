@@ -19,8 +19,13 @@ class ChatBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isMe ? Colors.blue : Colors.grey[300],
-          borderRadius: BorderRadius.circular(12),
+          color: isMe ? Colors.blue[100] : Colors.grey[200],
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(12),
+            topRight: const Radius.circular(12),
+            bottomLeft: isMe ? const Radius.circular(12) : Radius.zero,
+            bottomRight: isMe ? Radius.zero : const Radius.circular(12),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,8 +38,11 @@ class ChatBubble extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end, // Sağa yasla
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Zaman bilgisi
                 Text(
                   '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}',
                   style: TextStyle(
@@ -42,8 +50,9 @@ class ChatBubble extends StatelessWidget {
                     fontSize: 10,
                   ),
                 ),
+                // Okundu işareti - sadece kendi mesajlarında
                 if (isMe) ...[
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 4),
                   Icon(
                     Icons.done_all,
                     size: 16,
