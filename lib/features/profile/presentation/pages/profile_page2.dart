@@ -94,8 +94,8 @@ class _ProfilePage2State extends State<ProfilePage2>
     super.initState();
     HomeWidget.setAppGroupId(appGroupId);
     profileCubit.fetchUserProfile(widget.uid);
-    //context.read<PostCubit>().fetchPostsForUser(widget.uid);
-    //_loadPostCount();
+    context.read<PostCubit>().fetchPostsForUser(widget.uid);
+    _loadPostCount();
     _loadUserReviews();
     _loadTopThreeMovies();
     _loadAllMovieCollections();
@@ -142,16 +142,17 @@ class _ProfilePage2State extends State<ProfilePage2>
 
   }
 
-  /*Future<void> _loadPostCount() async {
-    final postSnapshot = await FirebaseFirestore.instance
-        .collection('posts')
-        .where('userId', isEqualTo: widget.uid)
-        .get();
+  Future<void> _loadPostCount() async {
+    final response = await Supabase.instance.client
+        .from('posts')
+        .select()
+        .eq('user_id', widget.uid);
 
     setState(() {
-      _postCount = postSnapshot.docs.length;
+      _postCount = response.length;
     });
-  }*/
+  }
+
 
   Future<void> _showUserTopThreeMovies() async {
     final currentUserId = supabase.auth.currentUser?.id;
@@ -888,26 +889,28 @@ class _ProfilePage2State extends State<ProfilePage2>
     );
   }
 
-  void followButtonPressed() {
+  void followButtonPressed() async {
     final profileState = profileCubit.state;
-    if (profileState is! ProfileLoaded) {
+    if (profileState is! ProfileLoaded || currentUser == null) {
       return;
     }
 
     final profileUser = profileState.profileUser;
     final isFollowing = profileUser.followers.contains(currentUser!.uid);
 
-    //optimistically update the ui
-    setState(() {
-      if (isFollowing) {
-        profileUser.followers.remove(currentUser!.uid);
-      } else {
-        profileUser.followers.add(currentUser!.uid);
-      }
-    });
+    try {
+      // Optimistik güncelleme
+      setState(() {
+        if (isFollowing) {
+          profileUser.followers.remove(currentUser!.uid);
+        } else {
+          profileUser.followers.add(currentUser!.uid);
+        }
+      });
 
-    profileCubit.toggleFollow(currentUser!.uid, widget.uid).catchError((error) {
-      //reverse update if there is an error
+      await profileCubit.toggleFollow(currentUser!.uid, widget.uid);
+    } catch (error) {
+      // Hata durumunda geri al
       setState(() {
         if (isFollowing) {
           profileUser.followers.add(currentUser!.uid);
@@ -915,8 +918,13 @@ class _ProfilePage2State extends State<ProfilePage2>
           profileUser.followers.remove(currentUser!.uid);
         }
       });
-    });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Hata oluştu: ${error.toString()}')),
+      );
+    }
   }
+
 
   void _toggleExtendedBio() {
     _showExtendedBio = !_showExtendedBio;
@@ -942,7 +950,7 @@ class _ProfilePage2State extends State<ProfilePage2>
     }
   }
 
-  /*Widget _buildPostsGrid(List<Post> posts) {
+  Widget _buildPostsGrid(List<Post> posts) {
     if (_isLoading) {
       return Center(child: CircularProgressIndicator());
     }
@@ -986,7 +994,7 @@ class _ProfilePage2State extends State<ProfilePage2>
         );
       },
     );
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1299,7 +1307,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                   controller: _tabController,
                   children: [
                     // Posts Tab
-                    /*BlocBuilder<PostCubit, PostState>(
+                    BlocBuilder<PostCubit, PostState>(
                       builder: (context, state) {
                         if (state is PostsLoaded) {
                           final userPosts = state.posts
@@ -1313,7 +1321,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                           return Center(child: Text("No posts yet"));
                         }
                       },
-                    ),*/
+                    ),
 
                     // Reviews Tab*
                     _buildReviewsTab(),

@@ -118,14 +118,32 @@ class ProfileCubit extends Cubit<ProfileState> {
   // Takip / Takipten çık işlemi
   Future<void> toggleFollow(String currentUserId, String targetUserId) async {
     try {
+      // Takip/Unfollow işlemi
       await profileRepo.toggleFollow(currentUserId, targetUserId);
-      // Takip durumu değişince profil bilgilerini güncellemek isteyebilirsin:
-      await fetchUserProfile(currentUserId);
-      await fetchUserProfile(targetUserId);
+
+      // Cubit state'ini güncelle
+      final currentState = state;
+      if (currentState is ProfileLoaded) {
+        final profileUser = currentState.profileUser;
+
+        // followers listesini kopyala ve güncelle
+        final updatedFollowers = List<String>.from(profileUser.followers);
+        if (updatedFollowers.contains(currentUserId)) {
+          updatedFollowers.remove(currentUserId);
+        } else {
+          updatedFollowers.add(currentUserId);
+        }
+
+        final updatedProfileUser = profileUser.copyWith(newFollowers: updatedFollowers);
+
+        //emit(ProfileLoaded(profileUser: updatedProfileUser));
+      }
     } catch (e) {
       emit(ProfileError("Hata oluştu: $e"));
     }
   }
+
+
 
   // Cache'den film detaylarını getir
   Map<String, dynamic>? getCachedMovie(int movieId) {

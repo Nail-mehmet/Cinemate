@@ -64,7 +64,7 @@ class SupabaseProfileRepo implements ProfileRepo {
   Future<List<String>> _getFollowers(String userId) async {
     try {
       final List<dynamic> data = await supabase
-          .from('user_relationship')
+          .from('user_relationships')
           .select('follower_id')
           .eq('following_id', userId);
 
@@ -78,7 +78,7 @@ class SupabaseProfileRepo implements ProfileRepo {
   Future<List<String>> _getFollowing(String userId) async {
     try {
       final List<dynamic> data = await supabase
-          .from('user_relationship')
+          .from('user_relationships')
           .select('following_id')
           .eq('follower_id', userId);
 
@@ -124,23 +124,22 @@ class SupabaseProfileRepo implements ProfileRepo {
   Future<void> toggleFollow(String currentUid, String targetUid) async {
     try {
       // Takip ilişkisini kontrol et
-      final existingRelation = await supabase
-          .from('user_relationship')
+      final response = await supabase
+          .from('user_relationships')
           .select()
           .eq('follower_id', currentUid)
-          .eq('following_id', targetUid)
-          .maybeSingle();
+          .eq('following_id', targetUid);
 
-      if (existingRelation != null) {
-        // Zaten takip ediyorsa, takipten çıkar (sil)
+      if (response.isNotEmpty) {
+        // Zaten takip ediyorsa, takipten çıkar
         await supabase
-            .from('user_relationship')
+            .from('user_relationships')
             .delete()
             .eq('follower_id', currentUid)
             .eq('following_id', targetUid);
       } else {
-        // Takip et (ekle)
-        await supabase.from('user_relationship').insert({
+        // Takip et
+        await supabase.from('user_relationships').insert({
           'follower_id': currentUid,
           'following_id': targetUid,
           'created_at': DateTime.now().toIso8601String(),
@@ -151,12 +150,12 @@ class SupabaseProfileRepo implements ProfileRepo {
           'user_id': targetUid,
           'type': 'follow',
           'from_user_id': currentUid,
-          'timestamp': DateTime.now().toIso8601String(),
+          'created_at': DateTime.now().toIso8601String(),
           'is_read': false,
         });
       }
     } catch (e) {
-      throw Exception('Error in toggleFollow: $e');
+      throw Exception('Takip işlemi başarısız: $e');
     }
   }
 
