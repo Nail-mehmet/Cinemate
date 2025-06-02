@@ -1,3 +1,4 @@
+import '../../domain/entities/cast_member.dart';
 import '../../domain/entities/movie_detail.dart';
 
 class MovieDetailModel extends MovieDetail {
@@ -13,61 +14,87 @@ class MovieDetailModel extends MovieDetail {
     required List<CastMember> cast,
     required String overview,
     required double voteAverage,
-    String? trailerKey, // 👈 Yeni eklenen trailerKey
+    String? trailerKey,
   }) : super(
-          id: id,
-          title: title,
-          posterPath: posterPath,
-          backdropPath: backdropPath,
-          genres: genres,
-          runtime: runtime,
-          releaseDate: releaseDate,
-          director: director,
-          cast: cast,
-          overview: overview,
-          voteAverage: voteAverage,
-          trailerKey: trailerKey, // 👈 Super'e iletilen yeni alan
-        );
+    id: id,
+    title: title,
+    posterPath: posterPath,
+    backdropPath: backdropPath,
+    genres: genres,
+    runtime: runtime,
+    releaseDate: releaseDate,
+    director: director,
+    cast: cast,
+    overview: overview,
+    voteAverage: voteAverage,
+    trailerKey: trailerKey,
+  );
 
   factory MovieDetailModel.fromJson(Map<String, dynamic> json) {
-  // Director bilgisi (null-safe)
-  final crew = (json['credits']?['crew'] as List<dynamic>?) ?? []; // 👈 Null kontrolü
-  final directorEntry = crew.firstWhere(
-    (member) => member['job'] == 'Director',
-    orElse: () => null,
-  );
-  final directorName = directorEntry?['name'] ?? 'Unknown';
-
-  // Cast bilgisi (null-safe)
-  final castJson = (json['credits']?['cast'] as List<dynamic>?) ?? []; // 👈 Null kontrolü
-  final castList = castJson.map((item) {
-    return CastMember(
-      name: item['name'] ?? '',
-      profilePath: item['profile_path'] ?? '',
+    // Director bilgisi (daha güvenli versiyon)
+    final crew = List<Map<String, dynamic>>.from(json['credits']?['crew'] ?? []);
+    final directorEntry = crew.firstWhere(
+          (member) => member['job'] == 'Director',
+      orElse: () => {},
     );
-  }).take(10).toList();
+    final directorName = directorEntry['name']?.toString() ?? 'Unknown';
 
-  // Trailer bilgisi (null-safe)
-  final videos = (json['videos']?['results'] as List<dynamic>?) ?? []; // 👈 Null kontrolü
-  final trailer = videos.firstWhere(
-    (video) => video['type'] == 'Trailer' && video['site'] == 'YouTube',
-    orElse: () => null,
-  );
-  final trailerKey = trailer?['key'] as String?; // 👈 Null olabilir
+    // Cast bilgisi (güncellenmiş versiyon)
+    final castJson = List<Map<String, dynamic>>.from(json['credits']?['cast'] ?? []);
+    final castList = castJson.map((item) {
+      return CastMember(
+        id: item['id'] as int? ?? 0, // 👈 ID eklendi
+        name: item['name']?.toString() ?? 'Unknown',
+        profilePath: item['profile_path']?.toString() ?? '',
+      );
+    }).take(10).toList();
 
-  return MovieDetailModel(
-    id: json['id'] as int,
-    title: json['title'] as String,
-    posterPath: json['poster_path'] as String? ?? '',
-    backdropPath: json['backdrop_path'] as String? ?? '',
-    genres: (json['genres'] as List<dynamic>?)?.map((g) => g['name'] as String).toList() ?? [],
-    runtime: json['runtime'] as int? ?? 0,
-    releaseDate: json['release_date'] as String? ?? '',
-    director: directorName,
-    cast: castList,
-    overview: json["overview"] as String? ?? "",
-    voteAverage: (json["vote_average"] as num?)?.toDouble() ?? 0.0,
-    trailerKey: trailerKey, // 👈 Null olabilir
-  );
-}
+    // Trailer bilgisi
+    final videos = List<Map<String, dynamic>>.from(json['videos']?['results'] ?? []);
+    final trailer = videos.firstWhere(
+          (video) => video['type'] == 'Trailer' && video['site'] == 'YouTube',
+      orElse: () => {},
+    );
+    final trailerKey = trailer['key']?.toString();
+
+    return MovieDetailModel(
+      id: json['id'] as int? ?? 0,
+      title: json['title']?.toString() ?? 'No Title',
+      posterPath: json['poster_path']?.toString() ?? '',
+      backdropPath: json['backdrop_path']?.toString() ?? '',
+      genres: List<Map<String, dynamic>>.from(json['genres'] ?? [])
+          .map((g) => g['name']?.toString() ?? '')
+          .where((name) => name.isNotEmpty)
+          .toList(),
+      runtime: json['runtime'] as int? ?? 0,
+      releaseDate: json['release_date']?.toString() ?? '',
+      director: directorName,
+      cast: castList,
+      overview: json['overview']?.toString() ?? 'No overview available',
+      voteAverage: (json['vote_average'] as num?)?.toDouble() ?? 0.0,
+      trailerKey: trailerKey,
+    );
+  }
+
+  // JSON'a çevirme metodu (opsiyonel)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'poster_path': posterPath,
+      'backdrop_path': backdropPath,
+      'genres': genres,
+      'runtime': runtime,
+      'release_date': releaseDate,
+      'director': director,
+      'cast': cast.map((c) => {
+        'id': c.id,
+        'name': c.name,
+        'profile_path': c.profilePath,
+      }).toList(),
+      'overview': overview,
+      'vote_average': voteAverage,
+      'trailer_key': trailerKey,
+    };
+  }
 }

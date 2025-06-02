@@ -778,8 +778,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 6),
                                         child: CastMemberCard(
-                                          name: castMember.name,
-                                          profilePath: castMember.profilePath,
+                                          castMember: castMember,
+                                          //name: castMember.name,
+                                          //profilePath: castMember.profilePath,
                                         ),
                                       );
                                     },

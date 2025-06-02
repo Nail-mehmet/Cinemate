@@ -4,6 +4,8 @@ import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/search/domain/search_repo.dart';
 import 'package:Cinemate/features/search/presentation/cubits/search_states.dart';
 
+import '../../../movies/domain/entities/cast_member.dart';
+
 class SearchCubit extends Cubit<SearchState> {
   final SearchRepo searchRepo;
 
@@ -17,19 +19,24 @@ class SearchCubit extends Cubit<SearchState> {
 
     try {
       emit(SearchLoading());
-      
+
       List<ProfileUser?> users = [];
       List<Movie> movies = [];
-      
+      List<CastMember> actors = [];
+
       if (searchType == 'all' || searchType == 'users') {
         users = await searchRepo.searchUser(query);
       }
-      
+
       if (searchType == 'all' || searchType == 'movies') {
         movies = await searchRepo.searchMovie(query);
       }
-      
-      emit(SearchLoaded(users: users, movies: movies));
+
+      if (searchType == 'all' || searchType == 'actors') {
+        actors = await searchRepo.searchActor(query);
+      }
+
+      emit(SearchLoaded(users: users, movies: movies, actors: actors));
     } catch (e) {
       emit(SearchError("Arama işlemi sırasında bir hata oluştu"));
     }
@@ -55,6 +62,8 @@ class SearchCubit extends Cubit<SearchState> {
       emit(SearchError("Film türüne göre arama sırasında bir hata oluştu"));
     }
   }
+
+
 
   // Helper method to get genre ID by name
   int? _getGenreIdByName(String name) {

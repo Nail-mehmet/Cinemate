@@ -12,7 +12,10 @@ import 'package:Cinemate/features/search/presentation/components/trilogy_card.da
 import 'package:Cinemate/features/search/presentation/cubits/search_cubit.dart';
 import 'package:Cinemate/features/search/presentation/cubits/search_states.dart';
 import 'package:Cinemate/features/movies/search/movie_tile.dart';
+
 import 'package:Cinemate/themes/font_theme.dart';
+
+import '../../../actors/presentation/actor_tile.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -25,7 +28,7 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController searchController = TextEditingController();
   late final searchCubit = context.read<SearchCubit>();
   final FocusNode _searchFocusNode = FocusNode();
-  String _searchType = 'all'; // 'all', 'movies', 'users'
+  String _searchType = 'all'; // 'all', 'movies', 'users', 'actors'
   late final authCubit = context.read<AuthCubit>();
   late AppUser? currentUser = authCubit.currentUser;
   bool _showFilters = false;
@@ -157,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
                     controller: searchController,
                     focusNode: _searchFocusNode,
                     decoration: InputDecoration(
-                      hintText: "Kullanıcı veya film ara...",
+                      hintText: "Kullanıcı, film veya oyuncu ara...",
                       hintStyle: TextStyle(
                         color: Theme.of(context).hintColor,
                       ),
@@ -167,22 +170,8 @@ class _SearchPageState extends State<SearchPage> {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       suffixIcon: Row(
-                        mainAxisSize: MainAxisSize
-                            .min, // Important to keep the row compact
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          /*if (_showFilters || _selectedGenre != null)
-                            IconButton(
-                              icon: Icon(
-                                Icons.close_rounded,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _showFilters = false;
-                                  _selectedGenre = null;
-                                });
-                              },
-                            ),*/
                           if (searchController.text.isNotEmpty)
                             IconButton(
                               icon: Icon(
@@ -211,21 +200,24 @@ class _SearchPageState extends State<SearchPage> {
                   curve: Curves.easeInOut,
                   child: _showFilters || _selectedGenre != null
                       ? Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                _buildFilterChip(context, 'Tümü', 'all'),
-                                const SizedBox(width: 8),
-                                _buildFilterChip(context, 'Filmler', 'movies'),
-                                const SizedBox(width: 8),
-                                _buildFilterChip(
-                                    context, 'Kullanıcılar', 'users'),
-                              ],
-                            ),
-                          ),
-                        )
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildFilterChip(context, 'Tümü', 'all'),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(context, 'Filmler', 'movies'),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                              context, 'Kullanıcılar', 'users'),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                              context, 'Oyuncular', 'actors'),
+                        ],
+                      ),
+                    ),
+                  )
                       : const SizedBox.shrink(),
                 ),
               ],
@@ -259,9 +251,11 @@ class _SearchPageState extends State<SearchPage> {
                 if (state is SearchLoaded) {
                   final users = state.users;
                   final movies = state.movies;
+                  final actors = state.actors;
 
                   if (users.isEmpty &&
                       movies.isEmpty &&
+                      actors.isEmpty &&
                       (searchController.text.isNotEmpty ||
                           _selectedGenre != null)) {
                     return Center(
@@ -276,7 +270,7 @@ class _SearchPageState extends State<SearchPage> {
                               style: TextStyle(
                                   fontSize: 18,
                                   color:
-                                      Theme.of(context).colorScheme.secondary)),
+                                  Theme.of(context).colorScheme.secondary)),
                           const SizedBox(height: 8),
                           Text(
                               _selectedGenre != null
@@ -292,7 +286,7 @@ class _SearchPageState extends State<SearchPage> {
                   return ListView(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     children: [
-                      if (users.isNotEmpty && _searchType != 'movies') ...[
+                      if (users.isNotEmpty && _searchType != 'movies' && _searchType != 'actors') ...[
                         Padding(
                           padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                           child: Text("Kullanıcılar",
@@ -300,11 +294,11 @@ class _SearchPageState extends State<SearchPage> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color:
-                                      Theme.of(context).colorScheme.primary)),
+                                  Theme.of(context).colorScheme.primary)),
                         ),
                         ...users.map((user) => UserTile(user: user!)).toList(),
                       ],
-                      if (movies.isNotEmpty && _searchType != 'users') ...[
+                      if (movies.isNotEmpty && _searchType != 'users' && _searchType != 'actors') ...[
                         if (_selectedGenre != null)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -334,12 +328,24 @@ class _SearchPageState extends State<SearchPage> {
                               ],
                             ),
                           ),
-                       ...movies
+                        ...movies
                             .map((movie) => MovieTile(
-                                movie: movie,
-                                posterWidth: 60,
-                                posterHeight: 90))
+                            movie: movie,
+                            posterWidth: 60,
+                            posterHeight: 90))
                             .toList(),
+                      ],
+                      if (actors.isNotEmpty && _searchType != 'users' && _searchType != 'movies') ...[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                          child: Text("Oyuncular",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                  Theme.of(context).colorScheme.primary)),
+                        ),
+                        ...actors.map((actor) => ActorTile(actor: actor)).toList(),
                       ],
                     ],
                   );
@@ -367,12 +373,12 @@ class _SearchPageState extends State<SearchPage> {
                         separatorBuilder: (context, index) => Divider(
                           height: 1,
                           color:
-                              Theme.of(context).dividerColor.withOpacity(0.2),
+                          Theme.of(context).dividerColor.withOpacity(0.2),
                         ),
                         itemBuilder: (context, index) {
                           final genre = genres[index];
                           return ListTile(
-                            title: Text(genre['name'],style: AppTextStyles.medium,),
+                            title: Text(genre['name'], style: AppTextStyles.medium),
                             trailing: Icon(
                               Icons.chevron_right_rounded,
                               color: Theme.of(context).colorScheme.primary,

@@ -60,6 +60,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
 import 'config/home_widget_helper.dart';
+import 'features/actors/domain/actor_repository.dart';
 import 'features/communities/presentation/cubits/commune_bloc.dart';
 import 'features/premium/data/premium_provider.dart';
 
@@ -117,6 +118,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       providers: [
         RepositoryProvider<MovieRepository>.value(value: movieRepo),
         RepositoryProvider<MovieDetailRepository>.value(value: movieDetailRepo),
+        RepositoryProvider<ActorRepository>(
+          create: (context) => ActorRepository(),
+        ),
         //RepositoryProvider<ChatRemoteDataSource>.value(value: chatRemoteDataSource),
        // RepositoryProvider<ChatRepository>.value(
        //   value: ChatRepositoryImpl(remoteDataSource: chatRemoteDataSource),

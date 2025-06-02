@@ -1,3 +1,5 @@
+import 'cast_member.dart';
+
 class MovieDetail {
   final int id;
   final String title;
@@ -27,10 +29,10 @@ class MovieDetail {
     this.trailerKey, // 👈 Optional (required eklenmez)
   });
 }
-
+/*
 class CastMember {
   final String name;
   final String profilePath;
 
   CastMember({required this.name, required this.profilePath});
-}
+}*/
