@@ -75,6 +75,8 @@ dependencies:
   firebase_core: ^3.13.1
   firebase_auth: ^5.5.4
   cloud_firestore: ^5.6.8
+  google_sign_in: ^6.3.0
+  gotrue: ^2.12.0
 
 dev_dependencies:
   flutter_test:
@@ -119,6 +121,7 @@ flutter:
     - assets/icons/heart.png
     - assets/icons/popular.png
     - assets/icons/movies.png
+    - assets/icons/google.png
     - assets/icons/post.png
     - assets/icons/profile.png
     - assets/icons/search.png

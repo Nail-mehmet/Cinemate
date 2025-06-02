@@ -1,3 +1,4 @@
+import 'package:Cinemate/features/premium/pages/subscriptions_page.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:Cinemate/themes/font_theme.dart';
@@ -201,8 +202,16 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.pushReplacementNamed(context, '/premium_subscription');
+                          // Önce mevcut sayfadan çık, sonra yeni sayfaya git
+                          Navigator.of(context).pop(); // Mevcut sayfayı kapat
+                          Future.delayed(Duration.zero, () { // Microtask ile sıraya al
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PremiumSubscriptionPage(),
+                              ),
+                            );
+                          });
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.amber,
@@ -395,9 +404,13 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: hasSubmitted || isLoading ? null : _submitStory,
+                onPressed: (!widget.isPremium || hasSubmitted || isLoading)
+                    ? null
+                    : _submitStory,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
+                  backgroundColor: widget.isPremium
+                      ? colors.primary
+                      : colors.primary.withOpacity(0.5), // Premium değilse daha soluk gözüksün
                   foregroundColor: colors.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -408,28 +421,30 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
                 ),
                 child: isLoading
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
                     : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.send_rounded, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Hikayemi Gönder",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.send_rounded, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      widget.isPremium
+                          ? "Hikayemi Gönder"
+                          : "Premium Üye Değilsiniz", // Farklı mesaj gösterebilirsiniz
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
                       ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),

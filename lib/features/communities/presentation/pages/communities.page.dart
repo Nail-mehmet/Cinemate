@@ -9,12 +9,168 @@ import 'package:Cinemate/features/communities/presentation/pages/community_detai
 import 'package:Cinemate/themes/font_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class CommunitiesPage extends StatelessWidget {
-  const CommunitiesPage({super.key});
+import '../../../auth/presentation/cubits/auth_cubits.dart';
+import '../../../auth/presentation/cubits/auth_states.dart';
+import '../../../premium/pages/subscriptions_page.dart';
+import '../../../profile/presentation/cubits/profile_cubit.dart';
+import '../../../profile/presentation/cubits/profile_states.dart';
+
+class CommunitiesPage extends StatefulWidget {
+  final VoidCallback? onGoToFirstTab;
+  const CommunitiesPage({super.key, this.onGoToFirstTab});
+
+  @override
+  State<CommunitiesPage> createState() => _CommunitiesPageState();
+}
+
+class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProviderStateMixin{
+  final supabase = Supabase.instance.client;
+  bool? isPremium;
+  String? currentUserId;
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 10.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: 10.0, end: -10.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -10.0, end: 10.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10.0, end: 0.0), weight: 1),
+    ]).animate(CurvedAnimation(
+      parent: _shakeController,
+      curve: Curves.easeOut,
+    ));
+
+  }
+  void _showPremiumRequiredDialog() {
+    // Animasyonu başlat
+    _shakeController.forward(from: 0);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => AnimatedBuilder(
+        animation: _shakeAnimation,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(_shakeAnimation.value * (1 - (_shakeAnimation.value / 10)), 0),
+            child: Transform.rotate(
+              angle: _shakeAnimation.value * 0.01,
+              child: child,
+            ),
+          );
+        },
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.star_rounded,
+                  size: 60,
+                  color: Colors.amber,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Premium Özellik",
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Bu özel yarışmaya katılmak için premium üye olmalısınız",
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          if (widget.onGoToFirstTab != null) {
+                            widget.onGoToFirstTab!();
+                          }
+                        },
+                        child: const Text("Sonra"),
+                      ),
+
+
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Önce mevcut sayfadan çık, sonra yeni sayfaya git
+                          Navigator.of(context).pop(); // Mevcut sayfayı kapat
+                          Future.delayed(Duration.zero, () { // Microtask ile sıraya al
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PremiumSubscriptionPage(),
+                              ),
+                            );
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber,
+                          foregroundColor: Colors.black,
+                        ),
+                        child: const Text("Premium Ol"),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  void _loadUserData() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      setState(() {
+        currentUserId = authState.user.uid;
+      });
+      context.read<ProfileCubit>().fetchUserProfile(currentUserId!).then((_) {
+        final profileState = context.read<ProfileCubit>().state;
+        if (profileState is ProfileLoaded) {
+          setState(() {
+            isPremium = profileState.profileUser.isPremium;
+
+            if (isPremium == false) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Future.delayed(Duration(microseconds: 100), () {
+                  _showPremiumRequiredDialog();
+                });
+              });
+            }
+          });
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final supabase = Supabase.instance.client;
+
 
     return BlocProvider(
       create: (_) => CommunityBloc(

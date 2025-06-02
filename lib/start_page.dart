@@ -15,61 +15,67 @@ class StartPage extends StatefulWidget {
   State<StartPage> createState() => _StartPageState();
 }
 
-class _StartPageState extends State<StartPage> {
+class _StartPageState extends State<StartPage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
- /* void initState() {
-    // TODO: implement initState
+  void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      WidgetHelper.updateWidgetFromFirebase();
-    });
-  }*/
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void goToFirstTab() {
+    _tabController.animateTo(0);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(5),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              child: Container(
-                height: 40,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  color: Theme.of(context).colorScheme.tertiary,
+    return Scaffold(
+      appBar: AppBar(
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(5),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            child: Container(
+              height: 40,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              child: TabBar(
+                controller: _tabController,
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerColor: Colors.transparent,
+                indicator: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
-                child: TabBar(
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  indicator: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  labelColor: Theme.of(context).colorScheme.tertiary,
-                  unselectedLabelColor: Theme.of(context).colorScheme.primary,
-                  tabs: [
-                    TabItem(title: 'Popüler',),
-                    TabItem(title: 'Topluluklar'),
-
-                  ],
-                ),
+                labelColor: Theme.of(context).colorScheme.tertiary,
+                unselectedLabelColor: Theme.of(context).colorScheme.primary,
+                tabs: [
+                  TabItem(title: 'Popüler',),
+                  TabItem(title: 'Topluluklar'),
+                ],
               ),
             ),
           ),
         ),
-        body: TabBarView(
-          children: [
-            MovieHomePage(),
-            CommunitiesPage(),
-            //MovieHomePage(),
-            //CommunitiesPage(),
-          ],
-        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          MovieHomePage(),
+          CommunitiesPage(
+            onGoToFirstTab: goToFirstTab, // callback gönderiyoruz
+          ),
+        ],
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+/*
+import '../pages/subscriptions_page.dart' show PremiumSubscriptionPage;
 
 class ShakeDialog extends StatefulWidget {
   @override
@@ -79,9 +81,19 @@ class _ShakeDialogState extends State<ShakeDialog> with SingleTickerProviderStat
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.pushReplacementNamed(context, '/premium_subscription');
+                          Navigator.of(context).pop(); // dialog'u kapat
+
+                          // Navigation'ı kapatma işleminden sonra yap
+                          Future.delayed(Duration(milliseconds: 300), () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PremiumSubscriptionPage(),
+                              ),
+                            );
+                          });
                         },
+
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.amber,
                           foregroundColor: Colors.black,
@@ -99,3 +111,4 @@ class _ShakeDialogState extends State<ShakeDialog> with SingleTickerProviderStat
     );
   }
 }
+*/
