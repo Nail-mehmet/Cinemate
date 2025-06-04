@@ -138,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     height: 30,
                   ),
-                  Row(
+                 /* Row(
                     children: [
                       const Expanded(child: Divider(thickness: 1)),
                       Padding(
@@ -159,13 +159,13 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(width: 12),
                       socialIcon(Icons.facebook),
                     ],
-                  ),
+                  ),*/
                   const SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Hesabınız Yok Mu?l",
+                        "Hesabınız Yok Mu ? ",
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.primary),
                       ),

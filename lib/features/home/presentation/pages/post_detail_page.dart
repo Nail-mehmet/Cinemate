@@ -15,6 +15,7 @@ import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
 import 'package:Cinemate/features/profile/presentation/cubits/profile_cubit.dart';
 import 'package:Cinemate/features/profile/presentation/pages/profile_page2.dart';
 import 'package:Cinemate/themes/font_theme.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../../../post/presentation/cubits/post_states.dart';
 
@@ -56,18 +57,19 @@ class _PostDetailPageState extends State<PostDetailPage> {
     _profileCubit = context.read<ProfileCubit>();
     _initializeData();
     _fetchComments();
-    //fetchCommentCount(widget.post.id);
+    fetchCommentCount(widget.post.id);
+  }
+  final SupabaseClient supabase = Supabase.instance.client;
+
+
+  Future<int> fetchCommentCount(String postId) async {
+    final response = await supabase
+        .rpc('get_comment_count', params: {'post_id_param': postId});
+
+    return response as int;
   }
 
-  /*Future<int> fetchCommentCount(String postId) async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('posts')
-        .doc(postId)
-        .collection('comments')
-        .get();
 
-    return snapshot.docs.length;
-  }*/
 
   void _initializeData() {
     final authCubit = context.read<AuthCubit>();
@@ -235,6 +237,8 @@ void _openNewCommentBox() {
       userName: _currentUser!.name,
       text: _commentTextController.text,
       timestamp: DateTime.now(),
+      userProfileUrl: _currentUser!.profileImageUrl
+
     );
 
     _postCubit.addComment(widget.post.id, newComment);
@@ -264,6 +268,7 @@ void _openNewCommentBox() {
     );
   }
 
+
   @override
   void dispose() {
     _commentTextController.dispose();
@@ -271,9 +276,14 @@ void _openNewCommentBox() {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('dd MMM yyyy').format(date);
-  }
+    final months = [
+      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+    ];
 
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+// Çıktı: "15 Mayıs 2023"
   Future<void> _refreshPostAndComments() async {
     _fetchComments();
     _buildPostContent();
@@ -415,6 +425,7 @@ void _openNewCommentBox() {
     );
   }
 
+
   Widget _buildPostImage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -511,32 +522,25 @@ void _openNewCommentBox() {
                 ),
                 onPressed: _openNewCommentBox,
               ),
-              /*FutureBuilder<int>(
+              FutureBuilder<int>(
                 future: fetchCommentCount(widget.post.id),
+                initialData: null, // Veya widget.post.commentCount gibi önceden bilinen bir değer
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Text(
-                      "0",
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Theme.of(context).colorScheme.primary),
-                    );
+                  if (snapshot.data == null) {
+                    return const SizedBox.shrink(); // Veya loading indicator
                   }
                   return Text(
                     snapshot.data.toString(),
                     style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.primary),
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   );
                 },
-              )*/
+              )
             ],
           ),
-          IconButton(
-            icon: const Icon(Icons.bookmark_border),
-            color: Colors.grey,
-            onPressed: () {},
-          ),
+
         ],
       ),
     );
@@ -575,7 +579,7 @@ void _openNewCommentBox() {
 
               return CommentTile3(
                 comment: comment,
-                userProfileImageUrl: _postUser?.profileImageUrl,
+                userProfileImageUrl: comment.userProfileUrl,
                 currentUserId: currentUser?.uid,
                 onLikePressed: () async {
                   await context.read<PostCubit>().toggleLikeComment(

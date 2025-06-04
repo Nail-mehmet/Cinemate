@@ -14,7 +14,7 @@ class MovieDetailRemoteDataSource {
 
   Future<MovieDetailModel> getMovieDetail(int movieId) async {
   final response = await client.get(
-    Uri.parse('https://api.themoviedb.org/3/movie/$movieId?api_key=$apiKey&language=en-US&append_to_response=credits,videos'),
+    Uri.parse('https://api.themoviedb.org/3/movie/$movieId?api_key=$apiKey&language=tr-US&append_to_response=credits,videos'),
   );
 
   if (response.statusCode == 200) {

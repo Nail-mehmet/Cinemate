@@ -116,6 +116,9 @@ flutter:
     - assets/icons/chat.png
     - assets/icons/save.png
     - assets/icons/like.png
+    - assets/icons/instagram.png
+    - assets/icons/facebook.png
+    - assets/icons/tiktok.png
     - assets/icons/comment.png
     - assets/icons/list.png
     - assets/icons/heart.png

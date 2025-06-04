@@ -202,7 +202,7 @@ class _HomePageState extends State<HomePage> {
 
                   return RefreshIndicator(
                     onRefresh: () async {
-                      fetchAllPosts();
+                      context.read<PostCubit>().fetchAllPosts();
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -214,28 +214,54 @@ class _HomePageState extends State<HomePage> {
                         itemCount: posts.length + (state.hasMore ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index >= posts.length) {
-                            return const Center(
-                                child: CircularProgressIndicator());
+                            return const Center(child: CircularProgressIndicator());
                           }
                           final post = posts[index];
-                          final isLiked =
-                              post.likes.contains(currentUser?.uid ?? "");
+                          final isLiked = post.likes.contains(currentUser?.uid ?? "");
+
                           return PostCard(
                             post: post,
-                            onDeletePressed: () {},
-                            isLiked: false,
-                            onTap: ()
-                            {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PostDetailPage(
-                                          post: post,
-                                          onDeletePressed: () {},
-                                        ),
-                                      ),
-                                    );
-                                  });
+                            onDeletePressed: () async {
+                              // Silme onay dialog'u göster
+                              final shouldDelete = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Postu Sil'),
+                                  content: const Text('Bu postu silmek istediğinize emin misiniz?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context, false),
+                                      child: const Text('İptal'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context, true),
+                                      child: const Text('Sil', style: TextStyle(color: Colors.red)),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (shouldDelete == true) {
+                                // PostCubit üzerinden silme işlemi yap
+                                context.read<PostCubit>().deletePost(post.id);
+                              }
+                            },
+                            isLiked: isLiked,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PostDetailPage(
+                                    post: post,
+                                    onDeletePressed: () {
+                                      context.read<PostCubit>().deletePost(post.id);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         },
                       ),
                     ),
@@ -247,6 +273,7 @@ class _HomePageState extends State<HomePage> {
                 }
               },
             ),
+
           ),
         ],
       ),

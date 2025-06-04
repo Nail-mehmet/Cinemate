@@ -40,6 +40,7 @@ class SupabaseProfileRepo implements ProfileRepo {
         email: profileData['email'],
         name: profileData['name'],
         bio: profileData['bio'] ?? '',
+        business: profileData["business"] ?? "",
         profileImageUrl: profileData['profile_image'] ?? '',
         followers: followers,
         following: following,
@@ -103,6 +104,7 @@ class SupabaseProfileRepo implements ProfileRepo {
     try {
       final updates = {
         'bio': updatedProfile.bio,
+        "business": updatedProfile.business,
         'profile_image': updatedProfile.profileImageUrl,
         'name': updatedProfile.name,
         'email': updatedProfile.email, // Eğer email de güncelleniyorsa ekle

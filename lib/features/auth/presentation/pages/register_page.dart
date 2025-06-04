@@ -212,7 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 30),
       
                 // Social login
-                Row(
+               /* Row(
                   children: [
                     const Expanded(child: Divider(thickness: 1)),
                     Padding(
@@ -234,7 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(width: 12),
                     socialIcon(Icons.facebook),
                   ],
-                ),
+                ),*/
       
                 const SizedBox(height: 30),
       

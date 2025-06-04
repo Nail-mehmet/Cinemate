@@ -22,6 +22,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   XFile? imagePickedFile;
   final bioTextController = TextEditingController();
   final nameTextController = TextEditingController();
+  final businessTextController = TextEditingController();
   final emailTextController = TextEditingController();
 
   @override
@@ -31,6 +32,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     nameTextController.text = widget.user.name;
     emailTextController.text = widget.user.email;
     bioTextController.text = widget.user.bio ?? '';
+    businessTextController.text = widget.user.business ?? "";
   }
 
   Future<void> pickImage(ImageSource source) async {
@@ -54,6 +56,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final String newName = nameTextController.text.trim();
     final String newEmail = emailTextController.text.trim();
     final String newBio = bioTextController.text.trim();
+    final String newBusiness = businessTextController.text.trim();
+
 
     if (newName.isEmpty || newEmail.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -67,10 +71,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
       newName: newName,
       newEmail: newEmail,
       newBio: newBio.isNotEmpty ? newBio : null,
+      newBusiness: newBusiness.isNotEmpty ? newBusiness : null,
       imageMobilePath: imagePath,
     );
   }
 
+  String? selectedPlatform;
+  final Map<String, String> platforms = {
+    'Instagram': 'https://instagram.com/',
+    'Facebook': 'https://facebook.com/',
+    'Tiktok': 'https://tiktok.com/',
+  };
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ProfileCubit, ProfileState>(
@@ -121,7 +132,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   hintText: "Kendinizden bahsedin (isteğe bağlı)",
                   maxLines: 3,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 20),
+
+
+
+                // TextField kısmı
+                buildSocialLinkField()
               ],
             ),
           ),
@@ -131,6 +147,114 @@ class _EditProfilePageState extends State<EditProfilePage> {
       },
     );
   }
+
+  Widget _buildLabeledTextField({
+    required String label,
+    required TextEditingController controller,
+    required String hintText,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 6.0),
+          child: Text(
+              label,
+              style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary)
+          ),
+        ),
+        const SizedBox(height: 8),
+        MyTextField(
+          controller: controller,
+          hintText: hintText,
+          obscureText: false,
+
+        ),
+      ],
+    );
+  }
+
+
+  Widget buildSocialLinkField() {
+    final Map<String, String> platforms = {
+      'Instagram': 'https://instagram.com/',
+      'Facebook': 'https://facebook.com/',
+      'Tiktok': 'https://tiktok.com/',
+    };
+
+    final Map<String, String> platformIcons = {
+      'Instagram': 'assets/icons/instagram.png',
+      'Facebook': 'assets/icons/facebook.png',
+      'Tiktok': 'assets/icons/tiktok.png',
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Sosyal Medya Hesabın",
+          style: AppTextStyles.bold.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            // TextField
+            Expanded(
+              child: MyTextField(
+                controller: businessTextController,
+                hintText: selectedPlatform == null
+                    ? "Kullanıcı adınızı girin"
+                    : platforms[selectedPlatform]!,
+                obscureText: false,
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Platform Seçim Dropdown
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade400),
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey.shade100,
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: selectedPlatform,
+                  hint: const Text("Seç"),
+                  items: platforms.keys.map((platform) {
+                    return DropdownMenuItem<String>(
+                      value: platform,
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            platformIcons[platform]!,
+                            width: 20,
+                            height: 20,
+                          ),
+
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedPlatform = value;
+                      businessTextController.text = platforms[value]!;
+                    });
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildProfileImage() {
     return Center(
@@ -164,33 +288,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildLabeledTextField({
-    required String label,
-    required TextEditingController controller,
-    required String hintText,
-    TextInputType keyboardType = TextInputType.text,
-    int maxLines = 1,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 6.0),
-          child: Text(
-            label,
-            style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary)
-          ),
-        ),
-        const SizedBox(height: 8),
-        MyTextField(
-          controller: controller,
-          hintText: hintText,
-          obscureText: false,
-          
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildUpdateButton(ProfileState state) {
     return Padding(

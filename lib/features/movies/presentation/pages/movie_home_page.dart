@@ -1,4 +1,5 @@
 
+import 'package:Cinemate/features/movies/presentation/components/quote_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/themes/font_theme.dart';
@@ -14,17 +15,22 @@ class MovieHomePage extends StatelessWidget {
           if (state is MovieLoading) {
             return Center(child: CircularProgressIndicator());
           } else if (state is MovieLoaded) {
-            return Padding(
+            return ListView(
               padding: const EdgeInsets.all(8.0),
-              child: GridView.count(
-                crossAxisCount: 3, // 🟢 3 sütun
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 0.6,
-                children: state.movies
-                    .map((movie) => MovieGridItem(movie)) // 🟢 parametre adı eklendi
-                    .toList(),
-              ),
+              children: [
+                QuoteCard(),
+                GridView.count(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 0.6,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(), // 👈 Scroll çatışmasını önler
+                  children: state.movies
+                      .map((movie) => MovieGridItem(movie))
+                      .toList(),
+                ),
+              ],
             );
           } else if (state is MovieError) {
             return Center(child: Text(state.message));

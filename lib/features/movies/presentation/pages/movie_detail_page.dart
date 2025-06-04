@@ -64,9 +64,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       .eq('user_id', userId)
       .eq('movie_id', movieId);
 
-  if (deleteResponse.error != null) {
+ /* if (deleteResponse.error != null) {
     print('Silme hatası: ${deleteResponse.error!.message}');
-  }
+  }*/
 }
 
   // Film ID'sini kullanıcının favorilerinden kaldır
@@ -79,9 +79,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       .eq('user_id', userId)
       .eq('movie_id', movieId);
 
-  if (deleteResponse.error != null) {
-    print('Silme hatası: ${deleteResponse.error!.message}');
-  }
+   /*if (deleteResponse is PostgrestException) {
+     print('Silme hatası: ${deleteResponse.message}');
+   } else {
+     print('Film favorilerden silindi.');
+   }*/
   }
 
   // Film ID'sini kullanıcının izleyeceği listeden kaldır
@@ -94,9 +96,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
       .eq('user_id', userId)
       .eq('movie_id', movieId);
 
-  if (deleteResponse.error != null) {
+  /*if (deleteResponse.error != null) {
     print('Silme hatası: ${deleteResponse.error!.message}');
-  }
+  }*/
   }
 
   // Film ID'sini kullanıcının en iyi üçleme listesinden kaldır
@@ -184,8 +186,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     // Film zaten ekli, sil
     await removeWatchedMovie(movieId);
     showCustomSnackbar(
-      'Film İzlenenelerden Çıkarıldı.',
-      Colors.redAccent,
+      'Film İzlenenlerden Çıkarıldı.',
+      Colors.blue,
       Icons.visibility_off,
     );
   }
@@ -223,17 +225,17 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     } else {
       showCustomSnackbar(
         'Film favorilere Eklendi.',
-        Colors.blue,
-        Icons.visibility,
+        Colors.red,
+        Icons.favorite,
       );
     }
   } else {
     // Film zaten ekli, sil
     await removeFavoriteMovie(movieId);
     showCustomSnackbar(
-      'Film İzlenenelerden Çıkarıldı.',
+      'Film favorilerden Çıkarıldı.',
       Colors.redAccent,
-      Icons.visibility_off,
+      Icons.favorite_border,
     );
   }
   }
@@ -268,8 +270,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     } else {
       showCustomSnackbar(
         'Film izlenenlere Eklendi.',
-        Colors.blue,
-        Icons.visibility,
+        Colors.green,
+        Icons.playlist_add,
       );
     }
   } else {
@@ -277,8 +279,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     await removeFromSavedlist(movieId);
     showCustomSnackbar(
       'Film İzlenenelerden Çıkarıldı.',
-      Colors.redAccent,
-      Icons.visibility_off,
+      Colors.green,
+      Icons.playlist_add_check,
     );
   }
   }
@@ -760,7 +762,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                     );
                                   }).toList(),
                                 ),
-                                ExpandableText(text: movie.overview),
+                                ExpandableText(text: movie.overview,style: AppTextStyles.bold.copyWith(fontSize: 12, color: Theme.of(context).colorScheme.primary),),
                                 Text("Oyuncular",
                                     style: AppTextStyles.bold.copyWith(
                                         fontSize: 28,

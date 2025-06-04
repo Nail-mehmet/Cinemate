@@ -31,6 +31,7 @@ class SupabaseAuthRepo implements AuthRepo {
         uid: user.id,
         email: user.email!,
         name: userData['name'],
+        profileImageUrl: userData['profile_image'],
       );
     } catch (e) {
       throw Exception("Hatalı Giriş: $e");
@@ -53,6 +54,7 @@ class SupabaseAuthRepo implements AuthRepo {
         'email': email,
         'name': name,
         "bio": "adım kahtan",
+        "business" ""
         'profile_image': '', // Varsayılan boş ya da placeholder URL
         'is_premium': false, // Başlangıçta false
         'created_at': DateTime.now().toIso8601String(),
@@ -62,6 +64,7 @@ class SupabaseAuthRepo implements AuthRepo {
         uid: user.id,
         name: name,
         email: email,
+          profileImageUrl: ""
       );
     } catch (e) {
       throw Exception("Kayıt Hatası: $e");
@@ -117,6 +120,7 @@ class SupabaseAuthRepo implements AuthRepo {
         uid: response.user!.id,
         email: response.user!.email!,
         name: userData?['name'] ?? googleUser.displayName ?? 'Kullanıcı',
+          profileImageUrl: ""
       );
     } catch (e) {
       print('Google ile giriş hatası: $e');
@@ -138,6 +142,7 @@ class SupabaseAuthRepo implements AuthRepo {
       uid: user.id,
       email: user.email!,
       name: userData['name'],
+        profileImageUrl: userData["profile_image"]
     );
   }
 }

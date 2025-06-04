@@ -127,14 +127,14 @@ class ActorDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Biography',
+            'Biyografi',
             style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),
           ),
           const SizedBox(height: 8),
           ExpandableText(
             text: actor.biography?.isNotEmpty == true
                 ? actor.biography!
-                : 'No biography available',
+                : 'Biyografisi mevcut değil',
           ),
         ],
       ),
@@ -181,7 +181,7 @@ class ActorDetailsScreen extends StatelessWidget {
     if (movies.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16),
-        child: Text('No movies found for this actor.'),
+        child: Text('Oyuncunun filmleri bulunamadı.'),
       );
     }
 
@@ -191,7 +191,7 @@ class ActorDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Filmography',
+            'Filmografi',
             style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),
           ),
           const SizedBox(height: 8),

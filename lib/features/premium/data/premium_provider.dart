@@ -30,6 +30,7 @@ class UserProvider with ChangeNotifier {
         email: profileData['email'],
         name: profileData['name'],
         bio: profileData['bio'] ?? '',
+        business: profileData["business"] ?? "",
         profileImageUrl: profileData['profile_image'] ?? '',
         followers: List<String>.from(profileData['followers'] ?? []),
         following: List<String>.from(profileData['following'] ?? []),

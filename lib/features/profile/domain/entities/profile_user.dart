@@ -2,7 +2,8 @@ import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
 
 class ProfileUser extends AppUser {
   final String? bio;
-  final String? profileImageUrl;
+  final String? business;
+  //final String? profileImageUrl;
   final List<String> followers;
   final List<String> following;
   final List<String> watchedMovies;
@@ -16,7 +17,8 @@ class ProfileUser extends AppUser {
     required super.email,
     required super.name,
     required this.bio,
-    required this.profileImageUrl,
+    required this.business,
+    required super.profileImageUrl,
     required this.followers,
     required this.following,
     this.watchedMovies = const [],
@@ -24,10 +26,12 @@ class ProfileUser extends AppUser {
     this.savedlist = const [],
     this.topThreeMovies = const [],
     this.isPremium = false,
+
   });
 
   ProfileUser copyWith({
     String? newBio,
+    String? newBusiness,
     String? newName,
     String? newEmail,
     String? newProfileImageUrl,
@@ -44,6 +48,7 @@ class ProfileUser extends AppUser {
       email: newEmail ?? email,
       name: newName ?? name,
       bio: newBio ?? bio,
+      business: newBusiness ?? business,
       profileImageUrl: newProfileImageUrl ?? profileImageUrl,
       followers: newFollowers ?? followers,
       following: newFollowing ?? following,
@@ -61,6 +66,7 @@ class ProfileUser extends AppUser {
       "email": email,
       "name": name,
       "bio": bio,
+      "business": business,
       "profile_image": profileImageUrl,
       "followers": followers,
       "following": following,
@@ -78,6 +84,7 @@ class ProfileUser extends AppUser {
       email: json["email"],
       name: json["name"],
       bio: json["bio"] ?? "",
+      business: json["business"] ?? "",
       profileImageUrl: json["profile_image"] ?? "",
       followers: List<String>.from(json["followers"] ?? []),
       following: List<String>.from(json["following"] ?? []),

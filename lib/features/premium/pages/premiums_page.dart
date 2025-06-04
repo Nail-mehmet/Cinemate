@@ -176,16 +176,17 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  "Premium Özellik",
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  "Premium’a Katıl",
+                    style: AppTextStyles.bold.copyWith(fontSize: 20)
+
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  "Bu özel yarışmaya katılmak için premium üye olmalısınız",
+                Text(
+                  "Sadece Premium üyeler bu özel yarışmaya katılabilir!\nAyrıcalıkları kaçırma, hemen yükselt!",
                   textAlign: TextAlign.center,
+                  style: AppTextStyles.regular.copyWith(fontSize: 14),
                 ),
+
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -217,7 +218,7 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
                           backgroundColor: Colors.amber,
                           foregroundColor: Colors.black,
                         ),
-                        child: const Text("Premium Ol"),
+                        child: Text("Premium Ol",style: AppTextStyles.bold.copyWith(fontSize: 12)),
                       ),
                     ),
                   ],

@@ -15,7 +15,7 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Supabase.initialize(
     url: 'https://cxapsitiyvbcoxtailjk.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4YXBzaXRpeXZiY294dGFpbGprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc5ODkwMTUsImV4cCI6MjA2MzU2NTAxNX0.UMgVPg-BUT6hxFALHJW-fQ7goI0zdCBe8ie33v4SKrY',

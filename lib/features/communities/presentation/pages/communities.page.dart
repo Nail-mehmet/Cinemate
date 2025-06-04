@@ -84,15 +84,14 @@ class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProv
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  "Premium Özellik",
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  "Premium ile Sınırları Aş!",
+                  style: AppTextStyles.bold.copyWith(fontSize: 20)
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  "Bu özel yarışmaya katılmak için premium üye olmalısınız",
+                Text(
+                  "Sadece Premium üyeler özel film topluluklarına katılabilir.\nSen de favori filmlerin hakkında konuş, analizler yap, öneriler al!",
                   textAlign: TextAlign.center,
+                  style: AppTextStyles.regular.copyWith(fontSize: 14),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -105,7 +104,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProv
                             widget.onGoToFirstTab!();
                           }
                         },
-                        child: const Text("Sonra"),
+                        child: Text("Sonra",style: AppTextStyles.bold,),
                       ),
 
 
@@ -129,7 +128,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProv
                           backgroundColor: Colors.amber,
                           foregroundColor: Colors.black,
                         ),
-                        child: const Text("Premium Ol"),
+                        child: Text("Premium Ol",style: AppTextStyles.bold.copyWith(fontSize: 12),),
                       ),
                     ),
                   ],

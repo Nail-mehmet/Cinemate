@@ -70,6 +70,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<void> updateProfile({
     required String uid,
     String? newBio,
+    String? newBusiness,
     String? newName,
     String? newEmail,
     Uint8List? imageWebBytes,
@@ -104,6 +105,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         newName: newName ?? currentUser.name,
         newEmail: newEmail ?? currentUser.email,
         newProfileImageUrl: imageDownloadUrl ?? currentUser.profileImageUrl,
+        newBusiness: newBusiness ?? currentUser.business
       );
 
       await profileRepo.updateProfile(updatedProfile);
