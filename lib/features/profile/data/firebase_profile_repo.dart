@@ -104,31 +104,21 @@ class SupabaseProfileRepo implements ProfileRepo {
     try {
       final updates = {
         'bio': updatedProfile.bio,
-        "business": updatedProfile.business,
+        'business': updatedProfile.business,
         'profile_image': updatedProfile.profileImageUrl,
         'name': updatedProfile.name,
-        'email': updatedProfile.email, // Eğer email de güncelleniyorsa ekle
+        'email': updatedProfile.email,
       };
 
-      final response = await supabase
-          .from('profiles')
-          .update(updates)
-          .eq('id', updatedProfile.uid);
-            // Eğer kullandığın supabase paketinde gerekliyse
+      await supabase.from('profiles').update(updates).eq('id', updatedProfile.uid);
 
-      if (response.error != null) {
-        throw Exception('Failed to update profile: ${response.error!.message}');
-      }
-
-      if (response.data == null) {
-        throw Exception('No data returned from update query');
-      }
-
-      // Güncelleme başarılı
+      // Eğer yukarıdaki satır bir hata fırlatmazsa, güncelleme başarılıdır.
     } catch (e) {
+      // Bu noktada e genellikle PostgrestException olur
       throw Exception('Failed to update profile: $e');
     }
   }
+
 
 
   @override

@@ -19,16 +19,18 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   // Kullanıcı profilini çek (tek profil sayfası için)
   Future<void> fetchUserProfile(String uid) async {
+    if (state is ProfileLoaded && (state as ProfileLoaded).profileUser.uid == uid) {
+      return; // Zaten aynı kullanıcı yüklüyse tekrar çekme
+    }
+
+    emit(ProfileLoading());
     try {
-      emit(ProfileLoading());
       final user = await profileRepo.fetchUserProfile(uid);
-      if (user != null) {
-        emit(ProfileLoaded(user));
-      } else {
-        emit(ProfileError("Böyle bir kullanıcı yok"));
-      }
+      emit(user != null
+          ? ProfileLoaded(user)
+          : ProfileError("Kullanıcı bulunamadı"));
     } catch (e) {
-      emit(ProfileError(e.toString()));
+      emit(ProfileError("Profil yüklenemedi: ${e.toString()}"));
     }
   }
 
@@ -79,20 +81,16 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(ProfileLoading());
     try {
       final currentUser = await profileRepo.fetchUserProfile(uid);
-
       if (currentUser == null) {
         emit(ProfileError("Kullanıcı bilgisi yüklenemedi"));
         return;
       }
 
       String? imageDownloadUrl;
-
       if (imageWebBytes != null || imageMobilePath != null) {
-        if (imageMobilePath != null) {
-          imageDownloadUrl = await storageRepo.uploadProfileImageMobile(imageMobilePath, uid);
-        } else if (imageWebBytes != null) {
-          imageDownloadUrl = await storageRepo.uploadProfileImageWeb(imageWebBytes, uid);
-        }
+        imageDownloadUrl = imageMobilePath != null
+            ? await storageRepo.uploadProfileImageMobile(imageMobilePath, uid)
+            : await storageRepo.uploadProfileImageWeb(imageWebBytes!, uid);
 
         if (imageDownloadUrl == null) {
           emit(ProfileError("Resim yüklenemedi"));
@@ -101,19 +99,21 @@ class ProfileCubit extends Cubit<ProfileState> {
       }
 
       final updatedProfile = currentUser.copyWith(
-        newBio: newBio ?? currentUser.bio,
-        newName: newName ?? currentUser.name,
-        newEmail: newEmail ?? currentUser.email,
-        newProfileImageUrl: imageDownloadUrl ?? currentUser.profileImageUrl,
-        newBusiness: newBusiness ?? currentUser.business
+        newBio: newBio,
+        newName: newName,
+        newEmail: newEmail,
+        newProfileImageUrl: imageDownloadUrl,
+        newBusiness: newBusiness,
       );
+
 
       await profileRepo.updateProfile(updatedProfile);
 
-      // Güncellenmiş profili tekrar çek
-      await fetchUserProfile(uid);
+      // Güncellenmiş profili emit et
+      emit(ProfileLoaded(updatedProfile)); // <-- Direkt güncellenmiş kullanıcıyı gönder
+
     } catch (e) {
-      emit(ProfileError("Profil hatası: $e"));
+      emit(ProfileError("Profil güncelleme hatası: ${e.toString()}"));
     }
   }
 

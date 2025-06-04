@@ -1,5 +1,5 @@
 package com.example.nail
-
+/*
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
@@ -51,3 +51,4 @@ class CinemateWidget : AppWidgetProvider() {
         // Son widget kaldırıldığında çalışır
     }
 }
+*/

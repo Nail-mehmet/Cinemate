@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:Cinemate/features/chats/chat_bloc.dart';
 import 'package:flutter/material.dart';
@@ -1031,6 +1032,7 @@ class _ProfilePage2State extends State<ProfilePage2>
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     bool isOwnPost = (widget.uid == currentUser!.uid);
@@ -1115,12 +1117,19 @@ class _ProfilePage2State extends State<ProfilePage2>
                                     padding: const EdgeInsets.only(left: 15.0),
                                     child: ElevatedButton(
                                       onPressed: () {
+                                        // ProfilePage içinde:
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => EditProfilePage(user: user),
                                           ),
                                         );
+                                            /*.then((result) {
+                                          if (result == true) {
+                                            // Profil düzenlendiyse verileri yenile
+                                            context.read<ProfileCubit>().fetchUserProfile(user.uid);
+                                          }
+                                        });*/
 
 
                                       },
@@ -1186,6 +1195,13 @@ class _ProfilePage2State extends State<ProfilePage2>
                                         );
                                       }
                                     },
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                        foregroundColor:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),)
+                                    ),
                                     child: const Text('Mesaj Gönder'),
                                   )
 
@@ -1274,6 +1290,40 @@ class _ProfilePage2State extends State<ProfilePage2>
                                               style: AppTextStyles.italic
                                                   .copyWith(fontSize: 13,color: Theme.of(context).colorScheme.primary),
                                               textAlign: TextAlign.left,
+                                            ),
+                                          ),
+                                          SizedBox(height: 12,),
+                                          Text(
+                                            "Sosyal Medya Hesabım",
+                                            style: AppTextStyles.medium.copyWith(
+                                              color: Theme.of(context).colorScheme.primary,
+                                            ),
+                                            textAlign: TextAlign.left,
+                                          ),
+                                          SizedBox(height: 5),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              final url = Uri.parse(user.business!);
+                                              if (await canLaunchUrl(url)) {
+                                                await launchUrl(url, mode: LaunchMode.externalApplication);
+                                              } else {
+                                                // URL açılamazsa kullanıcıya bilgi verebilirsin
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('URL açılamıyor')),
+                                                );
+                                              }
+                                            },
+                                            child: Container(
+                                              width: double.infinity,
+                                              child: Text(
+                                                user.business!,
+                                                style: AppTextStyles.italic.copyWith(
+                                                  fontSize: 13,
+                                                  color: Theme.of(context).colorScheme.primary,
+                                                  decoration: TextDecoration.underline, // Link gibi görünmesi için
+                                                ),
+                                                textAlign: TextAlign.left,
+                                              ),
                                             ),
                                           ),
                                         ],

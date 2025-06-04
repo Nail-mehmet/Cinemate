@@ -51,29 +51,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   void updateProfile() {
     final profileCubit = context.read<ProfileCubit>();
-    final String uid = widget.user.uid;
-    final String? imagePath = imagePickedFile?.path;
-    final String newName = nameTextController.text.trim();
-    final String newEmail = emailTextController.text.trim();
-    final String newBio = bioTextController.text.trim();
-    final String newBusiness = businessTextController.text.trim();
+    final String newBusiness = selectedPlatform != null
+        ? '${platforms[selectedPlatform]}${businessTextController.text.replaceAll(platforms[selectedPlatform]!, '')}'
+        : businessTextController.text.trim();
 
-
-    if (newName.isEmpty || newEmail.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("İsim ve email boş olamaz")),
-      );
-      return;
+    try{
+      profileCubit.updateProfile(
+        uid: widget.user.uid,
+        newName: nameTextController.text.trim(),
+        newEmail: emailTextController.text.trim(),
+        newBio: bioTextController.text.trim(),
+        newBusiness: newBusiness.isNotEmpty ? newBusiness : null,
+        imageMobilePath: imagePickedFile?.path,
+      ).then((_) {
+        // Başarılı olursa true döndür
+        if (mounted) { // <-- Bu kontrol kritik
+          Navigator.of(context).maybePop();        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Hata: ${e.toString()}")),
+        );
+      }
     }
-
-    profileCubit.updateProfile(
-      uid: uid,
-      newName: newName,
-      newEmail: newEmail,
-      newBio: newBio.isNotEmpty ? newBio : null,
-      newBusiness: newBusiness.isNotEmpty ? newBusiness : null,
-      imageMobilePath: imagePath,
-    );
   }
 
   String? selectedPlatform;
@@ -86,12 +87,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return BlocConsumer<ProfileCubit, ProfileState>(
       listener: (context, state) {
+
         if (state is ProfileLoaded) Navigator.pop(context);
-        /*if (state is ProfileError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.)),
-          );
-        }*/
+        if (state is ProfileError) {
+          print(state.message)
+;        }
       },
       builder: (context, state) {
         return Scaffold(
@@ -218,8 +218,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade400),
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(14),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade200,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
@@ -294,7 +301,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: ElevatedButton(
-        onPressed: state is ProfileLoading ? null : updateProfile,
+        onPressed: state is ProfileLoading
+            ? null
+            : () async {
+           updateProfile(); // profili güncelle
+          /*if (mounted) {
+            Navigator.of(context).pop(true); // Güncelleme başarılı olduğunda geri dön
+          }*/
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
           minimumSize: const Size(double.infinity, 50),
@@ -305,12 +319,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: state is ProfileLoading
             ? const CircularProgressIndicator(color: Colors.white)
             : Text(
-                "Profili Güncelle",
-                style: AppTextStyles.semiBold.copyWith(color: Theme.of(context).colorScheme.tertiary),
-              ),
+          "Profili Güncelle",
+          style: AppTextStyles.semiBold.copyWith(
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+        ),
       ),
     );
   }
+
 
   void showImagePickerDialog() {
     showModalBottomSheet(
