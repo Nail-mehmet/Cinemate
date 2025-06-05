@@ -255,7 +255,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuthStatus() async {
-    await Future.delayed(const Duration(milliseconds: 2500));
+    await Future.delayed(const Duration(milliseconds: 3500));
 
     if (!mounted) return; // widget hâlâ ekranda mı?
 
@@ -290,7 +290,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: Theme.of(context).colorScheme.tertiary,
       body: Center(
         child: Lottie.asset(
-          'assets/lotties/cinemate.json',
+          'assets/lotties/negro.json',
           width: 400,
           height: 400,
           fit: BoxFit.contain,
