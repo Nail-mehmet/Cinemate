@@ -177,8 +177,7 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
                 const SizedBox(height: 20),
                 Text(
                   "Premium’a Katıl",
-                    style: AppTextStyles.bold.copyWith(fontSize: 20)
-
+                  style: AppTextStyles.bold.copyWith(fontSize: 20),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -186,45 +185,45 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
                   textAlign: TextAlign.center,
                   style: AppTextStyles.regular.copyWith(fontSize: 14),
                 ),
-
                 const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).maybePop();
-                        },
-                        child: const Text("Sonra"),
-                      ),
+
+                SizedBox(
+                  height: 40, // Sabit yükseklik
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Future.delayed(Duration.zero, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PremiumSubscriptionPage(),
+                          ),
+                        );
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      foregroundColor: Colors.black,
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Önce mevcut sayfadan çık, sonra yeni sayfaya git
-                          Navigator.of(context).pop(); // Mevcut sayfayı kapat
-                          Future.delayed(Duration.zero, () { // Microtask ile sıraya al
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PremiumSubscriptionPage(),
-                              ),
-                            );
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber,
-                          foregroundColor: Colors.black,
-                        ),
-                        child: Text("Premium Ol",style: AppTextStyles.bold.copyWith(fontSize: 12)),
-                      ),
-                    ),
-                  ],
+                    child: Text("Premium Ol", style: AppTextStyles.bold.copyWith(fontSize: 16)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 40, // Sabit yükseklik
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).maybePop();
+                    },
+                    child: const Text("Sonra"),
+                  ),
                 ),
               ],
             ),
+
           ),
         ),
       ),

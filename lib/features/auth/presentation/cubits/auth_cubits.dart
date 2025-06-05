@@ -28,20 +28,6 @@ class AuthCubit extends Cubit<AuthState>{
   }
 
   // AuthCubit içinde
-  Future<void> signInWithGoogle() async {
-    emit(AuthLoading());
-    try {
-      final user = await authRepo.signInWithGoogle();
-      if (user != null) {
-        emit(Authenticated(user));
-      } else {
-        emit(AuthError("Google ile giriş başarısız"));
-      }
-    } catch (e) {
-      emit(AuthError(e.toString()));
-    }
-  }
-
   // get current user
   AppUser? get currentUser => _currentUser;
 

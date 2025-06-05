@@ -134,7 +134,9 @@ flutter:
     - assets/bg.jpg
     - assets/images/trilogy.png
     - assets/images/cinemate.png
-    - assets/images/premium.jpg
+    - assets/images/premium.png
+    - assets/images/premium1.png
+    - assets/images/premium2.png
     - assets/images/cinemateblack.png
     - assets/google.png
     - assets/facebook.png

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/features/auth/presentation/components/my_text_field.dart';
@@ -45,6 +46,12 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     authCubit.register(name, email, pw);
+    subscribeToTopic();
+  }
+
+  Future<void> subscribeToTopic() async {
+    await FirebaseMessaging.instance.subscribeToTopic('all_users');
+    print('Kullanıcı "all_users" topic’ine abone oldu');
   }
 
   String? validatePassword(String password) {
@@ -262,26 +269,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Widget _googleSignInButton() {
-    return GestureDetector(
-      onTap: () {
-        final authCubit = context.read<AuthCubit>();
-        authCubit.signInWithGoogle();
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Image.asset(
-          "assets/icons/google.png", // Google icon asset'i
-          width: 24,
-          height: 24,
-        ),
-      ),
-    );
-  }
+
 
   Widget socialIcon(IconData iconData) {
     return Container(

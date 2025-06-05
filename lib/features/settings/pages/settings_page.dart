@@ -27,12 +27,7 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          _buildTile(Icons.person_outline, "Hesap Ayarları", () {
-        /*    Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ManageAccountPage()),
-            );*/
-          }),
+
           _buildTile(Icons.credit_card_outlined, "Abonelik", () {
             Navigator.push(
               context,
@@ -40,14 +35,7 @@ class SettingsPage extends StatelessWidget {
                   builder: (context) => const PremiumSubscriptionPage()),
             );
           }),
-          _buildTile(Icons.qr_code, "QR Code", () {}),
-          _buildTile(Icons.bookmark_border, "Kaydedilenler", () {}),
-          _buildTile(Icons.notifications_none, "Bildirim Ayarları", () {
-           /* Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const WidgetPage()),
-            );*/
-          }),
+
           _buildTile(Icons.vpn_key_outlined, "Şifre Yöneticisi", () {
            Navigator.push(
               context,

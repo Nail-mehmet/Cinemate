@@ -1,4 +1,4 @@
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:Cinemate/themes/font_theme.dart';
@@ -13,6 +13,18 @@ class PremiumSubscriptionPage extends StatefulWidget {
 
 class _PremiumSubscriptionPageState extends State<PremiumSubscriptionPage> {
   String selectedPlan = 'monthly';
+  late String backgroundImage;
+
+  @override
+  void initState() {
+    super.initState();
+    final List<String> images = [
+      'assets/images/premium.png',
+      'assets/images/premium1.png',
+      'assets/images/premium2.png'
+    ];
+    backgroundImage = images[Random().nextInt(images.length)];
+  }
 
   void selectPlan(String plan) {
     setState(() {
@@ -21,184 +33,168 @@ class _PremiumSubscriptionPageState extends State<PremiumSubscriptionPage> {
   }
 
   void onContinue() async {
-    /*final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Kullanıcı giriş yapmamış")),
-      );
-      return;
-    }
-
-    final now = DateTime.now();
-    final subscriptionEnd = selectedPlan == 'monthly'
-        ? now.add(const Duration(days: 30))
-        : now.add(const Duration(days: 365));
-
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-        'subscription': {
-          'isPremium': true,
-          'subscriptionType': selectedPlan,
-          'subscriptionStart': Timestamp.fromDate(now),
-          'subscriptionEnd': Timestamp.fromDate(subscriptionEnd),
-        }
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Abonelik başarıyla güncellendi: $selectedPlan"),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Hata oluştu: $e"),
-        ),
-      );
-    }*/
+    // Satın alma işlemleri burada olacak
   }
-
 
   void onRestore() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Restore purchase clicked"),
-      ),
+      const SnackBar(content: Text("Satın alımı geri yükle tıklandı")),
     );
-    // Add restore logic here
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color backgroundColor = const Color(0xFFFDF6F1);
-    final Color primaryColor = const Color(0xFF567DF4);
-    final Color secondaryColor = const Color(0xFF232323);
-
     return Scaffold(
-        backgroundColor: backgroundColor,
-        body: Stack(
-          children: [
-            SingleChildScrollView(
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    // Top Banner Image
-                    SizedBox(
-                      height: 260,
-                      width: double.infinity,
-                      child: Image.asset(
-                        'assets/images/premium.jpg', // Your image path
-                        fit: BoxFit.cover,
+      body: Stack(
+        children: [
+          // Arka Plan Resmi
+          SizedBox.expand(
+            child: Image.asset(
+              backgroundImage,
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Saydam Arka Plan
+          Container(color: Colors.black.withOpacity(0.2)),
+          // İçerik
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Geri Dön Butonu
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle, color: Colors.white38),
+                      child: IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(FontAwesomeIcons.xmark,
+                            color: Colors.white),
                       ),
                     ),
+                  ),
+                  Center(
+                    child: Text(
+                      "Sınırları Kaldır",
+                      style: AppTextStyles.bold.copyWith(
+                        fontSize: 36,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
 
-                    const SizedBox(height: 20),
+                  // Özellikler
+                  const FeatureRow(text: "Topluluklara Katıl"),
+                  const FeatureRow(text: "Üçlemeneni paylaş"),
+                  const FeatureRow(
+                      text: "Aynı üçlemeye sahip kullanıclarlı bul"),
+                  const FeatureRow(text: "Haftalık Yarışmalara katıl"),
+                  const FeatureRow(text: "Premium etiketi kazan"),
+                  const FeatureRow(
+                      text: "Telefonuna filmlerlerden alıntı gönderelim"),
 
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Title
-                          Text("Sınırları Kaldırın — Premium’a Geçin!",
-                              style: AppTextStyles.bold.copyWith(fontSize: 24)),
+                  const SizedBox(height: 10),
 
-                          const SizedBox(height: 16),
+                  // Abonelik Seçenekleri
+                  SubscriptionOption(
+                    title: "Aylık",
+                    price: "\₺29 / Ay",
+                    isPopular: true,
+                    isSelected: selectedPlan == 'monthly',
+                    onTap: () => selectPlan('monthly'),
+                  ),
+                  const SizedBox(height: 16),
+                  SubscriptionOption(
+                    title: "Yıllık (Avantajlı)",
+                    price: "\₺249 / Yıl",
+                    isPopular: false,
+                    isSelected: selectedPlan == 'yearly',
+                    onTap: () => selectPlan('yearly'),
+                  ),
 
-                          // Features
-                          const FeatureRow(text: "Topluluklara Katıl"),
-                          const FeatureRow(text: "Üçlemeneni paylaş"),
-                          const FeatureRow(
-                              text: "Aynı üçlemeye sahip kullanıclarlı bul"),
-                          const FeatureRow(text: "Haftalık Yarışmalara katıl"),
-                          const FeatureRow(text: "Premium etiketi kazan"),
-                          const FeatureRow(
-                              text:
-                                  "Telefonuna filmlerlerden alıntı gönderelim"),
-                                  
-                          const SizedBox(height: 32),
+                  const SizedBox(height: 20),
 
-                          // Plans
-                          SubscriptionOption(
-                            title: "Aylık",
-                            price: "\₺119 / Ay",
-                            isPopular: true,
-                            isSelected: selectedPlan == 'monthly',
-                            onTap: () => selectPlan('monthly'),
+                  // Devam Et Butonu
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: onContinue,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                        shadowColor: MaterialStateProperty.all(Colors.transparent),
+                        padding: MaterialStateProperty.all(
+                            const EdgeInsets.symmetric(vertical: 1)),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(height: 16),
-                          SubscriptionOption(
-                            title: "Yıllık (Avantajlı)",
-                            price: "\₺319 / Yıl",
-                            isPopular: false,
-                            isSelected: selectedPlan == 'yearly',
-                            onTap: () => selectPlan('yearly'),
+                        ),
+                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                              (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.pressed)) {
+                              return Color(0xFF003366); // Darker blue when pressed
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      child: Ink(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF001F3F), Color(0xFF004080)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
                           ),
-
-                          const SizedBox(height: 32),
-
-                          // Continue Button
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: onContinue,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF001F3F),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text(
-                                "Devam Et",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                        ),
+                        child: Container(
+                          width: double.infinity, // Genişliği burada ayarladık
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                          child: const Center(
+                            child: Text(
+                              "Devam Et",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
                           ),
+                        ),
+                      ),
+                    )
 
-                          const SizedBox(height: 12),
+                  ),
 
-                          Center(
-                            child: TextButton(
-                              onPressed: onRestore,
-                              child: Text(
-                                "Satın alımı geri yükle",
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                  const SizedBox(height: 12),
+
+                  // Satın Alımı Geri Yükle
+                  Center(
+                    child: TextButton(
+                      onPressed: onRestore,
+                      child: Text(
+                        "Satın alımı geri yükle",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            Positioned(
-                top: 60,
-                left: 20,
-                child: Container(
-                    decoration: const BoxDecoration(
-                        shape: BoxShape.circle, color: Colors.white38),
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(FontAwesomeIcons.xmark,
-                          color: Colors.black),
-                    ))),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 }
+
 
 class FeatureRow extends StatelessWidget {
   final String text;
@@ -211,12 +207,12 @@ class FeatureRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_circle, color: Colors.lightBlue, size: 24),
+          const Icon(Icons.check_circle, color: Colors.lightBlueAccent, size: 24),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
-              style: AppTextStyles.medium.copyWith(fontSize: 15),
+              style: AppTextStyles.medium.copyWith(fontSize: 15,color: Colors.white70),
               softWrap: true,
               overflow: TextOverflow.visible,
             ),
@@ -252,7 +248,7 @@ class SubscriptionOption extends StatelessWidget {
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             decoration: BoxDecoration(
               color: isSelected ? Colors.blue.shade50 : Colors.white,
               border: Border.all(
@@ -300,7 +296,8 @@ class SubscriptionOption extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFFFA53E), Color(0xFFFF7643)],
+                    colors: [Color(0xFF001F3F), Color(0xFF004080)],
+
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

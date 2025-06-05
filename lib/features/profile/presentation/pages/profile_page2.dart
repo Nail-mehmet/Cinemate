@@ -44,6 +44,7 @@ import '../../../../config/home_widget_helper.dart';
 import '../../../chat/presentation/pages/chat_page.dart';
 import 'package:intl/intl.dart';
 
+import '../../../chats/chat_model.dart';
 import '../../../chats/chat_page.dart';
 import '../../../chats/chat_repository.dart';
 import '../components/popup_topthremovies.dart';
@@ -693,20 +694,27 @@ class _ProfilePage2State extends State<ProfilePage2>
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("Bu özellik Premium üyelere özel"),
-          content: Text("Top 3 filmini paylaşmak veya eşleştirmek için Premium üye olmalısın."),
+          title: Text("Bu özellik Premium üyelere özel",style: AppTextStyles.bold,),
+          content: Text("Top 3 filmini paylaşmak veya eşleştirmek için Premium üye olmalısın.",style: AppTextStyles.medium,),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text("Kapat"),
+              child: Text("Kapat",style: AppTextStyles.medium,),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 // Burada Premium üyelik sayfasına yönlendirme yapılabilir
-                Navigator.pushNamed(context, '/premium'); // örnek route
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PremiumSubscriptionPage()));// örnek route
               },
-              child: Text("Premium Ol"),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(
+                  Theme.of(context).colorScheme.primary,
+                ),
+              ),              child: Text("Premium Ol",style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary),),
             ),
           ],
         ),
@@ -1083,9 +1091,11 @@ class _ProfilePage2State extends State<ProfilePage2>
                           children: [
                             CircleAvatar(
                               radius: 50,
-                              backgroundImage: CachedNetworkImageProvider(
-                                  user.profileImageUrl!),
+                              backgroundImage: CachedNetworkImageProvider(user.profileImageUrl!),
                             ),
+
+
+
                             SizedBox(height: 10),
                             Text(
                               user.name,
@@ -1174,27 +1184,30 @@ class _ProfilePage2State extends State<ProfilePage2>
                                       final currentUserId = currentUser!.uid;
                                       if (currentUserId == null) return;
 
-                                      // Chat oluştur veya var olanı bul
-                                      final chatBloc = context.read<ChatBloc>();
-                                      chatBloc.add(CreateChat(currentUserId, user.uid));
-
-                                      // Chat sayfasına yönlendir
                                       final chatRepository = ChatRepository(supabaseClient: Supabase.instance.client);
-                                      final chat = await chatRepository.findChatBetweenUsers(currentUserId, user.uid);
 
+                                      // Önce var olan chati kontrol et
+                                      Chat? chat = await chatRepository.findChatBetweenUsers(currentUserId, user.uid);
 
-                                      if (chat != null && mounted) {
+                                      // Eğer yoksa yeni bir tane oluştur
+                                      if (chat == null) {
+                                        chat = await chatRepository.createChat(currentUserId, user.uid);
+                                      }
+
+                                      // Sayfaya yönlendir
+                                      if (chat != null && context.mounted) {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => ChatPage(
-                                              chatId: chat.id,
+                                              chatId: chat!.id,
                                               userId: currentUserId,
                                             ),
                                           ),
                                         );
                                       }
                                     },
+
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor:
                                         Theme.of(context).colorScheme.primary,

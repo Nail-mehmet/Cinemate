@@ -25,6 +25,8 @@ class _ChatPageState extends State<ChatPage> {
   final _scrollController = ScrollController();
   late Future<Map<String, dynamic>> _otherUserFuture;
   bool _isAtBottom = true;
+  bool _isFirstLoad = true;
+
 
   @override
   void initState() {
@@ -33,7 +35,8 @@ class _ChatPageState extends State<ChatPage> {
 
     _markMessagesAsRead();
 
-    _scrollController.addListener(_scrollListener);    _otherUserFuture = ChatRepository(
+    _scrollController.addListener(_scrollListener);
+    _otherUserFuture = ChatRepository(
       supabaseClient: Supabase.instance.client,
     ).getOtherParticipantProfile(widget.chatId, widget.userId);
   }
@@ -156,49 +159,67 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: BlocBuilder<MessageBloc, MessageState>(
-              builder: (context, state) {
-                if (state.status == MessageStatus.loading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state.status == MessageStatus.failure) {
-                  return Center(child: Text('Hata: ${state.error}'));
-                }
-
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (_scrollController.hasClients) {
-                    _scrollController.animateTo(
-                      _scrollController.position.maxScrollExtent,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOut,
-                    );
-                  }
-                });
-
-
-                return ListView.builder(
-                  controller: _scrollController,
-                  itemCount: state.messages.length,
-                  itemBuilder: (context, index) {
-                    final message = state.messages[index];
-                    final showDateDivider = index == 0 ||
-                        _isDifferentDay(
-                            state.messages[index - 1].createdAt,
-                            message.createdAt
+            child: BlocListener<MessageBloc, MessageState>(
+              listener: (context, state) {
+                if (state.status == MessageStatus.success) {
+                  if (_isFirstLoad) {
+                    // İlk açılışta otomatik scroll yap
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_scrollController.hasClients) {
+                        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+                      }
+                    });
+                    _isFirstLoad = false;
+                  } else if (_isAtBottom) {
+                    // Sonradan gelen mesajlarda, kullanıcı en alt ise otomatik scroll yap
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_scrollController.hasClients) {
+                        _scrollController.animateTo(
+                          _scrollController.position.maxScrollExtent,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
                         );
-
-                    return Column(
-                      children: [
-                        if (showDateDivider)
-                          _buildTimeDivider(message.createdAt),
-                        ChatBubble(
-                          message: message,
-                          isMe: message.senderId == widget.userId,
-                        ),
-                      ],
-                    );
-                  },
-                );
+                      }
+                    });
+                  }
+                }
               },
+              child: BlocBuilder<MessageBloc, MessageState>(
+                builder: (context, state) {
+                  if (state.status == MessageStatus.loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state.status == MessageStatus.failure) {
+                    return Center(child: Text('Hata: ${state.error}'));
+                  }
+              
+
+              
+              
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: state.messages.length,
+                    itemBuilder: (context, index) {
+                      final message = state.messages[index];
+                      final showDateDivider = index == 0 ||
+                          _isDifferentDay(
+                              state.messages[index - 1].createdAt,
+                              message.createdAt
+                          );
+              
+                      return Column(
+                        children: [
+                          if (showDateDivider)
+                            _buildTimeDivider(message.createdAt),
+                          ChatBubble(
+                            message: message,
+                            isMe: message.senderId == widget.userId,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
           ChatInput(
