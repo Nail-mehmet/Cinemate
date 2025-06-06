@@ -86,7 +86,7 @@ class _PhotoSelectionPageState extends State<PhotoSelectionPage> {
                   onPressed: () => _showImagePickerBottomSheet(context),
                   child: Text(
                     'Fotoğraf Seç',
-                    style: AppTextStyles.medium.copyWith(
+                    style: AppTextStyles.bold.copyWith(
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
@@ -110,7 +110,7 @@ class _PhotoSelectionPageState extends State<PhotoSelectionPage> {
             title: Text(
               'Galeriden Seç',
               style: AppTextStyles.medium.copyWith(
-                  color: Theme.of(context).colorScheme.inversePrimary),
+                  color: Theme.of(context).colorScheme.primary),
             ),
             onTap: () {
               Navigator.pop(context);
@@ -122,7 +122,7 @@ class _PhotoSelectionPageState extends State<PhotoSelectionPage> {
               leading: const Icon(Icons.camera_alt),
               title: Text('Kamera ile Çek',
                   style: AppTextStyles.medium.copyWith(
-                      color: Theme.of(context).colorScheme.inversePrimary)),
+                      color: Theme.of(context).colorScheme.primary)),
               onTap: () {
                 Navigator.pop(context);
                 _pickImage(ImageSource.camera);

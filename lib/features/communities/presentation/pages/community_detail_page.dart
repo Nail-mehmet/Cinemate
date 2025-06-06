@@ -124,61 +124,92 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            top: 24,
-            left: 16,
-            right: 16,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.35,
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 100),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextField(
-                        controller: _textController,
-                        maxLines: 8,
-                        decoration: InputDecoration(
-                          hintText: 'Bir şeyler yaz...',
-                          filled: true,
-                          fillColor: Colors.grey,
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 18),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none,
-                          ),
+        return DraggableScrollableSheet(
+          initialChildSize: 0.45,
+          minChildSize: 0.35,
+          maxChildSize: 0.85,
+          builder: (context, scrollController) {
+            return Container(
+              padding: EdgeInsets.only(
+                top: 24,
+                left: 16,
+                right: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 15,
+                    offset: Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    'Yeni Gönderi',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      maxLines: null,
+                      maxLength: 500,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        hintText: 'Ne paylaşmak istersin?',
+                        filled: true,
+                        fillColor: Colors.grey.shade100,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                Positioned(
-                  bottom: 20,
-                  left: 0,
-                  right: 0,
-                  child: SizedBox(
+                  const SizedBox(height: 12),
+                  SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.send_rounded, size: 20),
+                      label: const Text(
+                        'Paylaş',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                         ),
                       ),
                       onPressed: () {
                         final commune = Commune(
-                          id: _uuid.v4(),  // Burada boş string değil, yeni UUID atandı
+                          id: _uuid.v4(),
                           text: _textController.text,
                           userId: widget.currentUserId,
                           createdAt: DateTime.now(),
@@ -190,20 +221,17 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                         Navigator.pop(context);
                         _textController.clear();
                       },
-                      child: const Text(
-                        'Paylaş',
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
-                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
   }
+
 
   void _showImagePostSheet() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -341,8 +369,9 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                   color: Theme.of(context).colorScheme.primary,
                   borderRadius: const BorderRadius.all(Radius.circular(10)),
                 ),
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.black54,
+                labelColor: Theme.of(context).colorScheme.tertiary,
+                unselectedLabelColor: Theme.of(context).colorScheme.primary,
+                labelStyle: AppTextStyles.bold,
                 tabs: const [
                   Tab(text: 'Gönderiler'),
                   Tab(text: 'Üyeler'),

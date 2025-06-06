@@ -1,5 +1,6 @@
 import 'package:Cinemate/features/chats/chat_bloc.dart';
 import 'package:Cinemate/features/chats/chat_repository.dart';
+import 'package:Cinemate/themes/font_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -35,7 +36,7 @@ class _ChatListPageState extends State<ChatListPage> {
     return BlocProvider.value(
       value: chatBloc,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Mesajlar'), actions: [
+        appBar: AppBar(title: Text('Mesajlar',style: AppTextStyles.bold,), actions: [
           NotificationIconWithBadge(currentUserId: widget.userId),
         ]),
         body: BlocBuilder<ChatBloc, ChatState>(
@@ -65,7 +66,7 @@ class _ChatListPageState extends State<ChatListPage> {
                         final unreadCount = unreadSnapshot.data ?? 0;
 
                         return ListTile(
-                          title: Text(profile['name'] ?? 'Kullanıcı'),
+                          title: Text(profile['name'] ?? 'Kullanıcı',style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary.withOpacity(0.7)),),
                           leading: CircleAvatar(
                             backgroundImage: profile['profile_image'] != null
                                 ? NetworkImage(profile['profile_image'])
@@ -78,6 +79,7 @@ class _ChatListPageState extends State<ChatListPage> {
                             chat.lastMessage ?? 'Yeni sohbet',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.primary.withOpacity(0.4)),
                           ),
                           trailing: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

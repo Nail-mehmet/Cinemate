@@ -101,7 +101,7 @@ class _SearchPageState extends State<SearchPage> {
     if (response.statusCode == 200) {
       return Movie.fromJson(json.decode(response.body));
     } else {
-      throw Exception('Failed to load movie details');
+      throw Exception('Film detayları yüklenemedi');
     }
   }
 
@@ -161,9 +161,7 @@ class _SearchPageState extends State<SearchPage> {
                     focusNode: _searchFocusNode,
                     decoration: InputDecoration(
                       hintText: "Kullanıcı, film veya oyuncu ara...",
-                      hintStyle: TextStyle(
-                        color: Theme.of(context).hintColor,
-                      ),
+                      hintStyle: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
                       border: InputBorder.none,
                       prefixIcon: Icon(
                         Icons.search_rounded,
@@ -359,11 +357,7 @@ class _SearchPageState extends State<SearchPage> {
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                       child: Text(
                         "Film Türleri",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary,fontSize: 16)
                       ),
                     ),
                     Expanded(

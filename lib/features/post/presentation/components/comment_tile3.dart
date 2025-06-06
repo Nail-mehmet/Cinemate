@@ -89,10 +89,15 @@ class _CommentTile3State extends State<CommentTile3> {
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           leading: CircleAvatar(
-            backgroundImage: widget.userProfileImageUrl != null
+            backgroundColor: Colors.grey.shade200, // İstersen arka plan rengi
+            backgroundImage: (widget.userProfileImageUrl != null && widget.userProfileImageUrl!.isNotEmpty)
                 ? CachedNetworkImageProvider(widget.userProfileImageUrl!)
-                : const AssetImage("assets/default_avatar.png") as ImageProvider,
+                : null,
+            child: (widget.userProfileImageUrl == null || widget.userProfileImageUrl!.isEmpty)
+                ? const Icon(Icons.person, size: 30, color: Colors.grey)
+                : null,
           ),
+
           title: Text(
             widget.comment.userName,
             style: TextStyle(
@@ -160,6 +165,6 @@ class _CommentTile3State extends State<CommentTile3> {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('dd MMM yyyy - HH:mm').format(date);
+    return DateFormat('d MMM HH:mm', 'tr_TR').format(date);
   }
 }

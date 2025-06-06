@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Gönderiler"),
+        title: Text("Gönderiler",style: AppTextStyles.bold,),
         foregroundColor: Theme.of(context).colorScheme.primary,
         actions: [
           IconButton(
@@ -226,16 +226,16 @@ class _HomePageState extends State<HomePage> {
                               final shouldDelete = await showDialog<bool>(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: const Text('Postu Sil'),
-                                  content: const Text('Bu postu silmek istediğinize emin misiniz?'),
+                                  title:  Text('Postu Sil',style: AppTextStyles.bold,),
+                                  content:  Text('Bu postu silmek istediğinize emin misiniz?',style: AppTextStyles.medium,),
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(context, false),
-                                      child: const Text('İptal'),
+                                      child:  Text('İptal',style: AppTextStyles.medium,),
                                     ),
                                     TextButton(
                                       onPressed: () => Navigator.pop(context, true),
-                                      child: const Text('Sil', style: TextStyle(color: Colors.red)),
+                                      child:  Text('Sil', style: AppTextStyles.bold.copyWith(color: Colors.red)),
                                     ),
                                   ],
                                 ),

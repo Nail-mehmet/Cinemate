@@ -108,17 +108,29 @@ class NotificationsPage extends StatelessWidget {
                         : null;
 
                     final userName = userData?["name"] ?? userData?["name"] ?? "Kullanıcı";
-                    final userPhoto = userData?["profile_image"];
+                    final userPhoto = userData?["profile_image"] ?? "";
 
                     return _AnimatedNotificationTile(
                       isRead: isRead,
                       leading: ClipRRect(
                         borderRadius: BorderRadius.circular(50),
-                        child: userPhoto != null
-                            ? Image.network(userPhoto,
-                            width: 40, height: 40, fit: BoxFit.cover)
-                            : const CircleAvatar(child: Icon(Icons.person)),
+                        child: (userPhoto != null && userPhoto.isNotEmpty)
+                            ? Image.network(
+                          userPhoto,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const CircleAvatar(
+                            child: Icon(Icons.person),
+                            radius: 20,
+                          ),
+                        )
+                            : const CircleAvatar(
+                          child: Icon(Icons.person),
+                          radius: 20,
+                        ),
                       ),
+
                       title: type == "follow"
                           ? "$userName seni takip etti."
                           : "$userName gönderini beğendi.",

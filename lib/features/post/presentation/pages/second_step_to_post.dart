@@ -205,7 +205,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                     decoration: InputDecoration(
                       hintText: 'Açıklama Giriniz...', // Sadece hintText kullan
                       hintStyle:
-                          AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.inversePrimary), // Gri renkte yap
+                          AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.primary), // Gri renkte yap
                       border: InputBorder.none, // Kenarlık yok
                       contentPadding:
                           EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -262,7 +262,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                   items: categories
                       .map((category) => DropdownMenuItem(
                             value: category,
-                            child: Text(category, style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.inversePrimary)),
+                            child: Text(category, style: AppTextStyles.regular.copyWith(color: Theme.of(context).colorScheme.primary)),
                           ))
                       .toList(),
                   onChanged: (value) {
@@ -278,7 +278,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                         child: Text(
                           selectedCategory ?? '    Kategori',
                           style: AppTextStyles.medium.copyWith(
-                            color: Theme.of(context).colorScheme.onTertiary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       );
@@ -312,7 +312,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                             hintText: _isSearchActive
                                 ? 'Film Ara...'
                                 : 'İlgili filmi ara (isteğe bağlı)',
-                            hintStyle: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.inversePrimary),
+                            hintStyle: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.primary),
                             border: InputBorder.none,
                             prefixIcon: _isSearchActive
                                 ? AnimatedSwitcher(
@@ -427,7 +427,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context)
                           .colorScheme
-                          .inversePrimary, // Instagram blue
+                          .primary, // Instagram blue
                       foregroundColor: Theme.of(context).colorScheme.tertiary,
                       padding: EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -441,6 +441,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                       style: AppTextStyles.bold.copyWith(
                         fontSize: 16,
                         letterSpacing: 0.5,
+                        color: Theme.of(context).colorScheme.tertiary
 
                       ),
                     ),

@@ -3,6 +3,7 @@ import 'package:Cinemate/features/chats/chat_input.dart';
 import 'package:Cinemate/features/chats/chat_repository.dart';
 import 'package:Cinemate/features/chats/message_bloc.dart';
 import 'package:Cinemate/features/profile/presentation/pages/profile_page2.dart';
+import 'package:Cinemate/themes/font_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -147,7 +148,7 @@ class _ChatPageState extends State<ChatPage> {
                   const SizedBox(width: 8),
                   Text(
                     user['name'] ?? 'Kullanıcı',
-                    style: const TextStyle(fontSize: 16),
+                    style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),
                   ),
                 ],
               ),

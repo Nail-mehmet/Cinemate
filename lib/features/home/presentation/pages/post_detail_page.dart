@@ -249,8 +249,8 @@ void _openNewCommentBox() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Postu Sil"),
-        content: const Text("Bu postu silmek istediğinize emin misiniz?"),
+        title:  Text('Postu Sil',style: AppTextStyles.bold,),
+        content:  Text('Bu postu silmek istediğinize emin misiniz?',style: AppTextStyles.medium,),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -310,7 +310,7 @@ void _openNewCommentBox() {
               child: Text(
                 "Yorumlar",
                 style: AppTextStyles.semiBold.copyWith(
-                  color: Theme.of(context).colorScheme.inversePrimary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 20,
                 ),
               ),

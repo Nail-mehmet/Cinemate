@@ -1,3 +1,4 @@
+import 'package:Cinemate/themes/font_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../../movies/domain/entities/cast_member.dart';
@@ -31,7 +32,7 @@ class ActorTile extends StatelessWidget {
             errorBuilder: (context, error, stackTrace) => Container(
               width: posterWidth,
               height: posterHeight,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.primary,
               child: const Icon(Icons.person),
             ),
           ),
@@ -40,12 +41,12 @@ class ActorTile extends StatelessWidget {
           width: posterWidth,
           height: posterHeight,
           decoration: BoxDecoration(
-            color: Colors.grey,
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(Icons.person),
+          child: const Icon(Icons.person,color: Colors.white70,),
         ),
-        title: Text(actor.name),
+        title: Text(actor.name,style: AppTextStyles.medium,),
         //subtitle: actor.character != null ? Text(actor.character!) : null,
         onTap: () {
           // Navigate to actor details page

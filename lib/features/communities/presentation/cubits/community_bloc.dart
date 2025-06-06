@@ -16,15 +16,21 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
   Future<void> _onLoadCommunities(LoadCommunities event, Emitter<CommunityState> emit) async {
     emit(state.copyWith(isLoading: true));
 
+    // Sabit sıralama için created_at'e göre sırala
     final response = await supabase
         .from('communities')
-        .select('*');
+        .select('*')
+        .order('created_at', ascending: false); // Veya 'name' ile alfabetik
 
     Map<String, bool> membershipStatus = {};
 
+    // Mevcut üyelik durumlarını koru (yenileri ekle)
+    membershipStatus.addAll(state.membershipStatus);
+
     for (var community in response) {
-      final isMember = await _checkIfMember(community['id']);
-      membershipStatus[community['id']] = isMember;
+      if (!membershipStatus.containsKey(community['id'])) {
+        membershipStatus[community['id']] = await _checkIfMember(community['id']);
+      }
     }
 
     emit(state.copyWith(
@@ -40,19 +46,13 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
 
     try {
       if (isMember) {
-        // Üyelikten çıkma işlemi
         await supabase
             .from('community_members')
             .delete()
             .eq('community_id', communityId)
             .eq('user_id', user.id);
-
-        // Üye sayısını azalt
-        await supabase.rpc('decrement_member_count', params: {
-          'community_id': communityId,
-        });
+        await supabase.rpc('decrement_member_count', params: {'community_id': communityId});
       } else {
-        // Üyelik ekleme işlemi
         await supabase
             .from('community_members')
             .insert({
@@ -60,31 +60,21 @@ class CommunityBloc extends Bloc<CommunityEvent, CommunityState> {
           'user_id': user.id,
           'joined_at': DateTime.now().toIso8601String(),
         });
-
-        // Üye sayısını artır
-        await supabase.rpc('increment_member_count', params: {
-          'community_id': communityId,
-        });
+        await supabase.rpc('increment_member_count', params: {'community_id': communityId});
       }
 
-      // Güncel topluluk listesini al
-      final updatedCommunities = await supabase
-          .from('communities')
-          .select('*');
-
-      // Üyelik durumu localde güncelle
+      // Tüm listeyi yeniden yükleme, sadece ilgili topluluğun durumunu güncelle
       final updatedStatus = Map<String, bool>.from(state.membershipStatus);
       updatedStatus[communityId] = !isMember;
 
       emit(state.copyWith(
-        communities: updatedCommunities,
         membershipStatus: updatedStatus,
       ));
 
-      return !isMember; // True dönerse katılma oldu, false ise ayrılma
+      return !isMember;
     } catch (e) {
       print('Membership toggle error: $e');
-      return isMember; // Hata durumunda eski durumu koru
+      return isMember;
     }
   }
 

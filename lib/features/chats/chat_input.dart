@@ -1,3 +1,4 @@
+import 'package:Cinemate/themes/font_theme.dart';
 import 'package:flutter/material.dart';
 
 class ChatInput extends StatefulWidget {
@@ -26,6 +27,7 @@ class _ChatInputState extends State<ChatInput> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
+                labelStyle: AppTextStyles.medium,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,

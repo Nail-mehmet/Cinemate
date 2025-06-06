@@ -1,3 +1,4 @@
+import 'package:Cinemate/themes/font_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -11,11 +12,9 @@ class SeeAllButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onTap,
-      child: const Text(
+      child:  Text(
         "Tümünü Gör",
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
+        style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary)
       ),
     );
   }

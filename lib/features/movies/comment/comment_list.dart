@@ -40,70 +40,116 @@ class _CommentTileState extends State<CommentTile> {
       );
     });
 
-    String formattedDate = DateFormat('dd MMMM yyyy').format(comment.createdAt);
+    String formattedDate = DateFormat('d MMM HH:mm', 'tr_TR').format(comment.createdAt);
 
-    return ListTile(
-      onTap: () {
-       Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProfilePage2(uid: comment.userId),
-          ),
-        );
-      },
-      contentPadding: const EdgeInsets.all(8),
-      leading: CircleAvatar(
-        backgroundImage: NetworkImage(comment.userProfileImageUrl.isNotEmpty
-            ? comment.userProfileImageUrl
-            : 'assets/fallback_profile.jpg'),
-      ),
-      title: Text(comment.userName,
-          style: AppTextStyles.bold.copyWith(
-              color: Theme.of(context).colorScheme.primary, fontSize: 12)),
-      subtitle: Column(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: stars),
-          const SizedBox(height: 4),
-          if (!comment.spoiler || _showSpoiler)
-            Text(
-              comment.commentText,
-              style: AppTextStyles.medium.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 12,
+          // Avatar sol üstte sabit kalır
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage2(uid: comment.userId),
+                ),
+              );
+            },
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(
+                comment.userProfileImageUrl.isNotEmpty
+                    ? comment.userProfileImageUrl
+                    : 'assets/fallback_profile.jpg',
               ),
             ),
-          if (comment.spoiler && !_showSpoiler)
-            GestureDetector(
-              onTap: () async {
-                await _playClickSound();
-                setState(() => _showSpoiler = true);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade600),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+          ),
+
+          const SizedBox(width: 12),
+
+          // Sağ taraf: metin içeriği
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.warning_amber_rounded,
-                        color: Colors.amber, size: 14),
-                    const SizedBox(width: 6),
-                    Text('Spoiler içerir (tıkla)',
-                        style: AppTextStyles.medium.copyWith(fontSize: 12,color: Theme.of(context).colorScheme.tertiary)),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfilePage2(uid: comment.userId),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        comment.userName,
+                        style: AppTextStyles.bold.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      formattedDate,
+                      style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.primary.withOpacity(0.4,),fontSize: 12),
+                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 4),
+                Row(children: stars),
+                const SizedBox(height: 4),
+                if (!comment.spoiler || _showSpoiler)
+                  Text(
+                    comment.commentText,
+                    style: AppTextStyles.medium.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 12,
+                    ),
+                  ),
+                if (comment.spoiler && !_showSpoiler)
+                  GestureDetector(
+                    onTap: () async {
+                      await _playClickSound();
+                      setState(() => _showSpoiler = true);
+                    },
+                    child: Container(
+                      padding:
+                      const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey.shade600),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.warning_amber_rounded,
+                              color: Colors.amber, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Spoiler içerir',
+                            style: AppTextStyles.medium.copyWith(
+                              fontSize: 12,
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 4),
+
+              ],
             ),
-          const SizedBox(height: 4),
-          Text(formattedDate,
-              style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          ),
         ],
       ),
     );
+
   }
 }
 // Yorumları Firestore'dan çekiyoruz

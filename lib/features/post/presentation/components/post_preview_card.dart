@@ -153,14 +153,11 @@ class _PostCardState extends State<PostCard> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (currentUser?.uid == widget.post.userId)
-                          IconButton(
-                            icon: const Icon(Icons.more_vert, size: 18, color: Colors.white70),
-                            onPressed: widget.onDeletePressed,
-                          ),
+
+
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 1,),
 
                     // Açıklama
                     if (widget.post.text.isNotEmpty)
@@ -225,8 +222,7 @@ class _PostCardState extends State<PostCard> {
                         const Spacer(),
                         Text(
                           _formatDate(widget.post.timeStamp),
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.white70),
+                          style: AppTextStyles.medium.copyWith(fontSize: 12, color: Colors.white70)
                         ),
                       ],
                     ),
@@ -234,6 +230,17 @@ class _PostCardState extends State<PostCard> {
                 ),
               ),
             ),
+            Positioned(
+              top: 2,
+              right: 2,
+              child: currentUser?.uid == widget.post.userId
+                  ? IconButton(
+                icon: const Icon(Icons.more_vert, size: 18, color: Colors.white70),
+                onPressed: widget.onDeletePressed,
+              )
+                  : const SizedBox.shrink(), // boş widget döndürür
+            ),
+
           ],
         ),
       ),
@@ -244,8 +251,8 @@ class _PostCardState extends State<PostCard> {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
     if (difference.inMinutes < 1) return "şimdi";
-    if (difference.inHours < 1) return "${difference.inMinutes}m";
-    if (difference.inDays < 1) return "${difference.inHours}h";
-    return "${difference.inDays}d";
+    if (difference.inHours < 1) return "${difference.inMinutes} d";
+    if (difference.inDays < 1) return "${difference.inHours} s";
+    return "${difference.inDays} g";
   }
 }

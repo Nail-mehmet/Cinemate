@@ -16,10 +16,15 @@ class ChatBubble extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        margin: EdgeInsets.fromLTRB(
+          isMe ? 48 : 8, // left
+          4,              // top
+          isMe ? 8 : 48,  // right
+          4,              // bottom
+        ),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isMe ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.tertiary,
+          color: isMe ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.tertiary,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(12),
             topRight: const Radius.circular(12),
@@ -33,7 +38,7 @@ class ChatBubble extends StatelessWidget {
             Text(
               message.content,
               style: TextStyle(
-                color: isMe ? Colors.white : Colors.black,
+                color: isMe ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 4),
@@ -46,7 +51,7 @@ class ChatBubble extends StatelessWidget {
                 Text(
                   '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}',
                   style: TextStyle(
-                    color: isMe ? Colors.white70 : Colors.black54,
+                    color: isMe ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.primary,
                     fontSize: 10,
                   ),
                 ),

@@ -34,7 +34,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProv
   void initState() {
     super.initState();
     _loadUserData();
-    _shakeController = AnimationController(
+/*_shakeController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
@@ -46,9 +46,10 @@ class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProv
     ]).animate(CurvedAnimation(
       parent: _shakeController,
       curve: Curves.easeOut,
-    ));
+    ));*/
 
   }
+  /*
   void _showPremiumRequiredDialog() {
     // Animasyonu başlat
     _shakeController.forward(from: 0);
@@ -141,7 +142,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProv
     );
   }
 
-
+*/
   void _loadUserData() {
     final authState = context.read<AuthCubit>().state;
     if (authState is Authenticated) {
@@ -154,13 +155,13 @@ class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProv
           setState(() {
             isPremium = profileState.profileUser.isPremium;
 
-            if (isPremium == false) {
+            /*if (isPremium == false) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Future.delayed(Duration(microseconds: 100), () {
                   _showPremiumRequiredDialog();
                 });
               });
-            }
+            }*/
           });
         }
       });
@@ -185,12 +186,14 @@ class _CommunitiesPageState extends State<CommunitiesPage> with SingleTickerProv
             if (state.communities.isEmpty) {
               return const Center(child: Text('Topluluk bulunamadı'));
             }
+            final displayedCommunities = [...state.communities]
+              ..sort((a, b) => a['created_at'].compareTo(b['created_at']));
 
             return ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: state.communities.length,
               itemBuilder: (context, index) {
-                final community = state.communities[index];
+                final community = displayedCommunities[index];
                 final communityId = community['id'];
                 final name = community['name'];
                 final imageUrl = community['image_url'];

@@ -25,8 +25,11 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
   bool _isSubmitting = false;
   bool _containsSpoiler = false;
 
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       child: Column(
@@ -67,51 +70,65 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
           const SizedBox(height: 24),
 
           // Rating ve Spoiler ikonu
-          Row(
-            children: [
-              Expanded(
-                child: RatingBar.builder(
-                  initialRating: _rating,
-                  minRating: 1,
-                  direction: Axis.horizontal,
-                  allowHalfRating: true,
-                  itemCount: 5,
-                  itemPadding: const EdgeInsets.symmetric(horizontal: 4),
-                  itemBuilder: (context, _) => const Icon(
-                    Icons.star_rounded,
-                    color: Colors.amber,
-                    size: 32,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // Ekran genişliği
+              final width = constraints.maxWidth;
+
+              // Responsive boyutlar (örnek)
+              final starSize = width * 0.06; // ekran genişliğinin %6'sı, max 32 olacak şekilde sınırla
+              final horizontalPadding = width * 0.007; // küçük padding
+              final spacing = width * 0.02; // aradaki boşluk
+              final fontSize = width * 0.035; // font büyüklüğü
+
+              return Row(
+                children: [
+                  Expanded(
+                    child: RatingBar.builder(
+                      initialRating: _rating,
+                      minRating: 1,
+                      direction: Axis.horizontal,
+                      allowHalfRating: true,
+                      itemCount: 5,
+                      itemPadding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      itemBuilder: (context, _) => Icon(
+                        Icons.star_rounded,
+                        color: Colors.amber,
+                        size: starSize.clamp(16, 32), // minimum 16, maksimum 32
+                      ),
+                      onRatingUpdate: (rating) {
+                        HapticFeedback.lightImpact();
+                        setState(() => _rating = rating);
+                      },
+                    ),
                   ),
-                  onRatingUpdate: (rating) {
-                    HapticFeedback.lightImpact();
-                    setState(() => _rating = rating);
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: () {
-                  setState(() => _containsSpoiler = !_containsSpoiler);
-                },
-                child: Column(
-                  children: [
-                    Icon(
-                      _containsSpoiler
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: _containsSpoiler
-                          ? Colors.red
-                          : Theme.of(context).colorScheme.primary,
+                  SizedBox(width: spacing.clamp(8, 20)),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() => _containsSpoiler = !_containsSpoiler);
+                    },
+                    child: Column(
+                      children: [
+                        Icon(
+                          _containsSpoiler ? Icons.visibility_off : Icons.visibility,
+                          color: _containsSpoiler ? Colors.red : Theme.of(context).colorScheme.primary,
+                          size: starSize.clamp(16, 32),
+                        ),
+                        Text(
+                          _containsSpoiler ? 'Spoiler içerir' : 'Spoiler içermez',
+                          style: AppTextStyles.medium.copyWith(
+                            fontSize: fontSize.clamp(10, 16),
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      _containsSpoiler ? 'Spoiler içerir' : 'Spoiler içermez',
-                      style: AppTextStyles.medium.copyWith(fontSize: 12, color: Theme.of(context).colorScheme.primary),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                ],
+              );
+            },
           ),
+
 
           const SizedBox(height: 24),
 

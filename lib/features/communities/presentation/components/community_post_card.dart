@@ -18,13 +18,13 @@ class CommuneCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isMine = post.userId == currentUserId;
-    final formattedDate = DateFormat('MMM d, HH:mm').format(post.createdAt);
+    final formattedDate = DateFormat('d MMM HH:mm', 'tr_TR').format(post.createdAt);
 
     return FutureBuilder<Map<String, dynamic>?>(
       future: _getUserProfile(post.userId),
       builder: (context, snapshot) {
         String? profileUrl;
-        String userName = 'Unknown User';
+        String userName = 'Bilinmeyen Kullanıcı';
         String? userUid = "f";
 
         if (snapshot.hasData && snapshot.data != null) {
@@ -69,7 +69,7 @@ class CommuneCard extends StatelessWidget {
                   child: Text(
                     post.text,
                     style: AppTextStyles.bold.copyWith(
-                      color: Theme.of(context).colorScheme.inversePrimary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
@@ -121,7 +121,7 @@ class CommuneCard extends StatelessWidget {
                           child: Text(
                             formattedDate,
                             style: AppTextStyles.medium.copyWith(
-                              color: Theme.of(context).colorScheme.inversePrimary,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                         ),
@@ -133,7 +133,7 @@ class CommuneCard extends StatelessWidget {
                       child: Text(
                         formattedDate,
                         style: AppTextStyles.medium.copyWith(
-                          color: Theme.of(context).colorScheme.inversePrimary,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                     )

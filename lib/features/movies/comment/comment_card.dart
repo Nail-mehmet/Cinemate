@@ -24,9 +24,12 @@ class _CommentCardState extends State<CommentCard> {
   @override
   Widget build(BuildContext context) {
     final comment = widget.comment;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
 
     return Container(
-      width: 300,
+      width: screenWidth * 0.8,
       margin: const EdgeInsets.only(right: 15),
       child: Stack(
         children: [
@@ -49,10 +52,11 @@ class _CommentCardState extends State<CommentCard> {
                         CircleAvatar(
                           radius: 20,
                           backgroundColor: Colors.grey.shade200,
-                          child: Text(
+                          backgroundImage: comment.userProfileImageUrl.isNotEmpty ? NetworkImage(comment.userProfileImageUrl) : null,
+                         /* child: Text(
                             comment.userName[0].toUpperCase(),
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
+                          ),*/
                         ),
                        /* CircleAvatar(
                           radius: 20,
@@ -90,8 +94,7 @@ class _CommentCardState extends State<CommentCard> {
                     Row(
                       children: [
                         Text(comment.rating.toString(),
-                            style: const TextStyle(
-                                color: Colors.white, fontWeight: FontWeight.bold)),
+                            style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary)),
                         const SizedBox(width: 8),
                         const Icon(FontAwesomeIcons.solidStar,
                             color: Color.fromARGB(255, 157, 146, 44), size: 15),

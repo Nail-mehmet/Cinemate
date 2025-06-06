@@ -575,6 +575,8 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: BlocBuilder<MovieDetailCubit, MovieDetailState>(
         builder: (context, state) {
@@ -651,7 +653,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                           _launchTrailer(movie.trailerKey!),
                                       icon: Icon(Icons.play_arrow, size: 24,color: Colors.white,),
                                       label: Text(
-                                        "Trailer'ı İzle",
+                                        "Fragman'ı İzle",
                                         style: AppTextStyles.bold.copyWith(color: Colors.white),),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Color(0xFF345d64),
@@ -689,7 +691,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                               MainAxisAlignment.spaceEvenly,
                                           children: [
                                             Container(
-                                              width: 250,
+                                              width: screenWidth * 0.6,
                                               child: Text(
                                                 movie.title,
                                                 style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary, fontSize: 26)
@@ -749,11 +751,9 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                     return Chip(
                                       label: Text(
                                         genre,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .tertiary),
-                                      ),
+                                        style: AppTextStyles.medium.copyWith(color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary)),
                                       padding: EdgeInsets.symmetric(vertical: 10),
                                       backgroundColor:
                                           Theme.of(context).colorScheme.primary.withOpacity(0.8),
@@ -873,14 +873,14 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                                               child:
                                                   CircularProgressIndicator());
                                         } else if (snapshot.hasError) {
-                                          return const Center(
+                                          return  Center(
                                               child:
-                                                  Text('Yorumlar yüklenemedi'));
+                                                  Text('Yorumlar yüklenemedi',style: AppTextStyles.medium,));
                                         } else if (!snapshot.hasData ||
                                             snapshot.data!.isEmpty) {
-                                          return const Center(
+                                          return  Center(
                                               child: Text(
-                                                  'Henüz yorum yapılmamış.'));
+                                                  'İlk yorumu sen yap',style: AppTextStyles.medium,));
                                         } else {
                                           final comments = snapshot.data!;
                                           return SizedBox(

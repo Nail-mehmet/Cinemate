@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:Cinemate/themes/font_theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PremiumsPage extends StatefulWidget {
   final bool isPremium;
@@ -43,12 +44,12 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
     ));
     _fetchData();
     _calculateRemainingTime();
-    if (!widget.isPremium) {
+    /*if (!widget.isPremium) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(Duration(seconds: 1), () {
           _showPremiumRequiredDialog();
         });
-      });}
+      });}*/
   }
 
 
@@ -350,11 +351,7 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
             // Katılım bölümü
             Text(
               "Hikayeyi Sen Tamamla:",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: colors.primary,
-              ),
+              style: AppTextStyles.bold.copyWith(fontSize: 16, color: Theme.of(context).colorScheme.primary)
             ),
             const SizedBox(height: 12),
 
@@ -378,9 +375,7 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
                   hintText: hasSubmitted
                       ? "Bu hafta zaten katıldınız. 🎉"
                       : "Hikayeyi buradan devam ettir...",
-                  hintStyle: TextStyle(
-                    color: colors.onSurface.withOpacity(0.4),
-                  ),
+                  hintStyle: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.primary),
                   filled: true,
                   fillColor: hasSubmitted
                       ? colors.surfaceVariant.withOpacity(0.3)
@@ -404,14 +399,14 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (!widget.isPremium || hasSubmitted || isLoading)
+                onPressed: ( hasSubmitted || isLoading)
                     ? null
                     : _submitStory,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.isPremium
-                      ? colors.primary
-                      : colors.primary.withOpacity(0.5), // Premium değilse daha soluk gözüksün
-                  foregroundColor: colors.onPrimary,
+                  backgroundColor: hasSubmitted
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.tertiary, // Premium değilse daha soluk gözüksün
+                  foregroundColor: Theme.of(context).colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -434,14 +429,9 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
                     const Icon(Icons.send_rounded, size: 20),
                     const SizedBox(width: 8),
                     Text(
-                      widget.isPremium
-                          ? "Hikayemi Gönder"
-                          : "Premium Üye Değilsiniz", // Farklı mesaj gösterebilirsiniz
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
+                      "Hikayemi Gönder"
+                          , // Farklı mesaj gösterebilirsiniz
+                      style: AppTextStyles.bold
                     ),
                   ],
                 ),
@@ -451,29 +441,37 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
 
             // Geçmiş kazananlar
             Center(
-              child: TextButton(
-                onPressed: () {
-                  // Geçmiş kazananlar sayfasına yönlendirme
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: colors.primary,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              child: Text.rich(
+                TextSpan(
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: colors.primary,
+                  ),
                   children: [
-                    Text(
-                      "Geçmiş Kazananlara Göz At",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                    TextSpan(text: "Kazananlar her Pazar akşamı ",style: AppTextStyles.italic),
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final url = Uri.parse('https://www.instagram.com/cinematetr/');
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        child: Text(
+                          "@cinematetr",
+                          style: AppTextStyles.bold,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.arrow_forward_rounded, size: 18),
+                    TextSpan(text: " Instagram hesabında paylaşılır.",style: AppTextStyles.italic),
                   ],
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
+
           ],
         ),
       ),

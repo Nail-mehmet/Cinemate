@@ -747,11 +747,11 @@ class _ProfilePage2State extends State<ProfilePage2>
                     left: 0,
                     child: TextButton(
                       onPressed: () {
-                        if (!isPremium) {
-                          _showPremiumPopup();
-                        } else {
+                      //  if (!isPremium) {
+                     //     _showPremiumPopup();
+                    //    } else {
                           _showUserTopThreeMovies();
-                        }
+                     //   }
                       },
                       child: Text(
                         "Eşleş",
@@ -767,9 +767,9 @@ class _ProfilePage2State extends State<ProfilePage2>
                       constraints: BoxConstraints(),
                       icon: Icon(Icons.share, size: 22, color: Theme.of(context).colorScheme.primary),
                       onPressed: () {
-                        if (!isPremium) {
-                          _showPremiumPopup();
-                        } else {
+                     //   if (!isPremium) {
+                    //    _showPremiumPopup();
+                     //   } else {
                           showDialog(
                             context: context,
                             builder: (context) => FavoriteMoviesPopup(
@@ -778,7 +778,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                                   _buildMovieItem(id, aspectRatio: aspectRatio),
                             ),
                           );
-                        }
+                       // }
                       },
                     ),
                   ),
@@ -1218,43 +1218,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                                     child: const Text('Mesaj Gönder'),
                                   )
 
-                                  /*MessageButton(
-                                    onPressed: () async {
 
-
-
-                                      /*final currentUserId = currentUser!.uid;
-                                      final otherUserId = user.uid;
-                                      try {
-                                        await context.read<ChatCubit>().startNewChat(
-                                          currentUserId: currentUserId,
-                                          otherUserId: otherUserId,
-                                          currentUserName: currentUser!.name,
-                                          currentUserAvatar: "currentUser!.profileImageUrl",
-                                          otherUserName: user.name,
-                                          otherUserAvatar: user.profileImageUrl!,
-                                        );
-                                        final chatState = context.read<ChatCubit>().state;
-                                        if (chatState is ChatStarted) {
-                                          /*Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ChatPage(
-                                                chatId: chatState.chatId,
-                                                otherUserName: user.name,
-                                                otherUserId: otherUserId,
-                                                otherUserAvatar: "",
-                                              ),
-                                            ),
-                                          );*/
-                                        }
-                                      } catch (e) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Sohbet başlatılamadı: $e')),
-                                        );
-                                      }*/
-                                    },
-                                  ),*/
                                 ],
                                 const SizedBox(width: 10),
                                 IconButton(

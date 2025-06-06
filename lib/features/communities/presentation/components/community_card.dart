@@ -81,7 +81,8 @@ class _CommunityCardState extends State<CommunityCard> {
                         ),
                         child: Text(
                           '${widget.membersCount} üye',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.secondary),
+                          style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary
+                          )
                         ),
                       ),
                     ),
