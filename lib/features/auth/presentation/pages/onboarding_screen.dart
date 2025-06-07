@@ -18,44 +18,52 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final List<Map<String, dynamic>> _pages = [
   {
     'title': 'CINEMATE',
-    'subtitle': 'Favori Filmlerini Takip Et',
+    'subtitle': 'Filmleri Keşfet, Listene Ekle',
     'description':
-        'İzlediğin ve izlemek istediğin filmleri kolayca takip et.\nKendi arşivini oluştur, hiçbir film gözünden kaçmasın!',
+        'Beğendiğin filmleri kolayca bul, izlediklerini işaretle, izlemek istediklerini kaydet.',
     'color': const Color(0xFF0D3B66),
-    'image': 'assets/onboarding/on1.png',
-  },
-  {
-    'title': 'CINEMATE',
-    'subtitle': 'Beğen ve Favorilere Ekle',
-    'description':
-        'Hoşuna giden filmleri beğen, favorilerine kaydet.\nKendi sinema zevkini keşfet ve paylaş.',
-    'color': Color(0xFFFAF0CA),
-    'image': 'assets/onboarding/on2.png',
-  },
-  {
-    'title': 'CINEMATE',
-    'subtitle': 'Düşüncelerini Anlat',
-    'description':
-        'Filmlerle ilgili yorumlarını paylaş,\nbaşkalarının görüşlerini oku, etkileşime geç.',
-    'color': Color(0xFFAF4D98),
-    'image': 'assets/onboarding/on3.png',
+    'image': 'assets/onboarding/1.png',
   },
   {
     'title': 'CINEMATE',
     'subtitle': 'Topluluklara Katıl',
     'description':
-        'Aynı zevklere sahip insanlarla bir araya gel,\nfilm gruplarına katılarak tartışmalara dahil ol.',
-    'color': Color(0xFFE07A5F),
-    'image': 'assets/onboarding/on4.png',
+        'Korku, bilim kurgu, romantik veya belgesel… Sana uygun topluluklarda kendini bul.',
+    'color': Color(0xFF0D3B66),
+    'image': 'assets/onboarding/2.png',
   },
   {
     'title': 'CINEMATE',
-    'subtitle': 'Mesajlaş, Bağlantı Kur',
+    'subtitle': 'Düşüncelerini Paylaş, Gündemi Belirle',
     'description':
-        'Film zevklerini paylaşan insanlarla tanış,\nözel mesajlar göndererek arkadaşlıklar kur.',
-    'color': Color(0xFF3DCCC7),
-    'image': 'assets/onboarding/on5.png',
+        'İzlediğin film hakkında gönderi oluştur, sahneleri analiz et, teorilerini yaz ve diğer sinemaseverlerle tartışmaya başla.',
+    'color': Color(0xFF0D3B66),
+    'image': 'assets/onboarding/3.png',
   },
+  {
+    'title': 'CINEMATE',
+    'subtitle': 'Yorum Yap, Tartışmalara Katıl',
+    'description':
+        'Her film için yorum yapabilir, topluluk içinde düşüncelerini paylaşabilirsin.',
+    'color': Color(0xFF0D3B66),
+    'image': 'assets/onboarding/4.png',
+  },
+  {
+    'title': 'CINEMATE',
+    'subtitle': 'En Sevdiğin Üçlemeyi Oluştur',
+    'description':
+        'Favori üç filmini seç, profilinde sergile ve diğerlerinin listelerine göz at.',
+    'color': Color(0xFF0D3B66),
+    'image': 'assets/onboarding/5.png',
+  },
+    {
+      'title': 'CINEMATE',
+      'subtitle': 'Senin Gibi Film Tutkunlarıyla Tanış',
+      'description':
+      'Beğenilerine göre eşleş, yeni arkadaşlıklar kur ve film sohbetlerinin tadını çıkar.',
+      'color': Color(0xFF0D3B66),
+      'image': 'assets/onboarding/6.png',
+    },
 ];
 
 
@@ -82,7 +90,7 @@ Widget build(BuildContext context) {
           right: MediaQuery.of(context).size.height * 0.045,
           child: Container(
             width: MediaQuery.of(context).size.width * 0.85,
-            height: MediaQuery.of(context).size.height * 0.40,
+            height: MediaQuery.of(context).size.height * 0.20,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(40),
@@ -126,12 +134,14 @@ Widget build(BuildContext context) {
                   height: 450,
                   width: 300,
                   child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16), // isteğe bağlı
                     child: Image.asset(
                       _pages[index]['image'],
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain, // resim taşmadan sığsın
                     ),
                   ),
                 ),
+
                 //const SizedBox(height: 20),
 
                 // İçerik Container'ı (logoyu çıkardık)

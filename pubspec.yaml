@@ -146,11 +146,12 @@ flutter:
     - assets/lotties/negro.json
     - assets/lotties/cinemat.json
     - assets/lotties/cinematee.json
-    - assets/onboarding/on1.png
-    - assets/onboarding/on3.png
-    - assets/onboarding/on4.png
-    - assets/onboarding/on5.png
-    - assets/onboarding/on2.png
+    - assets/onboarding/1.png
+    - assets/onboarding/2.png
+    - assets/onboarding/3.png
+    - assets/onboarding/4.png
+    - assets/onboarding/5.png
+    - assets/onboarding/6.png
     - assets/contact/twitter.png
     - assets/contact/facebook.png
     - assets/contact/instagram.png
