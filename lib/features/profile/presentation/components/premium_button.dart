@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+import '../../../../themes/font_theme.dart';
+
 class FlamingButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String text;
@@ -69,11 +71,7 @@ class _FlamingButtonState extends State<FlamingButton>
           ),
           child: Text(
             widget.text,
-            style: TextStyle(
-              color: tertiary,
-              fontWeight: FontWeight.bold,
-              fontSize: 14, // Yazı boyutunu küçülttük
-            ),
+            style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary)
           ),
         ),
       ],

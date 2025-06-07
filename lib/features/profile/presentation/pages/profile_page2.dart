@@ -402,7 +402,7 @@ class _ProfilePage2State extends State<ProfilePage2>
         ? DateTime.tryParse(comment['timestamp'].toString())
         : null;
     final formattedDate =
-    date != null ? DateFormat('dd MMM yyyy').format(date) : '';
+    date != null ? DateFormat('dd MMM yyyy',"tr_TR").format(date) : '';
 
     final rating = (comment['rating'] as num?)?.toDouble() ?? 0.0;
 
@@ -1044,6 +1044,7 @@ class _ProfilePage2State extends State<ProfilePage2>
   @override
   Widget build(BuildContext context) {
     bool isOwnPost = (widget.uid == currentUser!.uid);
+    final screenWidth = MediaQuery.of(context).size.width;
 
 
     return BlocBuilder<ProfileCubit, ProfileState>(
@@ -1119,29 +1120,20 @@ class _ProfilePage2State extends State<ProfilePage2>
                               ),
                             ),
                             SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (isOwnPost) ...[
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 15.0),
-                                    child: ElevatedButton(
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (isOwnPost) ...[
+                                    ElevatedButton(
                                       onPressed: () {
-                                        // ProfilePage içinde:
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => EditProfilePage(user: user),
                                           ),
                                         );
-                                            /*.then((result) {
-                                          if (result == true) {
-                                            // Profil düzenlendiyse verileri yenile
-                                            context.read<ProfileCubit>().fetchUserProfile(user.uid);
-                                          }
-                                        });*/
-
-
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -1157,81 +1149,73 @@ class _ProfilePage2State extends State<ProfilePage2>
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  FlamingButton(
-                                    text: "Premium",
-                                    onPressed: () {
-
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => PremiumsPage(isPremium: user.isPremium),
-                                        ),
-                                      );
-                                    },
-                                  ),
-
-
-                                ] else ...[
-                                  FollowButton(
-                                    onPressed: followButtonPressed,
-                                    isFollowing: user.followers.contains(currentUser!.uid),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      final currentUserId = currentUser!.uid;
-                                      if (currentUserId == null) return;
-
-                                      final chatRepository = ChatRepository(supabaseClient: Supabase.instance.client);
-
-                                      // Önce var olan chati kontrol et
-                                      Chat? chat = await chatRepository.findChatBetweenUsers(currentUserId, user.uid);
-
-                                      // Eğer yoksa yeni bir tane oluştur
-                                      if (chat == null) {
-                                        chat = await chatRepository.createChat(currentUserId, user.uid);
-                                      }
-
-                                      // Sayfaya yönlendir
-                                      if (chat != null && context.mounted) {
+                                    const SizedBox(width: 10),
+                                    FlamingButton(
+                                      text: "Premium",
+                                      onPressed: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => ChatPage(
-                                              chatId: chat!.id,
-                                              userId: currentUserId,
-                                            ),
+                                            builder: (context) => PremiumsPage(isPremium: user.isPremium),
                                           ),
                                         );
-                                      }
-                                    },
-
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                        Theme.of(context).colorScheme.primary,
-                                        foregroundColor:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),)
+                                      },
                                     ),
-                                    child: const Text('Mesaj Gönder'),
-                                  )
+                                  ] else ...[
+                                    FollowButton(
+                                      onPressed: followButtonPressed,
+                                      isFollowing: user.followers.contains(currentUser!.uid),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        final currentUserId = currentUser!.uid;
+                                        if (currentUserId == null) return;
 
+                                        final chatRepository = ChatRepository(supabaseClient: Supabase.instance.client);
+                                        Chat? chat = await chatRepository.findChatBetweenUsers(currentUserId, user.uid);
+                                        chat ??= await chatRepository.createChat(currentUserId, user.uid);
 
-                                ],
-                                const SizedBox(width: 10),
-                                IconButton(
-                                  icon: Icon(
-                                    _showExtendedBio
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
-                                    color: Theme.of(context).colorScheme.primary,
+                                        if (chat != null && context.mounted) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ChatPage(
+                                                chatId: chat!.id,
+                                                userId: currentUserId,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Mesaj Gönder',
+                                        style: AppTextStyles.bold.copyWith(
+                                          color: Theme.of(context).colorScheme.primary,
+                                          fontSize: 14
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                 // const SizedBox(width: 5),
+                                  IconButton(
+                                    icon: Icon(
+                                      _showExtendedBio ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    onPressed: _toggleExtendedBio,
                                   ),
-                                  onPressed: _toggleExtendedBio,
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+
 
                             SizeTransition(
                               sizeFactor: _heightAnimation,

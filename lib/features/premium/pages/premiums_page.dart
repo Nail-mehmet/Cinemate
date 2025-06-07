@@ -250,6 +250,27 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
       );
     }
 
+    Widget _buildInfoItem({required IconData icon, required Color color, required String text}) {
+      return Row(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: AppTextStyles.medium.copyWith(color: color, fontSize: 18),
+          ),
+        ],
+      );
+    }
+
+    Widget _buildVerticalSeparator() {
+      return Container(
+        height: 24,
+        width: 1,
+        color: Colors.grey.shade300,
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+      );
+    }
 
 
 
@@ -268,51 +289,40 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Katılımcı sayısı ve bilgiler
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+            Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 500),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Row(
-                      children: [
-                        Icon(Icons.people_alt_outlined,
-                            color: Theme.of(context).colorScheme.tertiary, size: 20),
-                        const SizedBox(width: 6),
-                        Text(
-                          membersCount.toString(),
-                          style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.tertiary, fontSize: 20)
-                        ),
-                      ],
+                    _buildInfoItem(
+                      icon: Icons.people_alt_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                      text: membersCount.toString(),
                     ),
-                    const VerticalDivider(thickness: 1, width: 20),
-                    Row(
-                      children: [
-                        Icon(Icons.timer_outlined,
-                            color: Colors.red, size: 20),
-                        const SizedBox(width: 6),
-                        Text(
-                          _formatDuration(remainingTime),
-                          style: AppTextStyles.medium.copyWith(color: Colors.red, fontSize: 20)
-                        ),
-                      ],
+                    _buildVerticalSeparator(),
+                    _buildInfoItem(
+                      icon: Icons.timer_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                      text: _formatDuration(remainingTime),
                     ),
-                    const VerticalDivider(thickness: 1, width: 20),
-                    Row(
-                      children: [
-                        Icon(Icons.emoji_events_outlined,
-                            color: Theme.of(context).colorScheme.tertiary, size: 20),
-                        const SizedBox(width: 6),
-                        Text(
-                          "$award TL",
-                          style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.tertiary,fontSize: 20)
-                        ),
-                      ],
+                    _buildVerticalSeparator(),
+                    _buildInfoItem(
+                      icon: Icons.emoji_events_outlined,
+                      color: Theme.of(context).colorScheme.primary,
+                      text: "$award TL",
                     ),
                   ],
                 ),

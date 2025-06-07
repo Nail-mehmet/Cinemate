@@ -21,14 +21,14 @@ class FollowButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                      isFollowing ? Theme.of(context).colorScheme.primary :  Theme.of(context).colorScheme.secondary,
+                                      isFollowing ? Theme.of(context).colorScheme.inversePrimary :  Theme.of(context).colorScheme.inversePrimary,
                                   foregroundColor:
                                       Theme.of(context).colorScheme.onPrimary,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),)
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
                                 ),
         //color: isFollowing ? Theme.of(context).colorScheme.primary : Colors.blue,
         child: Text(isFollowing ? "Takipten Çık" : "Takip Et",
-        style: AppTextStyles.bold.copyWith(color: isFollowing ? Theme.of(context).colorScheme.tertiary : Theme.of(context).colorScheme.primary),),
+        style: AppTextStyles.bold.copyWith(color: isFollowing ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary,fontSize: 14),),
       ),
     );
 

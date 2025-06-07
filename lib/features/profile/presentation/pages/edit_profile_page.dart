@@ -217,21 +217,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400),
+                //border: Border.all(color: Colors.grey.shade400),
                 borderRadius: BorderRadius.circular(14),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade200,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                color: Theme.of(context).colorScheme.tertiary,
+
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: selectedPlatform,
-                  hint: const Text("Seç"),
+                  hint: Text("Seç",style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),),
                   items: platforms.keys.map((platform) {
                     return DropdownMenuItem<String>(
                       value: platform,

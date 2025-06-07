@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 
 import 'package:Cinemate/features/chats/chat_bloc.dart';
 import 'package:Cinemate/features/chats/chat_repository.dart';
 import 'package:Cinemate/features/chats/message_bloc.dart';
+import 'package:Cinemate/themes/font_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
@@ -58,6 +60,7 @@ import 'package:Cinemate/features/chat/presentation/cubits/chat_cubit.dart';
 import 'package:Cinemate/themes/theme_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
+import 'package:url_launcher/url_launcher.dart';
 
 import 'config/home_widget_helper.dart';
 import 'features/actors/domain/actor_repository.dart';
@@ -65,7 +68,8 @@ import 'features/communities/presentation/cubits/commune_bloc.dart';
 import 'features/premium/data/premium_provider.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final bool forceUpdateRequired;
+  const MyApp({super.key, required this.forceUpdateRequired});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -113,7 +117,30 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver{
       ),
     );
 
-
+    if (widget.forceUpdateRequired) {
+      return MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: AlertDialog(
+              title: Text('Zorunlu Güncelleme',style: AppTextStyles.bold,),
+              content: Text('Devam etmek için uygulamayı güncellemeniz gerekiyor.',style: AppTextStyles.medium,),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    final androidUrl = 'https://play.google.com/store/apps/details?id=com.example.app';
+                    final iosUrl = 'https://apps.apple.com/app/idXXXXXXXXX'; // iOS App Store linkinizi girin
+                    final url = Platform.isAndroid ? androidUrl : iosUrl;                    if (await canLaunchUrl(Uri.parse(url))) {
+                      await launchUrl(Uri.parse(url));
+                    }
+                  },
+                  child: Text('Güncelle'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<MovieRepository>.value(value: movieRepo),

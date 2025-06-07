@@ -144,7 +144,7 @@ class _PostCardState extends State<PostCard> {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            widget.post.userName,
+                            postUser?.name ?? "",
                             style: AppTextStyles.semiBold.copyWith(
                               fontSize: 14,
                               color: Colors.white,

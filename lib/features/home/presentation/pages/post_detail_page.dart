@@ -396,7 +396,7 @@ void _openNewCommentBox() {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.post.userName,
+                  _postUser?.name ?? "",
                   style: AppTextStyles.medium.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontSize: 18,

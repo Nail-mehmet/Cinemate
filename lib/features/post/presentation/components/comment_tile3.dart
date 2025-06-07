@@ -2,7 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:Cinemate/features/post/domain/entities/comment.dart';
 import 'package:Cinemate/features/profile/presentation/pages/profile_page2.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+
+import '../../../profile/domain/entities/profile_user.dart';
+import '../../../profile/presentation/cubits/profile_cubit.dart';
 
 class CommentTile3 extends StatefulWidget {
   final Comment comment;
@@ -26,11 +30,16 @@ class _CommentTile3State extends State<CommentTile3> {
   late bool _isLiked;
   late int _likeCount;
   bool _isLikeInProgress = false;
+  ProfileUser? _commentUser;
+  late final profileCubit = context.read<ProfileCubit>();
+
+
 
   @override
   void initState() {
     super.initState();
     _initializeLikeState();
+    _loadPostUser();
   }
 
   @override
@@ -46,6 +55,13 @@ class _CommentTile3State extends State<CommentTile3> {
     _isLiked = widget.currentUserId != null &&
         widget.comment.likes.contains(widget.currentUserId);
     _likeCount = widget.comment.likes.length;
+  }
+
+  Future<void> _loadPostUser() async {
+    final user = await profileCubit.getUserProfile(widget.comment.userId);
+    if (mounted) {
+      setState(() => _commentUser = user);
+    }
   }
 
   Future<void> _handleLikePressed() async {
@@ -89,17 +105,22 @@ class _CommentTile3State extends State<CommentTile3> {
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           leading: CircleAvatar(
-            backgroundColor: Colors.grey.shade200, // İstersen arka plan rengi
-            backgroundImage: (widget.userProfileImageUrl != null && widget.userProfileImageUrl!.isNotEmpty)
-                ? CachedNetworkImageProvider(widget.userProfileImageUrl!)
+            backgroundColor: Colors.grey.shade200,
+            backgroundImage: (_commentUser != null &&
+                _commentUser!.profileImageUrl != null &&
+                _commentUser!.profileImageUrl.isNotEmpty)
+                ? CachedNetworkImageProvider(_commentUser!.profileImageUrl)
                 : null,
-            child: (widget.userProfileImageUrl == null || widget.userProfileImageUrl!.isEmpty)
+            child: (_commentUser == null ||
+                _commentUser!.profileImageUrl == null ||
+                _commentUser!.profileImageUrl.isEmpty)
                 ? const Icon(Icons.person, size: 30, color: Colors.grey)
                 : null,
           ),
 
+
           title: Text(
-            widget.comment.userName,
+            _commentUser?.name ?? "",
             style: TextStyle(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold,
