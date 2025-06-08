@@ -21,8 +21,8 @@ class HelpCenterPage extends StatelessWidget {
             labelStyle: AppTextStyles.bold,
             unselectedLabelStyle: AppTextStyles.bold,
             labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Theme.of(context).colorScheme.inversePrimary,
-            indicatorColor: Colors.black,
+            unselectedLabelColor: Theme.of(context).colorScheme.secondary,
+            indicatorColor: Theme.of(context).colorScheme.primary,
             tabs: [
               Tab(text: 'SSS'),
               Tab(text: 'Bize Ulaşın'),
@@ -51,27 +51,27 @@ class FAQTab extends StatelessWidget {
       children: [
         _buildQuestionTile(
           question: 'Bu sosyal medya uygulaması ücretsiz mi?',
-          answer: 'Evet, uygulamamız tamamen ücretsizdir. Deneyiminizi geliştirmek için isteğe bağlı premium özellikler sunulmaktadır.',          context: context
+          answer: 'Evet, uygulamamız tamamen ücretsizdir.',          context: context
 
         ),
         _buildQuestionTile(
-          question: 'Bir kullanıcıyı nasıl takip etmeyi bırakabilirim?',
-          answer: 'Kullanıcının profiline gidin ve “Takibi Bırak” butonuna dokunun.',          context: context
+          question: 'Film beğenme özelliği nasıl çalışıyor?',
+          answer: 'Filmleri beğenmek için film detay sayfasındaki “Beğen” butonuna dokunun. Beğendiğiniz filmler profilinizde saklanır.',          context: context
 
         ),
         _buildQuestionTile(
           question: 'Yeni özelliklerden nasıl haberdar olabilirim?',
-          answer: 'Resmi sosyal medya hesaplarımızı takip edin veya uygulamadaki “Yenilikler” bölümünü kontrol edin.',          context: context
+          answer: 'Resmi sosyal medya hesaplarımızı takip edin.',          context: context
 
         ),
         _buildQuestionTile(
-          question: 'Hesabımı bu uygulamada nasıl doğrulayabilirim?',
-          answer: 'Ayarlar > Hesap Doğrulama bölümüne gidin ve talimatları izleyin.',          context: context
+          question: 'Topluluklara nasıl katılabilirim?',
+          answer: 'Ana menüden “Topluluklar” bölümüne gidin ve ilginizi çeken gruplara katılın.',          context: context
 
         ),
         _buildQuestionTile(
           question: 'Müşteri desteğiyle nasıl iletişime geçebilirim?',
-          answer: 'Ayarlar menüsünden “Bize Ulaşın” bölümüne dokunun veya support@yourapp.com adresine e-posta gönderin.',          context: context
+          answer: 'Ayarlar menüsünden “Bize Ulaşın” bölümüne dokunun veya cinematetr@gmail.com adresine e-posta gönderin.',          context: context
 
         ),
         _buildQuestionTile(
@@ -97,7 +97,7 @@ class FAQTab extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.tertiary,
         borderRadius: BorderRadius.circular(12.0),
         boxShadow: [
           BoxShadow(
@@ -113,7 +113,7 @@ class FAQTab extends StatelessWidget {
         ),
         title: Text(
           question,
-          style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary),
+          style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.primary),
         ),
         children: [
           Padding(
@@ -121,7 +121,7 @@ class FAQTab extends StatelessWidget {
             child: Text(
               answer,
               style: AppTextStyles.bold.copyWith(
-                color: Theme.of(context).colorScheme.inversePrimary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
@@ -142,35 +142,35 @@ class ContactTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        _buildContactCard(
+       /* _buildContactCard(
           icon: Icons.support_agent,
           label: 'Müşteri Hizmetleri',
           onTap: () {},
-        ),
+        ),*/
         _buildContactCard(
           icon: Icons.wallet,
-          label: '(480) 555-0103',
-          onTap: () => _launchUrl('tel:5337234713'),
+          label: '(534) 650 55 89',
+          onTap: () => _launchUrl('tel:5346505589'),
         ),
         _buildContactCard(
           icon: Icons.language,
           label: 'Website',
-          onTap: () => _launchUrl('https://yourwebsite.com'),
+          onTap: () => _launchUrl('https://cinemate.my.canva.site/ke-fet-be-en-efsane-lemeleri-olu-tur'),
         ),
         _buildContactCard(
-          icon: Icons.facebook,
-          label: 'Facebook',
-          onTap: () => _launchUrl('https://facebook.com/yourpage'),
+          icon: Icons.tiktok,
+          label: 'Tiktok',
+          onTap: () => _launchUrl('https://www.tiktok.com/@cinemate6'),
         ),
         _buildContactCard(
-          icon: Icons.wallet_sharp,
-          label: 'Twitter',
-          onTap: () => _launchUrl('https://twitter.com/yourhandle'),
+          icon: Icons.reddit,
+          label: 'Reddit',
+          onTap: () => _launchUrl('https://www.reddit.com/r/Cinemate/?type=TEXT'),
         ),
         _buildContactCard(
           icon: Icons.camera_alt,
           label: 'Instagram',
-          onTap: () => _launchUrl('https://instagram.com/yourprofile'),
+          onTap: () => _launchUrl('https://www.instagram.com/cinematetr/'),
         ),
       ],
     );

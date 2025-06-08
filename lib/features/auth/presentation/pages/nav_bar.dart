@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
 import 'package:Cinemate/features/auth/presentation/cubits/auth_cubits.dart';
 import 'package:Cinemate/features/auth/presentation/cubits/navbar_cubit.dart';
-import 'package:Cinemate/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:Cinemate/features/movies/presentation/pages/movie_home_page.dart';
 import 'package:Cinemate/start_page.dart';
 import 'package:Cinemate/features/profile/presentation/pages/profile_page2.dart';

@@ -115,7 +115,7 @@ class _CommentCardState extends State<CommentCard> {
                 // Placeholder for spoiler text to maintain consistent height
                 if (comment.spoiler && !_showSpoiler)
                   const Text(
-                    'This comment contains spoilers',
+                    'Spoiler İçerir',
                     maxLines: 3,
                     style: TextStyle(color: Colors.transparent),
                   ),
@@ -152,7 +152,7 @@ class _CommentCardState extends State<CommentCard> {
                           
                           Text(
                             'Spoiler içerir',
-                            style: AppTextStyles.medium.copyWith(color: Theme.of(context).colorScheme.tertiary)
+                            style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary)
                           ),
                         ],
                       ),

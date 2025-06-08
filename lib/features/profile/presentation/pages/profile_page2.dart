@@ -10,7 +10,6 @@ import 'package:lottie/lottie.dart';
 import 'package:Cinemate/features/auth/domain/entities/app_user.dart';
 import 'package:Cinemate/features/auth/presentation/cubits/auth_cubits.dart';
 import 'package:Cinemate/features/auth/presentation/cubits/navbar_cubit.dart';
-import 'package:Cinemate/features/chat/presentation/cubits/chat_cubit.dart';
 import 'package:Cinemate/features/home/presentation/components/movie_card.dart';
 import 'package:Cinemate/features/home/presentation/pages/post_detail_page.dart';
 import 'package:Cinemate/features/movies/presentation/cubits/movie_cubit.dart';
@@ -22,7 +21,6 @@ import 'package:Cinemate/features/post/presentation/cubits/post_states.dart';
 import 'package:Cinemate/features/premium/pages/premiums_page.dart';
 import 'package:Cinemate/features/premium/pages/subscriptions_page.dart';
 import 'package:Cinemate/features/profile/domain/entities/profile_user.dart';
-import 'package:Cinemate/features/profile/presentation/components/animated_movie_cards.dart';
 import 'package:Cinemate/features/profile/presentation/components/bio_box.dart';
 import 'package:Cinemate/features/profile/presentation/components/follow_button.dart';
 //import 'package:Cinemate/features/profile/presentation/components/message_button.dart';
@@ -41,7 +39,6 @@ import 'package:Cinemate/themes/font_theme.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../config/home_widget_helper.dart';
-import '../../../chat/presentation/pages/chat_page.dart';
 import 'package:intl/intl.dart';
 
 import '../../../chats/chat_model.dart';
@@ -689,7 +686,7 @@ class _ProfilePage2State extends State<ProfilePage2>
     for (int i = 0; i < topThreeMovies.length && i < 3; i++) {
       displayMovies[i] = topThreeMovies[i];
     }
-
+/*
     void _showPremiumPopup() {
       showDialog(
         context: context,
@@ -719,7 +716,7 @@ class _ProfilePage2State extends State<ProfilePage2>
           ],
         ),
       );
-    }
+    }*/
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,

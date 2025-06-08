@@ -142,6 +142,7 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
     _storyController.dispose();
     super.dispose();
   }
+  /*
   void _showPremiumRequiredDialog() {
     // Animasyonu başlat
     _shakeController.forward(from: 0);
@@ -232,7 +233,7 @@ class _PremiumsPageState extends State<PremiumsPage> with SingleTickerProviderSt
   }
 
 
-
+*/
   @override
   Widget build(BuildContext context) {
 

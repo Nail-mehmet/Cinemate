@@ -19,7 +19,6 @@ import 'package:Cinemate/features/auth/presentation/cubits/auth_states.dart';
 import 'package:Cinemate/features/auth/presentation/pages/auth_page.dart';
 import 'package:Cinemate/features/auth/presentation/pages/nav_bar.dart';
 import 'package:Cinemate/features/auth/presentation/pages/onboarding_screen.dart';
-import 'package:Cinemate/features/chat/domain/usecases/mark_message_as_read.dart';
 import 'package:Cinemate/features/communities/domain/repository/community_repository.dart';
 
 // Profile
@@ -47,14 +46,6 @@ import 'package:Cinemate/features/movies/presentation/cubits/movie_cubit.dart';
 import 'package:Cinemate/features/movies/presentation/cubits/movie_detail_cubit.dart';
 
 // Chat
-import 'package:Cinemate/features/chat/data/datasources/chat_remote_data_source.dart';
-import 'package:Cinemate/features/chat/data/repositories/chat_repository_impl.dart';
-import 'package:Cinemate/features/chat/domain/repositories/chat_repository.dart';
-import 'package:Cinemate/features/chat/domain/usecases/get_chats.dart';
-import 'package:Cinemate/features/chat/domain/usecases/get_messages.dart';
-import 'package:Cinemate/features/chat/domain/usecases/send_messages.dart';
-import 'package:Cinemate/features/chat/domain/usecases/start_chat.dart';
-import 'package:Cinemate/features/chat/presentation/cubits/chat_cubit.dart';
 
 // Theme
 import 'package:Cinemate/themes/theme_cubit.dart';

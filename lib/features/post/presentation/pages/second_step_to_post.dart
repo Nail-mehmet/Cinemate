@@ -44,8 +44,9 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
 
   // Kategoriler
   final List<String> categories = [
+    'Tümü',
     'Film Önerisi',
-    'Manitayla İzlemelik',
+    'Sevgiliyle İzlemelik',
     'Başyapıt',
     'Klasik',
     'Yerli Film',
@@ -53,7 +54,10 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     'Animasyon',
     'Bilim Kurgu',
     'Korku',
-    'Komedi'
+    'Komedi',
+    "Kafa Dağıtmalık",
+    "Gerçek Hikâyeden Uyarlama",
+    "İlham Veren Filmler",
   ];
 
   @override

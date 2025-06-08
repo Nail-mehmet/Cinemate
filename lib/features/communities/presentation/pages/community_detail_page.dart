@@ -149,27 +149,28 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(2),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
-                  ),
-                  const Text(
-                    'Yeni Gönderi',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: TextField(
+                    const Text(
+                      'Yeni Gönderi',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
                       controller: _textController,
                       maxLines: null,
                       maxLength: 500,
@@ -177,7 +178,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                       decoration: InputDecoration(
                         hintText: 'Ne paylaşmak istersin?',
                         filled: true,
-                        fillColor: Colors.grey.shade100,
+                        fillColor: Theme.of(context).colorScheme.tertiary,
                         contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 14),
                         border: OutlineInputBorder(
@@ -186,44 +187,42 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.send_rounded, size: 20),
-                      label: const Text(
-                        'Paylaş',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        child: Text(
+                          'Paylaş',
+                          style: AppTextStyles.bold.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
                         ),
+                        onPressed: () {
+                          final commune = Commune(
+                            id: _uuid.v4(),
+                            text: _textController.text,
+                            userId: widget.currentUserId,
+                            createdAt: DateTime.now(),
+                          );
+                          context.read<CommuneBloc>().add(CreateCommune(
+                            communityId: widget.communityId,
+                            commune: commune,
+                          ));
+                          Navigator.pop(context);
+                          _textController.clear();
+                        },
                       ),
-                      onPressed: () {
-                        final commune = Commune(
-                          id: _uuid.v4(),
-                          text: _textController.text,
-                          userId: widget.currentUserId,
-                          createdAt: DateTime.now(),
-                        );
-                        context.read<CommuneBloc>().add(CreateCommune(
-                          communityId: widget.communityId,
-                          commune: commune,
-                        ));
-                        Navigator.pop(context);
-                        _textController.clear();
-                      },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
@@ -231,6 +230,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
       },
     );
   }
+
 
 
   void _showImagePostSheet() async {
@@ -278,18 +278,20 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                       TextField(
                         controller: _textController,
                         maxLines: 8,
+                        maxLength: 500,
+                        keyboardType: TextInputType.multiline,
                         decoration: InputDecoration(
                           hintText: 'Bir şeyler yaz...',
                           filled: true,
-                          fillColor: Colors.grey,
-                          contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                          fillColor: Theme.of(context).colorScheme.tertiary,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                             borderSide: BorderSide.none,
                           ),
                         ),
                       ),
+
                     ],
                   ),
                 ),
@@ -301,7 +303,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -322,9 +324,9 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
                         Navigator.pop(context);
                         _textController.clear();
                       },
-                      child: const Text(
+                      child: Text(
                         'Paylaş',
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white),
+                        style: AppTextStyles.bold.copyWith(color: Theme.of(context).colorScheme.tertiary),
                       ),
                     ),
                   ),

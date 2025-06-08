@@ -121,111 +121,113 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Back button
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.pop(context),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Title
-                const Center(
-                  child: Text(
-                    'Yeni Şifre',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // Subtitle
-                const Center(
-                  child: Text(
-                    'Yeni şifreniz, daha önce kullandığınız şifrelerden farklı olmalıdır.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Password Field
-                _buildCustomPasswordField(
-                  label: 'Şifre',
-                  controller: _newPasswordController,
-                  obscureText: _obscureNewPassword,
-                  toggleVisibility: () {
-                    setState(() {
-                      _obscureNewPassword = !_obscureNewPassword;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Lütfen şifre girin';
-                    if (value.length < 6)
-                      return 'Şifre en az 6 karakter olmalı';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                _buildCustomPasswordField(
-                  label: 'Şifreni Onayla',
-                  controller: _confirmPasswordController,
-                  obscureText: _obscureConfirmPassword,
-                  toggleVisibility: () {
-                    setState(() {
-                      _obscureConfirmPassword = !_obscureConfirmPassword;
-                    });
-                  },
-                  validator: (value) {
-                    if (value != _newPasswordController.text)
-                      return 'Şifreler eşleşmiyor';
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 24),
-
-                if (_errorMessage != null)
-                  Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.red),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Back button
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.pop(context),
                   ),
 
-                const Spacer(),
+                  const SizedBox(height: 16),
 
-                // Submit Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _updatePassword,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32),
+                  // Title
+                  const Center(
+                    child: Text(
+                      'Yeni Şifre',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    )
-                        : Text(
-                      'Yeni Şifre Oluştur',
-                      style: AppTextStyles.bold.copyWith(
-                          color: Theme.of(context).colorScheme.tertiary),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Subtitle
+                  const Center(
+                    child: Text(
+                      'Yeni şifreniz, daha önce kullandığınız şifrelerden farklı olmalıdır.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey),
                     ),
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: 32),
+
+                  // Password Field
+                  _buildCustomPasswordField(
+                    label: 'Şifre',
+                    controller: _newPasswordController,
+                    obscureText: _obscureNewPassword,
+                    toggleVisibility: () {
+                      setState(() {
+                        _obscureNewPassword = !_obscureNewPassword;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Lütfen şifre girin';
+                      if (value.length < 6)
+                        return 'Şifre en az 6 karakter olmalı';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+
+                  _buildCustomPasswordField(
+                    label: 'Şifreni Onayla',
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
+                    toggleVisibility: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                    validator: (value) {
+                      if (value != _newPasswordController.text)
+                        return 'Şifreler eşleşmiyor';
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  if (_errorMessage != null)
+                    Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  // Submit Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _updatePassword,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(Colors.white),
+                      )
+                          : Text(
+                        'Yeni Şifre Oluştur',
+                        style: AppTextStyles.bold.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

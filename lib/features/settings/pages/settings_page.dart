@@ -7,7 +7,6 @@ import 'package:Cinemate/features/settings/pages/help_center/help_center_page.da
 import 'package:Cinemate/features/settings/pages/manage_account/manage_account_page.dart';
 import 'package:Cinemate/features/settings/pages/password_manager/update_password_page.dart';
 import 'package:Cinemate/features/settings/pages/policies/privacy_policy_page.dart';
-import 'package:Cinemate/features/settings/pages/widget_control/widget_page.dart';
 import 'package:Cinemate/themes/font_theme.dart';
 import 'package:Cinemate/themes/theme_cubit.dart';
 
@@ -28,13 +27,6 @@ class SettingsPage extends StatelessWidget {
       body: ListView(
         children: [
 
-          _buildTile(Icons.credit_card_outlined, "Abonelik", () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const PremiumSubscriptionPage()),
-            );
-          }),
 
           _buildTile(Icons.vpn_key_outlined, "Şifre Yöneticisi", () {
            Navigator.push(

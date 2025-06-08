@@ -135,7 +135,7 @@ Widget build(BuildContext context) {
                   width: 300,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16), // isteğe bağlı
-                    child: Image.asset(
+                     child: Image.asset(
                       _pages[index]['image'],
                       fit: BoxFit.contain, // resim taşmadan sığsın
                     ),

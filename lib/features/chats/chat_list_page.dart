@@ -4,8 +4,8 @@ import 'package:Cinemate/themes/font_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../chat/presentation/components/noti_icon_badge.dart';
 import 'chat_page.dart';
+import 'noti_icon_badge.dart';
 
 class ChatListPage extends StatefulWidget {
   final String userId;

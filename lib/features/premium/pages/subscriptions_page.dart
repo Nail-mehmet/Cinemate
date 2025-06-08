@@ -1,4 +1,4 @@
-import 'dart:math';
+/*import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:Cinemate/themes/font_theme.dart';
@@ -326,3 +326,4 @@ class SubscriptionOption extends StatelessWidget {
     );
   }
 }
+*/

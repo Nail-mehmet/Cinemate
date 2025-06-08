@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   final List<String> categories = [
     'Tümü',
     'Film Önerisi',
-    'Manitayla İzlemelik',
+    'Sevgiliyle İzlemelik',
     'Başyapıt',
     'Klasik',
     'Yerli Film',
@@ -34,7 +34,10 @@ class _HomePageState extends State<HomePage> {
     'Animasyon',
     'Bilim Kurgu',
     'Korku',
-    'Komedi'
+    'Komedi',
+    "Kafa Dağıtmalık",
+    "Gerçek Hikâyeden Uyarlama",
+    "İlham Veren Filmler",
   ];
   String? selectedCategory;
   AppUser? currentUser;
