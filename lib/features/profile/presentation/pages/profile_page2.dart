@@ -361,13 +361,11 @@ class _ProfilePage2State extends State<ProfilePage2>
 
         for (var review in response) {
           reviews.add({
-            'comment': {
-              'comment': review['comment'],
-              'rating': review['rating'],
-              'spoiler': review['spoiler'],
-              'movieTitle': review['movie_title'],
-              'timestamp': review['updated_at'],
-            },
+            'comment': review['comment'].toString(), // Direkt String
+            'rating': review['rating'],
+            'spoiler': review['spoiler'],
+            'movieTitle': review['movie_title'].toString(),
+            'timestamp': review['updated_at'],
             'movieId': review['movie_id'].toString(),
             'movieData': review['movies'],
           });
@@ -377,6 +375,8 @@ class _ProfilePage2State extends State<ProfilePage2>
           _userReviews = reviews;
           _isLoading = false;
         });
+        print('Review JSON: $reviews');
+
       } else {
         throw Exception('Veri alınamadı');
       }
@@ -391,17 +391,19 @@ class _ProfilePage2State extends State<ProfilePage2>
 
 
   Widget _buildReviewTile(Map<String, dynamic> review) {
-    final comment = review['comment'] ?? {};
+    final comment = review['comment'] ?? '';
     final movieId = review['movieId'] ?? '';
     final movieData = review['movieData'] ?? {};
 
-    final date = comment['timestamp'] != null
-        ? DateTime.tryParse(comment['timestamp'].toString())
+    // Tarih bilgisi artık ana map'te
+    final date = review['timestamp'] != null
+        ? DateTime.tryParse(review['timestamp'].toString())
         : null;
     final formattedDate =
-    date != null ? DateFormat('dd MMM yyyy',"tr_TR").format(date) : '';
+    date != null ? DateFormat('dd MMM yyyy', "tr_TR").format(date) : '';
 
-    final rating = (comment['rating'] as num?)?.toDouble() ?? 0.0;
+    // Rating artık ana map'te
+    final rating = (review['rating'] as num?)?.toDouble() ?? 0.0;
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -445,7 +447,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                     children: [
                       Expanded(
                         child: Text(
-                          comment['movieTitle'] ?? 'Bilinmeyen Film',
+                          review['movieTitle'] ?? 'Bilinmeyen Film',
                           style: AppTextStyles.bold.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 14,
@@ -471,7 +473,7 @@ class _ProfilePage2State extends State<ProfilePage2>
                   SizedBox(height: 8),
                   // Yorum metni
                   Text(
-                    comment['comment'] ?? '',
+                    comment,
                     style: AppTextStyles.medium.copyWith(
                       color: Theme.of(context)
                           .colorScheme
@@ -1366,7 +1368,110 @@ class _ProfilePage2State extends State<ProfilePage2>
                     ),
 
                     // Reviews Tab*
-                    _buildReviewsTab(),
+                  // _buildReviewsTab(),
+                    ListView.builder(
+                      itemCount: _userReviews.length,
+                      itemBuilder: (context, index) {
+                        final review = _userReviews[index];
+                        return Card(
+                          margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Film Posteri
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    width: 75,
+                                    height: 110,
+                                    child: MovieCard(
+                                      movieId: review["movieId"],
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MovieDetailPage(
+                                              movieId: int.tryParse(review["movieId"]) ?? 0,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                // Yorum Detayları
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Film adı + puan
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              review['movieTitle'] ?? 'Bilinmeyen Film',
+                                              style: AppTextStyles.bold.copyWith(
+                                                color: Theme.of(context).colorScheme.primary,
+                                                fontSize: 14,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.star, color: Colors.amber, size: 16),
+                                              SizedBox(width: 2),
+                                              Text(
+                                                review["rating"].toStringAsFixed(1),
+                                                style: AppTextStyles.medium.copyWith(
+                                                  color: Theme.of(context).colorScheme.primary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 8),
+                                      // Yorum metni
+                                      Text(
+                                        review["comment"],
+                                        style: AppTextStyles.medium.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withOpacity(0.6),
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      // Tarih
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            review["timestamp"],
+                                            style: AppTextStyles.medium.copyWith(
+                                              color: Theme.of(context).colorScheme.secondary,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    )
                   ],
                 ),
               ),

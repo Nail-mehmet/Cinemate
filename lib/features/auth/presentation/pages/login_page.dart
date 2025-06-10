@@ -105,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                   _buildLabeledTextField(
                       label: "şifre",
                       controller: pwController,
-                      hintText: "şifrenizi girniz",
+                      hintText: "şifrenizi giriniz",
                       maxLines: 1,
                       obscured: true),
                   SizedBox(

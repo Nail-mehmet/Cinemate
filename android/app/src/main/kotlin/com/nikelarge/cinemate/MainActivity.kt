@@ -1,4 +1,4 @@
-package com.example.nail
+package com.nikelarge.cinemate
 
 import io.flutter.embedding.android.FlutterActivity
 
