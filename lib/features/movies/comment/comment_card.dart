@@ -21,6 +21,21 @@ class _CommentCardState extends State<CommentCard> {
   await SystemSound.play(SystemSoundType.click);
 }
 
+  String formatDateTurkishLong(DateTime date) {
+    const monthsTR = [
+      '',
+      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+    ];
+
+    final day = date.day;
+    final month = monthsTR[date.month];
+    final year = date.year;
+
+    return '$day $month $year';
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final comment = widget.comment;
@@ -81,8 +96,7 @@ class _CommentCardState extends State<CommentCard> {
                                     color: Theme.of(context).colorScheme.tertiary)),
                             const SizedBox(height: 5),
                             Text(
-                              DateFormat("d MMMM y", "tr_TR")
-                                  .format(comment.createdAt),
+                             formatDateTurkishLong(comment.createdAt),
                               style: AppTextStyles.medium.copyWith(
                                   color: Theme.of(context).colorScheme.tertiary,
                                   fontSize: 12),

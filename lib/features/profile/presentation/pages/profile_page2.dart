@@ -1455,12 +1455,13 @@ class _ProfilePage2State extends State<ProfilePage2>
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            review["timestamp"],
+                                            formatDateTurkishLong(DateTime.parse(review["timestamp"])),
                                             style: AppTextStyles.medium.copyWith(
                                               color: Theme.of(context).colorScheme.secondary,
                                               fontSize: 12,
                                             ),
                                           ),
+
                                         ],
                                       ),
                                     ],
@@ -1487,5 +1488,18 @@ class _ProfilePage2State extends State<ProfilePage2>
         }
       },
     );
+  }
+  String formatDateTurkishLong(DateTime date) {
+    const monthsTR = [
+      '',
+      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+    ];
+
+    final day = date.day;
+    final month = monthsTR[date.month];
+    final year = date.year;
+
+    return '$day $month $year';
   }
 }

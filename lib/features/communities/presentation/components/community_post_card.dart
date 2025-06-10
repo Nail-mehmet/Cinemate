@@ -18,7 +18,18 @@ class CommuneCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isMine = post.userId == currentUserId;
-    final formattedDate = DateFormat('d MMM HH:mm', 'tr_TR').format(post.createdAt);
+    String formatDateManually(DateTime date) {
+      final day = date.day.toString().padLeft(2, '0');
+      final month = date.month.toString().padLeft(2, '0');
+      final year = date.year.toString();
+
+      return '$day/$month/$year';
+    }
+
+    final formattedDate = formatDateManually(post.createdAt);
+
+
+    //final formattedDate = DateFormat('d MMM HH:mm', 'tr_TR').format(post.createdAt);
 
     return FutureBuilder<Map<String, dynamic>?>(
       future: _getUserProfile(post.userId),

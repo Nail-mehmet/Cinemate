@@ -169,7 +169,7 @@ class _CommentTile3State extends State<CommentTile3> {
               Row(
                 children: [
                   Text(
-                    _formatDate(widget.comment.timestamp),
+                    formatDateManually(widget.comment.timestamp),
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 11,
@@ -185,7 +185,14 @@ class _CommentTile3State extends State<CommentTile3> {
     );
   }
 
-  String _formatDate(DateTime date) {
+  /*String _formatDate(DateTime date) {
     return DateFormat('d MMM HH:mm', 'tr_TR').format(date);
+  }*/
+  String formatDateManually(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year.toString();
+
+    return '$day/$month/$year';
   }
 }

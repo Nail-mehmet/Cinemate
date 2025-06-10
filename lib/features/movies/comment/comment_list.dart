@@ -40,7 +40,16 @@ class _CommentTileState extends State<CommentTile> {
       );
     });
 
-    String formattedDate = DateFormat('d MMM HH:mm', 'tr_TR').format(comment.createdAt);
+    String formatDateManually(DateTime date) {
+      final day = date.day.toString().padLeft(2, '0');
+      final month = date.month.toString().padLeft(2, '0');
+      final year = date.year.toString();
+
+      return '$day/$month/$year';
+    }
+
+
+    String formattedDate = formatDateManually(comment.createdAt);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
