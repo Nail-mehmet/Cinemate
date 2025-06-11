@@ -23,8 +23,8 @@ class FollowerPage extends StatelessWidget {
         appBar: AppBar(
           bottom: TabBar(
             dividerColor: Colors.transparent,
-            labelColor: Theme.of(context).colorScheme.inversePrimary,
-            unselectedLabelColor: Theme.of(context).colorScheme.primary,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: Theme.of(context).colorScheme.secondary,
             tabs: const [
             Tab(text: "takipçi",),
             Tab(text: "takip",)

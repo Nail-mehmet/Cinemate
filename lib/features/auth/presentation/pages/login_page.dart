@@ -5,6 +5,8 @@ import 'package:Cinemate/features/auth/presentation/components/my_text_field.dar
 import 'package:Cinemate/features/auth/presentation/cubits/auth_cubits.dart';
 import 'package:Cinemate/themes/font_theme.dart';
 
+import '../cubits/auth_states.dart';
+
 class LoginPage extends StatefulWidget {
   final void Function()? togglePages;
 
@@ -19,18 +21,24 @@ class _LoginPageState extends State<LoginPage> {
   final pwController = TextEditingController();
 
   void login() {
-    final String email = emailController.text;
-    final String pw = pwController.text;
+    final String email = emailController.text.trim();
+    final String pw = pwController.text.trim();
+
+    if (email.isEmpty && pw.isEmpty) {
+      _showErrorSnackbar(context, "Lütfen e-posta ve şifrenizi giriniz.");
+      return;
+    } else if (email.isEmpty) {
+      _showErrorSnackbar(context, "Lütfen e-posta adresinizi giriniz.");
+      return;
+    } else if (pw.isEmpty) {
+      _showErrorSnackbar(context, "Lütfen şifrenizi giriniz.");
+      return;
+    }
 
     final authCubit = context.read<AuthCubit>();
-
-    if (email.isNotEmpty && pw.isNotEmpty) {
-      authCubit.login(email, pw);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Lütfen mail ve şifrenizi doğru giriniz")));
-    }
+    authCubit.login(email, pw);
   }
+
 
   @override
   void dispose() {
@@ -67,10 +75,34 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  void _showErrorSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
+        child: BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+      if (state is AuthError) {
+        _showErrorSnackbar(context, state.message);
+      }
+    },
         child: Center(
           child: SingleChildScrollView(
             child: Padding(
@@ -187,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget socialIcon(IconData iconData) {

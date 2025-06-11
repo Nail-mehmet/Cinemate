@@ -68,7 +68,6 @@ dependencies:
   share_plus: ^7.0.0
   path_provider: ^2.0.14
   awesome_snackbar_content: ^0.1.6
-  flutter_launcher_icons: ^0.14.3
   home_widget: ^0.7.0+1
   supabase_flutter: ^2.9.0
   uuid: ^4.5.1
@@ -89,12 +88,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.3
 
 flutter_launcher_icons:
   android: true
-  ios: true
-  image_path: "assets/logo/logo_foreground.png"
-  android_adaptive_icon_background: "#FF001f3f"
+  image_path: "assets/logo/logo.png"
+  adaptive_icon_foreground: "assets/logo/logo_fore.png"
+  adaptive_icon_background: "#001f3f"  # istediğin renk
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
